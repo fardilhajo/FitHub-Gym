@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitHub Gym - Horários</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/pages/booking.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="#" class="nav-logo">FitHub Gym</a>
+      
+        <ul class="nav-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Classes</a></li>
+            <li><a href="#">Trainers</a></li>
+            <li><a href="#">Equipment</a></li>
+        </ul>
+      
+        <div class="nav-actions">
+            <span class="btn-login">Login</span>  <!-- TODO: depois criar os botões -->
+            <span class="btn-join">Join Now</span> <!-- TODO: depois criar os botões -->
+        </div>
+    </nav>
+
+    <main class="content">
+        <header class="page-header">
+            <h2>Class Schedule</h2>
+        </header>
+
+        <section class="filter-section">
+            <div class="filter-title">
+                 <h3>Filters</h4>
+            </div>
+        
+            <div class="filter-controls">
+                <input type="text" class="input-search" placeholder="Search classes...">
+        
+                <select class="select-field">
+                    <option>All Types</option>
+                    <option>Yoga</option>
+                    <option>Cardio</option>
+                    <option>Pilates</option>
+                    <option>CrossFit</option>
+                    <option>Boxing</option>
+                    <option>Recovery</option>
+                </select>
+        
+                <select class="select-field">
+                    <option>All Days</option>
+                    <option>Monday</option>
+                    <option>Tuesday</option>
+                    <option>wednesday</option>
+                    <option>Thursday</option>
+                    <option>Friday</option>
+                    <option>Saturday</option>
+                    <option>Sunday</option>
+                </select>
+        
+                <select class="select-field">
+                    <option>All Trainers</option>
+                    <option>Trainer 1</option>
+                    <option>Trainer 2</option>
+                    <option>Trainer 3</option>
+                    <option>Trainer 4</option>
+                </select>
+                <button type="button" class="btn-clear" onclick="clearFilters()">Clear</button>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
