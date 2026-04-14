@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GymPro | Início</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/home.css">
+</head>
+<body>
+  <header class="topbar">
+  <div class="container topbar-inner">
+    <div class="topbar-left">
+      <button class="icon-button" aria-label="Abrir menu">☰</button>
+      <a class="brand brand--topbar" href="index.html">
+        <span class="brand-mark">G</span>
+        <span class="brand-name">GymPro</span>
+      </a>
+    </div>
+
+    <nav class="topbar-center" aria-label="Quick navigation">
+      <a class="topbar-link" href="book-class.html">Book Classes</a>
+      <a class="topbar-link" href="profile.html">Trainer Profiles</a>
+    </nav>
+
+    <div class="topbar-right">
+      <button class="icon-button icon-button--notification" aria-label="Notificações">
+        🔔
+        <span class="notification-dot"></span>
+      </button>
+      <img class="user-thumb" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80" alt="Foto de perfil de João">
+    </div>
+  </div>
+</header>
+
+  <main>
+    <section class="welcome-banner">
+      <div class="container">
+        <div class="welcome-copy">
+          <h1>Olá, João!</h1>
+          <p>Pronto para bater o teu recorde hoje?</p>
+        </div>
+
+        <article class="next-workout-card">
+          <span class="card-label">Próximo Treino Agendado</span>
+          <h2>HIIT Intenso</h2>
+          <div class="workout-meta">
+            <span>📅 8 Abril</span>
+            <span>🕕 18:00</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="dashboard-section">
+      <div class="container">
+        <div class="section-title">
+          <h2>Horário de Aulas</h2>
+        </div>
+
+        <div class="search-bar">
+          <span class="search-icon">⌕</span>
+          <input type="text" placeholder="Pesquisar aulas...">
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-button filter-button--icon" aria-label="Filtros">⏃</button>
+          <button class="filter-chip filter-chip--active">Todos</button>
+          <button class="filter-chip">HIIT</button>
+          <button class="filter-chip">Yoga</button>
+          <button class="filter-chip">Spinning</button>
+          <button class="filter-chip">Musculação</button>
+          <button class="filter-chip">Pilates</button>
+        </div>
+
+        <div class="class-scroll">
+          <article class="class-mini-card">
+            <div class="class-card-top">
+              <h3>HIIT Intenso</h3>
+              <span class="class-tag">HIIT</span>
+            </div>
+            <div class="trainer-inline">
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=80&q=80" alt="Carlos Silva">
+              <div>
+                <small>Treinador</small>
+                <p>Carlos Silva</p>
+              </div>
+            </div>
+            <div class="class-meta">
+              <span>🕒 18:00</span>
+              <span>👥 12/20</span>
+            </div>
+            <a class="book-button" href="book-class.html">Inscrever</a>
+          </article>
+
+          <article class="class-mini-card">
+            <div class="class-card-top">
+              <h3>Yoga Flow</h3>
+              <span class="class-tag">Yoga</span>
+            </div>
+            <div class="trainer-inline">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Ana Costa">
+              <div>
+                <small>Treinador</small>
+                <p>Ana Costa</p>
+              </div>
+            </div>
+            <div class="class-meta">
+              <span>🕘 09:00</span>
+              <span>👥 8/15</span>
+            </div>
+            <a class="book-button" href="book-class.html">Inscrever</a>
+          </article>
+
+          <article class="class-mini-card">
+            <div class="class-card-top">
+              <h3>Spinning Power</h3>
+              <span class="class-tag">Spinning</span>
+            </div>
+            <div class="trainer-inline">
+              <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=80&q=80" alt="Miguel Sousa">
+              <div>
+                <small>Treinador</small>
+                <p>Miguel Sousa</p>
+              </div>
+            </div>
+            <div class="class-meta">
+              <span>🕖 19:00</span>
+              <span>👥 15/20</span>
+            </div>
+            <a class="book-button" href="book-class.html">Inscrever</a>
+          </article>
+
+          <article class="class-mini-card">
+            <div class="class-card-top">
+              <h3>Pilates Essencial</h3>
+              <span class="class-tag">Pilates</span>
+            </div>
+            <div class="trainer-inline">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" alt="Sofia Martins">
+              <div>
+                <small>Treinador</small>
+                <p>Sofia Martins</p>
+              </div>
+            </div>
+            <div class="class-meta">
+              <span>🕙 10:00</span>
+              <span>👥 6/12</span>
+            </div>
+            <a class="book-button" href="book-class.html">Inscrever</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section dashboard-section--tight">
+      <div class="container">
+        <div class="subsection-title">
+          <h2>Estado dos Equipamentos</h2>
+        </div>
+
+        <div class="equipment-grid">
+          <article class="equipment-box">
+            <div class="equipment-status equipment-status--green"></div>
+            <div>
+              <h3>Passadeiras</h3>
+              <p>4 Livres</p>
+            </div>
+          </article>
+
+          <article class="equipment-box">
+            <div class="equipment-status equipment-status--red"></div>
+            <div>
+              <h3>Pesos Livres</h3>
+              <p>Muito Ocupado</p>
+            </div>
+          </article>
+
+          <article class="equipment-box">
+            <div class="equipment-status equipment-status--green"></div>
+            <div>
+              <h3>Bicicletas</h3>
+              <p>2 Livres</p>
+            </div>
+          </article>
+
+          <article class="equipment-box">
+            <div class="equipment-status equipment-status--green"></div>
+            <div>
+              <h3>Máquinas</h3>
+              <p>8 Livres</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-section dashboard-section--tight">
+      <div class="container">
+        <div class="section-title section-title--split">
+          <h2>Nossa Equipa</h2>
+          <a class="see-all" href="profile.html">Ver Todos</a>
+        </div>
+
+        <div class="team-grid">
+          <article class="team-card">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80" alt="Carlos Silva">
+            <h3>Carlos Silva</h3>
+            <p>HIIT &amp; Musculação</p>
+          </article>
+
+          <article class="team-card">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80" alt="Ana Costa">
+            <h3>Ana Costa</h3>
+            <p>Yoga &amp; Pilates</p>
+          </article>
+
+          <article class="team-card">
+            <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=120&q=80" alt="Miguel Sousa">
+            <h3>Miguel Sousa</h3>
+            <p>Spinning &amp; Cardio</p>
+          </article>
+
+          <article class="team-card">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Sofia Martins">
+            <h3>Sofia Martins</h3>
+            <p>Pilates &amp; Wellness</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer site-footer--light">
+    <div class="container footer-columns">
+      <div class="footer-brand">
+        <a class="brand brand--footer" href="index.html">
+          <span class="brand-mark">G</span>
+          <span class="brand-name">GymPro</span>
+        </a>
+      </div>
+
+      <div>
+        <h3>Links Rápidos</h3>
+        <ul>
+          <li><a href="book-class.html">Aulas</a></li>
+          <li><a href="profile.html">Perfil</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Contacto</h3>
+        <ul>
+          <li>Rua do Ginásio, 123</li>
+          <li>+351 912 345 678</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Redes Sociais</h3>
+        <ul>
+          <li>Instagram</li>
+          <li>Facebook</li>
+          <li>X</li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
