@@ -140,22 +140,24 @@ body {
 .badge-cargo {
   display: inline-flex;
   align-items: center;
-  min-height: 2rem;
-  padding: 0.3rem 0.85rem;
+  justify-content: center;
+  padding: 0.7rem 1.5rem;
+  color: white;
+  background-color: var(--orange);
   border-radius: 999px;
-  background: #fdf0e8;
-  color: var(--orange-dark);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
-  margin-bottom: 1rem;
+  cursor: default;
+  user-select: none;
 }
 
 .nome-treinador {
+  margin-top: 0.75rem;
   margin-bottom: 0.75rem;
   color: var(--text-dark);
-  font-size: clamp(2.5rem, 5vw, 4.2rem);
+  font-size: clamp(2rem, 5vw, 4.2rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.04em;
