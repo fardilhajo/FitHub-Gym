@@ -1,144 +1,146 @@
 /* RESET E BASE */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 :root {
-    --orange: #f87e0cf7;
-    --white: #ffff;
-    --darkorange: #B44D12;
-    --text-dark: #1e293b;
-    --border-color: #e2e8f0;
+  --orange: #f87e0cf7;
+  --white: #ffff;
+  --darkorange: #b44d12;
+  --text-dark: #1e293b;
+  --border-color: #e2e8f0;
 }
 
 body {
-    font-family: 'Inter', sans-serif; 
-    background-color: #f8fafc;
-    color: var(--text-dark);
+  font-family: "Inter", sans-serif;
+  color: var(--text-dark);
+  background-color: #f8fafc;
 }
 
-/* NAVBAR */
+/* ==========================================================================
+   Navbar
+   ========================================================================== */
 .navbar {
-    background: var(--orange);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 5%;
-    height: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  padding: 0 5%;
+  background: var(--orange);
 }
 
 .nav-logo {
-    color: var(--white);
-    font-size: 25px;
-    font-weight: 800;
-    text-decoration: none; /*tirar o tracejado*/
-}
- /* para todos os links mete-los em fila praticamente*/
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 20px;
+  color: var(--white);
+  font-size: 25px;
+  font-weight: 800;
+  text-decoration: none;
 }
 
-/* para cada "filho" */
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+}
+
 .nav-links a {
-    color: var(--white);
-    text-decoration: none;
-    font-weight: 600;
-    opacity: 0.9;
+  color: var(--white);
+  font-weight: 600;
+  text-decoration: none;
+  opacity: 0.9;
 }
 
 .nav-links a:hover {
-    opacity: 1;
-    color: var(--darkorange);
+  color: var(--darkorange);
+  opacity: 1;
 }
 
 .nav-actions {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    color: white;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  color: #fff;
 }
 
 .btn-join {
-    background: white;
-    color: var(--orange);
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
+  padding: 8px 18px;
+  color: var(--orange);
+  background: #fff;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-/* CONTEÚDO PRINCIPAL */
+/* ==========================================================================
+   Main content
+   ========================================================================== */
 .content {
-    padding: 40px 5%;
+  padding: 40px 5%;
 }
 
-.page-header h2 {
-    font-size: 32px;
-    margin-bottom: 30px;
+.page-header h1 {
+  margin-bottom: 30px;
+  font-size: 32px;
 }
 
-/* CARD DE FILTROS (O que criámos agora) */
 .filter-section {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Sombra leve para profundidade */
+  padding: 30px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.filter-title h3 {
-    font-size: 18px;
-    margin-bottom: 20px;
-    color: #475569;
+.filter-title h2 {
+  margin-bottom: 20px;
+  color: #475569;
+  font-size: 18px;
 }
 
 .filter-controls {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap; /* Importante para dispositivos móveis */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
-/* ESTILO DOS INPUTS E SELECTS */
-.input-search, .select-field {
-    flex: 1;                 /* Divide o espaço igualmente */
-    min-width: 200px;        /* Não deixa ficar muito pequeno */
-    padding: 12px 16px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 15px;
-    color: #475569;
-    outline: none;
-    transition: all 0.2s ease;
-}
-
-.input-search:focus, .select-field:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 2px rgba(248, 126, 12, 0.1); /* Brilho suave ao clicar */
-}
-
-/* Ajuste para o cursor nos selects */
+.input-search,
 .select-field {
-    cursor: pointer;
-    background-color: white;
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  color: #475569;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-search:focus,
+.select-field:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 2px rgba(248, 126, 12, 0.1);
+}
+
+.select-field {
+  cursor: pointer;
+  background-color: #fff;
 }
 
 .btn-clear {
-    padding: 12px 20px;
-    background-color: transparent;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    color: #64748b;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+  padding: 12px 20px;
+  color: #64748b;
+  background-color: transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .btn-clear:hover {
-    background-color: #f1f5f9;
-    color: #0f172a;
-    border-color: #cbd5e1;
+  color: #0f172a;
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
 }
