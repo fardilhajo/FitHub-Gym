@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FitHub Gym - Horários</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/pages/booking.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/pages/booking.css" />
 </head>
+
 <body>
+
+  <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="nav-logo">FitHub Gym</a>
 
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="book-class.html" aria-current="page">Classes</a></li>
+      <li><a href="book-class.html">Classes</a></li>
       <li><a href="trainer-profile.html">Trainers</a></li>
       <li><a href="index.html#equipment">Equipment</a></li>
     </ul>
@@ -26,28 +37,36 @@
     </div>
   </nav>
 
+  <!-- MAIN CONTENT -->
   <main class="content">
+
     <header class="page-header">
-      <p class="page-kicker">Classes</p>
       <h1>Class Schedule</h1>
-      <p>Find the right session for your week with a cleaner, consistent booking experience.</p>
     </header>
 
+    <!-- FILTERS -->
     <section class="filter-section">
+
       <div class="filter-title">
         <h2>Filters</h2>
       </div>
 
       <form class="filter-controls">
-        <input type="text" class="input-search" placeholder="Search classes...">
+
+        <input
+          type="text"
+          class="input-search"
+          placeholder="Search classes..."
+        />
 
         <select class="select-field">
           <option>All Types</option>
-          <option>HIIT</option>
           <option>Yoga</option>
-          <option>Spinning</option>
-          <option>Strength</option>
+          <option>Cardio</option>
           <option>Pilates</option>
+          <option>CrossFit</option>
+          <option>Boxing</option>
+          <option>Recovery</option>
         </select>
 
         <select class="select-field">
@@ -63,15 +82,144 @@
 
         <select class="select-field">
           <option>All Trainers</option>
-          <option>Ricardo Silva</option>
-          <option>Ana Costa</option>
-          <option>Miguel Sousa</option>
-          <option>Sofia Martins</option>
+          <option>Trainer 1</option>
+          <option>Trainer 2</option>
+          <option>Trainer 3</option>
+          <option>Trainer 4</option>
         </select>
 
         <button type="reset" class="btn-clear">Clear</button>
+
       </form>
     </section>
+
+    <!-- CLASSES -->
+    <section class="classes-container">
+
+      <p class="results-count">Showing 4 available classes</p>
+
+      <div class="classes-grid">
+
+        <!-- CLASS 1 -->
+        <article class="class-card">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80"
+              alt="Yoga Class"
+            />
+            <span class="tag-type">Yoga</span>
+          </div>
+
+          <div class="card-body">
+            <h3>Morning Zen Flow</h3>
+
+            <div class="class-info">
+              <span><strong>Trainer:</strong> Ana Costas</span>
+              <span>🕒 09:00 - 10:00</span>
+              <span>📍 Studio B</span>
+            </div>
+
+            <div class="class-footer">
+              <span class="capacity">8/15 spots left</span>
+              <button class="btn-book">Book Now</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CLASS 2 -->
+        <article class="class-card">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=400&q=80"
+              alt="HIIT Class"
+            />
+            <span class="tag-type">HIIT</span>
+          </div>
+
+          <div class="card-body">
+            <h3>High-energy interval training</h3>
+
+            <div class="class-info">
+              <span><strong>Trainer:</strong> Ricardo Silva</span>
+              <span>🕒 18:00 - 19:00</span>
+              <span>📍 Studio A</span>
+            </div>
+
+            <div class="class-footer">
+              <span class="capacity">12/20 spots left</span>
+              <button class="btn-book">Book Now</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CLASS 3 -->
+        <article class="class-card">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1518611507436-f9221403cca2?w=400&q=80"
+              alt="Pilates Class"
+            />
+            <span class="tag-type">Pilates</span>
+          </div>
+
+          <div class="card-body">
+            <h3>Pilates Core Strength</h3>
+
+            <div class="class-info">
+              <span><strong>Trainer:</strong> Sofia Martins</span>
+              <span>🕒 10:00 - 11:00</span>
+              <span>📍 Studio C</span>
+            </div>
+
+            <div class="class-footer">
+              <span class="capacity">6/12 spots left</span>
+              <button class="btn-book">Book Now</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- CLASS 4 -->
+        <article class="class-card">
+          <div class="card-image">
+            <img
+              src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80"
+              alt="Spinning Class"
+            />
+            <span class="tag-type">Spinning</span>
+          </div>
+
+          <div class="card-body">
+            <h3>Cardio ride with high intensity blocks</h3>
+
+            <div class="class-info">
+              <span><strong>Trainer:</strong> David Santos</span>
+              <span>🕒 19:00 - 20:00</span>
+              <span>📍 Studio A</span>
+            </div>
+
+            <div class="class-footer">
+              <span class="capacity">15/20 spots left</span>
+              <button class="btn-book">Book Now</button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
   </main>
+
+  <!-- FOOTER -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 FitHub Gym. Move your body, change your life.</p>
+
+      <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
