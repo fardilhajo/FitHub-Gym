@@ -24,11 +24,10 @@
 }
 
 body {
-  min-height: 100vh;
-  font-family: var(--font-sans);
-  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
   color: var(--text-body);
-  background: var(--bg-gradient);
+  min-height: 100vh;
 }
 
 /* ==========================================================================
@@ -45,7 +44,7 @@ body {
 }
 
 .nav-logo {
-  font-family: var(--font-serif);
+  font-family: 'Crimson Pro', serif;
   font-size: 1.7rem;
   font-weight: 700;
   color: white;
@@ -56,8 +55,8 @@ body {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.4rem;
   list-style: none;
+  gap: 1.4rem;
 }
 
 .nav-links a {
@@ -70,10 +69,6 @@ body {
 .nav-links a:hover {
   opacity: 0.82;
   transform: translateY(-1px);
-}
-
-.nav-links a[aria-current="page"] {
-  opacity: 1;
 }
 
 .nav-actions {
