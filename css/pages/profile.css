@@ -1,29 +1,33 @@
 /* ==========================================================================
-   CSS Variables & Global Resets
+   Reset and theme
    ========================================================================== */
-:root {
-  --bg-color: #faebe0;
-  --primary-color: #f18c4f;
-  --primary-dark: #d87236;
-  --text-dark: #2a1b15;
-  --text-body: #4a3b34;
-  --font-serif: "Crimson Pro", serif;
-  --font-sans: "Outfit", sans-serif;
-}
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+:root {
+  --orange: #f18c4f;
+  --orange-dark: #d87236;
+  --bg: #faebe0;
+  --bg-gradient: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: #ffffff;
+  --text-dark: #2a1b15;
+  --text-body: #4a3b34;
+  --text-soft: #7d675b;
+  --border: rgba(216, 114, 54, 0.16);
+  --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Crimson Pro", serif;
+}
+
 body {
-  min-height: 100vh;
-  font-family: var(--font-sans);
-  line-height: 1.6;
-  color: var(--text-body);
-  background-color: var(--bg-color);
+  font-family: 'Inter', sans-serif;
   background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+  color: var(--text-body);
+  min-height: 100vh;
 }
 
 /* ==========================================================================
@@ -33,210 +37,252 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1.5rem;
   padding: 20px 5%;
-  background: var(--primary-color);
+  background: var(--orange);
+  box-shadow: 0 8px 24px rgba(216, 114, 54, 0.16);
 }
 
 .nav-logo {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: white;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .nav-links {
   display: flex;
-  gap: 30px;
+  align-items: center;
   list-style: none;
+  gap: 1.4rem;
 }
 
 .nav-links a {
-  color: var(--text-body);
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
-  transition: color 0.3s;
+  font-weight: 600;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .nav-links a:hover {
-  color: var(--text-dark);
+  opacity: 0.82;
+  transform: translateY(-1px);
 }
 
 .nav-actions {
   display: flex;
-  gap: 15px;
+  gap: 0.9rem;
   align-items: center;
 }
 
 .btn-login,
 .btn-join {
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.btn-login {
+  color: white;
 }
 
 .btn-join {
-  padding: 8px 20px;
-  color: #fff;
-  background: var(--primary-color);
-  border-radius: 20px;
+  background: white;
+  color: var(--orange);
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
 }
 
 /* ==========================================================================
-   Profile container and introduction section
+   Main layout
    ========================================================================== */
 .perfil-container {
-  max-width: 1200px;
+  width: min(1200px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 60px 20px;
+  padding: 2rem 0 3rem;
 }
 
 .seccao-introducao {
-  display: flex;
-  gap: 80px;
-  align-items: flex-start;
-  margin-bottom: 80px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.95fr) minmax(0, 1.1fr);
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-bottom: 1.75rem;
 }
 
 .coluna-foto {
-  flex: 1;
-  max-width: 500px;
-  position: relative;
+  display: flex;
 }
 
 .perfil-foto {
   width: 100%;
-  height: auto;
+  height: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(216, 114, 54, 0.15);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .coluna-detalhes {
-  flex: 1.2;
-  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
 }
 
 .cabecalho-treinador {
-  margin-bottom: 40px;
+  padding: 0.25rem 0;
 }
 
 .badge-cargo {
-  display: inline-block;
-  margin-bottom: 24px;
-  padding: 8px 16px;
-  color: #fff;
-  background-color: var(--primary-color);
-  border-radius: 30px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  background: #fdf0e8;
+  color: var(--orange-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  margin-bottom: 1rem;
 }
 
 .nome-treinador {
-  margin-bottom: 15px;
-  font-family: var(--font-serif);
-  font-size: 4.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -1px;
+  margin-bottom: 0.75rem;
   color: var(--text-dark);
+  font-size: clamp(2.5rem, 5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
 }
 
 .slogan-treinador {
-  padding-bottom: 35px;
-  color: var(--primary-dark);
-  border-bottom: 1px solid rgba(216, 114, 54, 0.25);
-  font-size: 1.25rem;
-  font-weight: 400;
+  color: var(--orange-dark);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 34rem;
+}
+
+.biografia-treinador {
+  padding: 1.5rem;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.biografia-treinador h2,
+.titulo-seccao,
+.cartao-especialidade h3,
+.info-certificado h3 {
+  color: var(--text-dark);
+  font-family: var(--font-sans);
+  font-weight: 800;
 }
 
 .biografia-treinador h2 {
-  margin-bottom: 25px;
-  font-family: var(--font-serif);
-  font-size: 2.2rem;
-  font-weight: 600;
-  color: var(--text-dark);
+  margin-bottom: 1rem;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1;
 }
 
 .texto-biografia p {
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
   color: var(--text-body);
-  font-size: 1.05rem;
-  font-weight: 400;
+  font-size: 1rem;
   line-height: 1.8;
 }
 
-/* ==========================================================================
-   Additional sections
-   ========================================================================== */
-.titulo-seccao {
-  margin-bottom: 40px;
-  font-family: var(--font-serif);
-  font-size: 2.5rem;
-  text-align: center;
-  color: var(--text-dark);
+.texto-biografia p:last-child {
+  margin-bottom: 0;
 }
 
+/* ==========================================================================
+   Extra sections
+   ========================================================================== */
 .seccao-especializacoes,
 .seccao-certificados {
-  margin-bottom: 80px;
+  margin-bottom: 1.75rem;
+}
+
+.titulo-seccao {
+  margin-bottom: 1rem;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  line-height: 1.1;
 }
 
 .grelha-especializacoes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .cartao-especialidade {
-  padding: 30px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 16px;
-  transition: transform 0.3s ease;
-}
-
-.cartao-especialidade:hover {
-  transform: translateY(-5px);
+  padding: 1.25rem;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
 }
 
 .cartao-especialidade h3 {
-  margin-bottom: 10px;
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: var(--text-dark);
+  margin-bottom: 0.4rem;
+  font-size: 1.15rem;
+}
+
+.cartao-especialidade p {
+  color: var(--text-soft);
+  line-height: 1.6;
 }
 
 .lista-certificados {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
-  margin: 0 auto;
+  gap: 1rem;
 }
 
 .item-certificado {
-  display: flex;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 1rem;
   align-items: center;
-  padding: 25px;
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 16px;
+  padding: 1.25rem;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.ano-certificado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4.2rem;
+  border-radius: 20px;
+  background: #fdf0e8;
 }
 
 .ano-certificado span {
-  font-family: var(--font-serif);
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--primary-color);
+  color: var(--orange-dark);
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
 .info-certificado h3 {
-  margin-bottom: 5px;
-  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.info-certificado p {
+  color: var(--text-soft);
 }
 
 /* ==========================================================================
@@ -245,41 +291,90 @@ body {
 .rodape-perfil {
   display: flex;
   justify-content: center;
-  padding: 40px 20px;
-  border-top: 1px solid rgba(216, 114, 54, 0.1);
+  padding: 0 0 2.5rem;
 }
 
 .redes-sociais {
   display: flex;
-  gap: 20px;
+  gap: 1rem;
 }
 
 .icone-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
   color: var(--text-body);
-  transition: color 0.3s, transform 0.3s;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
 }
 
 .icone-social:hover {
-  color: var(--primary-color);
-  transform: scale(1.1);
+  transform: translateY(-1px);
+  color: var(--orange-dark);
+  background: #fffaf6;
 }
 
 /* ==========================================================================
-   Responsive design
+   Responsive
    ========================================================================== */
-@media (max-width: 900px) {
-  .seccao-introducao {
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
+@media (max-width: 1024px) {
+  .grelha-especializacoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
-  .nome-treinador {
-    font-size: 3.5rem;
-  }
-
+@media (max-width: 820px) {
   .navbar {
     flex-direction: column;
-    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .nav-links,
+  .nav-actions {
+    width: 100%;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 0.9rem 1.2rem;
+  }
+
+  .nav-actions {
+    justify-content: flex-start;
+  }
+
+  .seccao-introducao {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .perfil-container {
+    width: min(calc(100% - 1.2rem), 1200px);
+    padding: 1.2rem 0 2rem;
+  }
+
+  .perfil-foto,
+  .biografia-treinador,
+  .cartao-especialidade,
+  .item-certificado {
+    border-radius: 20px;
+  }
+
+  .grelha-especializacoes {
+    grid-template-columns: 1fr;
+  }
+
+  .item-certificado {
+    grid-template-columns: 1fr;
+  }
+
+  .ano-certificado {
+    min-height: 3.6rem;
   }
 }
