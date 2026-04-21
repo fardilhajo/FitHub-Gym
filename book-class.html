@@ -6,7 +6,7 @@
   <title>FitHub Gym - Horários</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/pages/booking.css">
 </head>
 <body>
@@ -15,8 +15,8 @@
 
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="book-class.html">Classes</a></li>
-      <li><a href="trainer-profile.html">Trainers</a></li>
+      <li><a href="book-class.html" aria-current="page">Classes</a></li>
+      <li><a href="profile.html">Trainers</a></li>
       <li><a href="index.html#equipment">Equipment</a></li>
     </ul>
 
@@ -28,7 +28,9 @@
 
   <main class="content">
     <header class="page-header">
+      <p class="page-kicker">Classes</p>
       <h1>Class Schedule</h1>
+      <p>Find the right session for your week with a cleaner, consistent booking experience.</p>
     </header>
 
     <section class="filter-section">
@@ -41,12 +43,11 @@
 
         <select class="select-field">
           <option>All Types</option>
+          <option>HIIT</option>
           <option>Yoga</option>
-          <option>Cardio</option>
+          <option>Spinning</option>
+          <option>Strength</option>
           <option>Pilates</option>
-          <option>CrossFit</option>
-          <option>Boxing</option>
-          <option>Recovery</option>
         </select>
 
         <select class="select-field">
@@ -62,10 +63,10 @@
 
         <select class="select-field">
           <option>All Trainers</option>
-          <option>Trainer 1</option>
-          <option>Trainer 2</option>
-          <option>Trainer 3</option>
-          <option>Trainer 4</option>
+          <option>Ricardo Silva</option>
+          <option>Ana Costa</option>
+          <option>Miguel Sousa</option>
+          <option>Sofia Martins</option>
         </select>
 
         <button type="reset" class="btn-clear">Clear</button>
