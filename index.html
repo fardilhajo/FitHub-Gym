@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitHub Gym - Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/pages/home.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">FitHub Gym</a>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="book-class.html">Classes</a></li>
+      <li><a href="trainer-profile.html">Trainers</a></li>
+      <li><a href="#equipment">Equipment</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <span class="btn-login">Login</span>
+      <span class="btn-join">Join Now</span>
+    </div>
+    
+  </nav>
+
+  <main class="content">
+    <section class="hero-home">
+      <div class="hero-copy">
+        <span class="hero-badge">Member Dashboard</span>
+        <h1>Welcome back, João</h1>
+        <p>Track your next class, check equipment availability and find the right trainer for your next session.</p>
+      </div>
+
+      <article class="next-class-card">
+        <span class="card-label">Next Scheduled Class</span>
+        <h2>HIIT Intenso</h2>
+        <div class="class-info-row">
+          <span>📅 8 April</span>
+          <span>🕕 18:00</span>
+          <span>📍 Studio A</span>
+        </div>
+        <a class="primary-link" href="book-class.html">Manage booking</a>
+      </article>
+    </section>
+
+    <section class="page-section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Classes</p>
+          <h2>Class Schedule</h2>
+        </div>
+        <a class="section-link" href="book-class.html">View all classes</a>
+      </div>
+
+      <div class="search-panel">
+        <div class="search-bar">
+          <span class="search-icon">⌕</span>
+          <input type="text" placeholder="Search classes...">
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-chip filter-chip--active" type="button">All</button>
+          <button class="filter-chip" type="button">HIIT</button>
+          <button class="filter-chip" type="button">Yoga</button>
+          <button class="filter-chip" type="button">Spinning</button>
+          <button class="filter-chip" type="button">Strength</button>
+          <button class="filter-chip" type="button">Pilates</button>
+        </div>
+      </div>
+
+      <div class="class-grid">
+        <article class="class-card">
+          <div class="class-card-top">
+            <div>
+              <h3>HIIT Intenso</h3>
+              <p>High-energy interval training</p>
+            </div>
+            <span class="class-tag">HIIT</span>
+          </div>
+          <div class="trainer-inline">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=80&q=80" alt="Ricardo Silva">
+            <div>
+              <small>Trainer</small>
+              <p>Ricardo Silva</p>
+            </div>
+          </div>
+          <div class="class-meta">
+            <span>🕒 18:00</span>
+            <span>👥 12/20</span>
+          </div>
+          <a class="book-button" href="book-class.html">Book now</a>
+        </article>
+
+        <article class="class-card">
+          <div class="class-card-top">
+            <div>
+              <h3>Yoga Flow</h3>
+              <p>Balance, breathing and mobility</p>
+            </div>
+            <span class="class-tag">Yoga</span>
+          </div>
+          <div class="trainer-inline">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Ana Costa">
+            <div>
+              <small>Trainer</small>
+              <p>Ana Costa</p>
+            </div>
+          </div>
+          <div class="class-meta">
+            <span>🕘 09:00</span>
+            <span>👥 8/15</span>
+          </div>
+          <a class="book-button" href="book-class.html">Book now</a>
+        </article>
+
+        <article class="class-card">
+          <div class="class-card-top">
+            <div>
+              <h3>Spinning Power</h3>
+              <p>Cardio ride with high intensity blocks</p>
+            </div>
+            <span class="class-tag">Spinning</span>
+          </div>
+          <div class="trainer-inline">
+            <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=80&q=80" alt="Miguel Sousa">
+            <div>
+              <small>Trainer</small>
+              <p>Miguel Sousa</p>
+            </div>
+          </div>
+          <div class="class-meta">
+            <span>🕖 19:00</span>
+            <span>👥 15/20</span>
+          </div>
+          <a class="book-button" href="book-class.html">Book now</a>
+        </article>
+
+        <article class="class-card">
+          <div class="class-card-top">
+            <div>
+              <h3>Pilates Essential</h3>
+              <p>Core strength and body control</p>
+            </div>
+            <span class="class-tag">Pilates</span>
+          </div>
+          <div class="trainer-inline">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" alt="Sofia Martins">
+            <div>
+              <small>Trainer</small>
+              <p>Sofia Martins</p>
+            </div>
+          </div>
+          <div class="class-meta">
+            <span>🕙 10:00</span>
+            <span>👥 6/12</span>
+          </div>
+          <a class="book-button" href="book-class.html">Book now</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="page-section" id="equipment">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Gym floor</p>
+          <h2>Equipment Status</h2>
+        </div>
+      </div>
+
+      <div class="equipment-grid">
+        <article class="equipment-card">
+          <div class="equipment-status equipment-status--green"></div>
+          <div>
+            <h3>Treadmills</h3>
+            <p>4 available</p>
+          </div>
+        </article>
+
+        <article class="equipment-card">
+          <div class="equipment-status equipment-status--red"></div>
+          <div>
+            <h3>Free Weights</h3>
+            <p>Very busy</p>
+          </div>
+        </article>
+
+        <article class="equipment-card">
+          <div class="equipment-status equipment-status--green"></div>
+          <div>
+            <h3>Bikes</h3>
+            <p>2 available</p>
+          </div>
+        </article>
+
+        <article class="equipment-card">
+          <div class="equipment-status equipment-status--green"></div>
+          <div>
+            <h3>Machines</h3>
+            <p>8 available</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="page-section page-section--last">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Coaching team</p>
+          <h2>Our Trainers</h2>
+        </div>
+        <a class="section-link" href="trainer-profile.html">See trainer page</a>
+      </div>
+
+      <div class="team-grid">
+        <article class="team-card">
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80" alt="Ricardo Silva">
+          <h3>Ricardo Silva</h3>
+          <p>HIIT &amp; Strength</p>
+        </article>
+
+        <article class="team-card">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80" alt="Ana Costa">
+          <h3>Ana Costa</h3>
+          <p>Yoga &amp; Pilates</p>
+        </article>
+
+        <article class="team-card">
+          <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=120&q=80" alt="Miguel Sousa">
+          <h3>Miguel Sousa</h3>
+          <p>Spinning &amp; Cardio</p>
+        </article>
+
+        <article class="team-card">
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Sofia Martins">
+          <h3>Sofia Martins</h3>
+          <p>Pilates &amp; Wellness</p>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
