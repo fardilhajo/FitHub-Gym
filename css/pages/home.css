@@ -71,6 +71,7 @@ body {
 
 .btn-login {
   color: white;
+  text-decoration: none;
 }
 
 .btn-join {
@@ -78,6 +79,7 @@ body {
   color: var(--orange);
   padding: 0.7rem 1.1rem;
   border-radius: 999px;
+  text-decoration: none;
   box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
 }
 
