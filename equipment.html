@@ -9,73 +9,308 @@
         <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="css/reset.css">
         <link rel="stylesheet" href="css/pages/equipment.css">
-      </head>
+    </head>
 
 <body>
 
-    <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <a href="index.html" class="nav-logo">FitHub Gym</a>
 
-        <!-- NAVBAR -->
-        <nav class="navbar">
-          <a href="index.html" class="nav-logo">FitHub Gym</a>
-      
-          <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="book-class.html">Classes</a></li>
-            <li><a href="trainer-profile.html">Trainers</a></li>
-            <li><a href="equipment.html">Equipment</a></li>
-          </ul>
-      
-          <div class="nav-actions">
-            <span class="btn-login">Login</span>
-            <span class="btn-join">Join Now</span>
-          </div>
-        </nav>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="book-class.html">Classes</a></li>
+        <li><a href="trainer-profile.html">Trainers</a></li>
+        <li><a href="equipment.html">Equipment</a></li>
+      </ul>
 
-        <!-- MAIN -->
+      <div class="nav-actions">
+        <span class="btn-login">Login</span>
+        <span class="btn-join">Join Now</span>
+      </div>
+    </nav>
 
-        <main class="content">
+    <!-- MAIN -->
 
-            <header class="page-header">
-                <h1>Equipment Availability</h1>
-              </header>
+    <main class="content">
 
-            <!-- STAT CARDS -->
-            <div class="cards-container">
+        <header class="page-header">
+            <h1>Equipment Availability</h1>
+        </header>
 
-                <div class="card card--default">
-                    <p class="card__label">Total</p>
-                    <p class="card__value">24</p>
+        <!-- STAT CARDS -->
+        <div class="cards-container">
+
+            <div class="card card--default">
+                <p class="card__label">Total</p>
+                <p class="card__value">28</p>
+            </div>
+
+            <div class="card card--green">
+                <p class="card__label">Available</p>
+                <p class="card__value">19</p>
+            </div>
+
+            <div class="card card--red">
+                <p class="card__label">In use</p>
+                <p class="card__value">6</p>
+            </div>
+
+            <div class="card card--yellow">
+                <p class="card__label">Reserved</p>
+                <p class="card__value">2</p>
+            </div>
+
+        </div><!-- /cards-container -->
+
+        <!-- SVG icon definitions (inline, ocultos) -->
+        <svg style="display:none" aria-hidden="true">
+            <symbol id="icon-bike" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5.5" cy="17.5" r="3"/>
+                <circle cx="18.5" cy="17.5" r="3"/>
+                <circle cx="15" cy="5" r="1.2" fill="currentColor" stroke="currentColor"/>
+                <path d="M12 17.5 9.5 10.5 5.5 12.5"/>
+                <path d="M9.5 10.5 12 5.5h3.5l2.5 6.5"/>
+                <path d="M9.5 10.5 14 17.5"/>
+            </symbol>
+            <symbol id="icon-dumbbell" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="8" width="4" height="8" rx="1"/>
+                <rect x="18" y="8" width="4" height="8" rx="1"/>
+                <line x1="6" y1="12" x2="18" y2="12"/>
+                <line x1="6" y1="7" x2="6" y2="5"/>
+                <line x1="6" y1="19" x2="6" y2="17"/>
+                <line x1="18" y1="7" x2="18" y2="5"/>
+                <line x1="18" y1="19" x2="18" y2="17"/>
+            </symbol>
+            <symbol id="icon-functional" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="2 12 6 6 10 16 14 9 18 13 22 10"/>
+            </symbol>
+        </svg>
+
+        <!-- FILTERS -->
+        <section class="filter-section">
+
+            <div class="filter-title">
+                <h2>Filters</h2>
+            </div>
+
+            <form class="filter-controls">
+
+                <input
+                    type="text"
+                    class="input-search"
+                    placeholder="Search equipment..."
+                />
+
+                <select class="select-field" aria-label="Equipment type filter">
+                    <option>All Equipment Types</option>
+                    <option>Cardio</option>
+                    <option>Strength</option>
+                    <option>Functional</option>
+                </select>
+
+                <select class="select-field" aria-label="Status filter">
+                    <option>All Status</option>
+                    <option>Available</option>
+                    <option>In Use</option>
+                    <option>Reserved</option>
+                </select>
+
+                <button type="reset" class="btn-clear">Clear</button>
+
+            </form>
+        </section>
+
+        <!-- EQUIPMENT COUNT -->
+        <p class="results-count">Showing 28 equipment items</p>
+
+        <!-- EQUIPMENT GRID (16 Available · 6 In Use · 2 Reserved = 24 total) -->
+        <div class="equipment-grid">
+
+            <!-- ── Cardio ── -->
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
                 </div>
+                <h3 class="equipment-name">Treadmill 1</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
 
-                <div class="card card--green">
-                    <p class="card__label">Available</p>
-                    <p class="card__value">16</p>
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
                 </div>
+                <h3 class="equipment-name">Treadmill 2</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
 
-                <div class="card card--red">
-                    <p class="card__label">In use</p>
-                    <p class="card__value">6</p>
+           
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
                 </div>
+                <h3 class="equipment-name">Rowing Machine 1</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
 
-                <div class="card card--yellow">
-                    <p class="card__label">Reserved</p>
-                    <p class="card__value">2</p>
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
                 </div>
+                <h3 class="equipment-name">Rowing Machine 2</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
 
-               
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
+                </div>
+                <h3 class="equipment-name">Stationary Bike 1</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--reserved"><span class="status-dot"></span>Reserved</span>
+            </div>
+
             
 
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
+                </div>
+                <h3 class="equipment-name">Stationary Bike 2</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-bike"/></svg>
+                </div>
+                <h3 class="equipment-name">Elliptical 1</h3>
+                <p class="equipment-category">Cardio</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            
+
+            <!-- ── Strength ── -->
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Bench Press 1</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Bench Press 2</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
+
+            
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Squat Rack 1</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Squat Rack 2</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Leg Press 1</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-dumbbell"/></svg>
+                </div>
+                <h3 class="equipment-name">Leg Press 2</h3>
+                <p class="equipment-category">Strength</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            
+
+            <!-- ── Functional ── -->
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-functional"/></svg>
+                </div>
+                <h3 class="equipment-name">Kettlebell Set</h3>
+                <p class="equipment-category">Functional</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-functional"/></svg>
+                </div>
+                <h3 class="equipment-name">TRX Suspension</h3>
+                <p class="equipment-category">Functional</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-functional"/></svg>
+                </div>
+                <h3 class="equipment-name">Battle Ropes</h3>
+                <p class="equipment-category">Functional</p>
+                <span class="status-badge status--in-use"><span class="status-dot"></span>In Use</span>
+            </div>
+
+            <div class="equipment-card">
+                <div class="equipment-icon-wrap">
+                    <svg width="38" height="38" stroke="#3b82f6"><use href="#icon-functional"/></svg>
+                </div>
+                <h3 class="equipment-name">Medicine Balls</h3>
+                <p class="equipment-category">Functional</p>
+                <span class="status-badge status--available"><span class="status-dot"></span>Available</span>
+            </div>
+
+        </div><!-- /equipment-grid -->
+
+    </main>
+
+     <!-- FOOTER -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 FitHub Gym. Move your body, change your life.</p>
+
+      <div class="social-links">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+      </div>
+    </div>
+  </footer>
 
 
-
-
-        </main>
-
-
-
-    
-
-    
 </body>
 </html>
