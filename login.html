@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FitHub Gym</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/pages/auth.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="nav-logo">FitHub Gym</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="book-class.html">Classes</a></li>
+      <li><a href="trainer-profile.html">Trainers</a></li>
+      <li><a href="index.html#equipment">Equipment</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="login.html" class="btn-login">Login</a>
+      <a href="register.html" class="btn-join">Join Now</a>
+    </div>
+  </nav>
+
+    <main class="Content">
+
+        <header class="page-header">
+            <h1>Welcome Back</h1>
+            <p>Login to acess your account</p>
+        </header>
+
+        <form action="login.php" method="post">
+
+            <label for="email">Email</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              class="input-email"
+              placeholder="your.email@example.com"
+              required
+            >
+
+
+            <label for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              class="input-password"
+              placeholder="Enter your password"
+              minlength="6"
+              required
+            >
+             
+            
+            <button type="submit" class="btn-clear">Login</button>
+
+        </form>
+
+        <p>Don't have an account?<a href="register.html">Register Here</a></p>
+
+    </main>
+</body>
+</html>

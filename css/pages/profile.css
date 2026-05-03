@@ -98,6 +98,7 @@ body {
 
 .btn-login {
   color: white;
+  text-decoration: none;
 }
 
 .btn-join {
@@ -105,6 +106,7 @@ body {
   color: var(--orange);
   padding: 0.7rem 1.1rem;
   border-radius: 999px;
+  text-decoration: none;
   box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
 }
 
@@ -346,37 +348,6 @@ body {
 /* ==========================================================================
    Responsive
    ========================================================================== */
-
-@media (max-width: 820px) {
-  .seccao-introducao {
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-  }
-
-  .nome-treinador {
-    font-size: 3.5rem;
-  }
-
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-links,
-  .nav-actions {
-    width: 100%;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-    gap: 0.9rem 1.2rem;
-  }
-
-  .nav-actions {
-    justify-content: flex-start;
-  }
-}
 
 @media (max-width: 820px) {
   .navbar {
