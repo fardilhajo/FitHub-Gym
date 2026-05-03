@@ -25,74 +25,6 @@ VARIÁVEIS E CONFIGURAÇÕES GERAIS
 
 
 /* ==========================================================================
-NAVBAR
-========================================================================== */
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 20px 5%;
-  background: var(--orange);
-  box-shadow: 0 8px 24px rgba(216, 114, 54, 0.16);
-}
-
-.nav-logo {
-  font-family: 'Crimson Pro', serif;
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: white;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  list-style: none;
-  gap: 1.4rem;
-}
-
-.nav-links a {
-  color: rgba(255, 255, 255, 0.95);
-  text-decoration: none;
-  font-weight: 600;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.nav-links a:hover {
-  opacity: 0.82;
-  transform: translateY(-1px);
-}
-
-.nav-actions {
-  display: flex;
-  gap: 0.9rem;
-  align-items: center;
-}
-
-.btn-login,
-.btn-join {
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.btn-login {
-  color: white;
-  text-decoration: none;
-}
-
-.btn-join {
-  background: white;
-  color: var(--orange);
-  padding: 0.7rem 1.1rem;
-  border-radius: 999px;
-  text-decoration: none;
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
-}
-
-/* ==========================================================================
 LAYOUT E CABEÇALHO
 ========================================================================== */
 
@@ -322,26 +254,7 @@ FOOTER E RESPONSIVIDADE
   }
 }
 
-@media (max-width: 820px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .nav-links,
-  .nav-actions {
-    width: 100%;
-  }
-
-  .nav-links {
-    flex-wrap: wrap;
-    gap: 0.9rem 1.2rem;
-  }
-
-  .nav-actions {
-    justify-content: flex-start;
-  }
-}
 
 @media (max-width: 640px) {
   .classes-grid {

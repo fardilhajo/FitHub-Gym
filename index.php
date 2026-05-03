@@ -1,3 +1,18 @@
+<?php 
+session_start();
+require_once __DIR__ . '/includes/db.php';
+
+// Fetch top 4 active trainers for the homepage
+$trainersStmt = $db->prepare('
+    SELECT u.UserID, u.Name, u.ProfilePhoto, tp.Specializations 
+    FROM USER u 
+    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID 
+    WHERE u.Role = "Trainer" AND u.IsActive = 1
+    LIMIT 4
+');
+$trainersStmt->execute();
+$trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,25 +23,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/navbar.css">
   <link rel="stylesheet" href="css/pages/home.css">
 </head>
 <body>
-  <nav class="navbar">
-    <a href="index.html" class="nav-logo">FitHub Gym</a>
-
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="book-class.html">Classes</a></li>
-      <li><a href="trainer-profile.html">Trainers</a></li>
-      <li><a href="equipment.html">Equipment</a></li>
-    </ul>
-
-    <div class="nav-actions">
-      <a href="login.html" class="btn-login">Login</a>
-      <a href="register.html" class="btn-join">Join Now</a>
-    </div>
-    
-  </nav>
+  <?php include __DIR__ . '/includes/navbar.php'; ?>
 
   <main class="content">
     <section class="hero-home">
@@ -44,7 +45,7 @@
           <span>🕕 18:00</span>
           <span>📍 Studio A</span>
         </div>
-        <a class="primary-link" href="book-class.html">Manage booking</a>
+        <a class="primary-link" href="book-class.php">Manage booking</a>
       </article>
     </section>
 
@@ -54,7 +55,7 @@
           <p class="section-kicker">Classes</p>
           <h2>Class Schedule</h2>
         </div>
-        <a class="section-link" href="book-class.html">View all classes</a>
+        <a class="section-link" href="book-class.php">View all classes</a>
       </div>
 
       <div class="search-panel">
@@ -93,7 +94,7 @@
             <span>🕒 18:00</span>
             <span>👥 12/20</span>
           </div>
-          <a class="book-button" href="book-class.html">Book now</a>
+          <a class="book-button" href="book-class.php">Book now</a>
         </article>
 
         <article class="class-card">
@@ -115,7 +116,7 @@
             <span>🕘 09:00</span>
             <span>👥 8/15</span>
           </div>
-          <a class="book-button" href="book-class.html">Book now</a>
+          <a class="book-button" href="book-class.php">Book now</a>
         </article>
 
         <article class="class-card">
@@ -137,7 +138,7 @@
             <span>🕖 19:00</span>
             <span>👥 15/20</span>
           </div>
-          <a class="book-button" href="book-class.html">Book now</a>
+          <a class="book-button" href="book-class.php">Book now</a>
         </article>
 
         <article class="class-card">
@@ -159,7 +160,7 @@
             <span>🕙 10:00</span>
             <span>👥 6/12</span>
           </div>
-          <a class="book-button" href="book-class.html">Book now</a>
+          <a class="book-button" href="book-class.php">Book now</a>
         </article>
       </div>
     </section>
@@ -213,35 +214,30 @@
           <p class="section-kicker">Coaching team</p>
           <h2>Our Trainers</h2>
         </div>
-        <a class="section-link" href="trainer-profile.html">See trainer page</a>
+        <a class="section-link" href="trainers.php">See trainer page</a>
       </div>
 
       <div class="team-grid">
-        <article class="team-card">
-          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&q=80" alt="Ricardo Silva">
-          <h3>Ricardo Silva</h3>
-          <p>HIIT &amp; Strength</p>
-        </article>
-
-        <article class="team-card">
-          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80" alt="Ana Costa">
-          <h3>Ana Costa</h3>
-          <p>Yoga &amp; Pilates</p>
-        </article>
-
-        <article class="team-card">
-          <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=120&q=80" alt="Miguel Sousa">
-          <h3>Miguel Sousa</h3>
-          <p>Spinning &amp; Cardio</p>
-        </article>
-
-        <article class="team-card">
-          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80" alt="Sofia Martins">
-          <h3>Sofia Martins</h3>
-          <p>Pilates &amp; Wellness</p>
-        </article>
+        <?php foreach ($trainers as $trainer): ?>
+          <?php 
+            $isHttp = strpos($trainer['ProfilePhoto'], 'http') === 0;
+            $photo = ($trainer['ProfilePhoto'] && ($isHttp || file_exists(__DIR__ . '/' . $trainer['ProfilePhoto']))) 
+                ? htmlspecialchars($trainer['ProfilePhoto']) 
+                : 'https://ui-avatars.com/api/?name=' . urlencode($trainer['Name']) . '&background=f18c4f&color=fff';
+            
+            $specs = explode(',', $trainer['Specializations']);
+            $mainSpec = isset($specs[0]) ? trim($specs[0]) : 'Personal Trainer';
+          ?>
+          <a href="trainer-profile.php?id=<?= $trainer['UserID'] ?>" class="team-card" style="text-decoration:none; color:inherit; cursor:pointer; transition:transform 0.2s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+            <img src="<?= $photo ?>" alt="<?= htmlspecialchars($trainer['Name']) ?>">
+            <h3><?= htmlspecialchars($trainer['Name']) ?></h3>
+            <p><?= htmlspecialchars($mainSpec) ?></p>
+          </a>
+        <?php endforeach; ?>
       </div>
     </section>
   </main>
+
+  <script src="js/navbar.js"></script>
 </body>
 </html>
