@@ -265,3 +265,62 @@ FOOTER E RESPONSIVIDADE
     flex-direction: column;
   }
 }
+.page-header p {
+  color: var(--text-soft);
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  max-width: 52rem;
+}
+
+.page-message,
+.form-message {
+  width: min(720px, 100%);
+  margin: 0 auto 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fffaf6;
+  color: var(--text-dark);
+  font-weight: 700;
+  text-align: center;
+}
+
+.class-description {
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin-bottom: 0.9rem;
+}
+
+.inline-form {
+  margin: 0;
+}
+
+.btn-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-book--cancel {
+  background: #ef4444;
+}
+
+@media (max-width: 640px) {
+  .filter-controls {
+    flex-direction: column;
+  }
+
+  .input-search,
+  .select-field,
+  .btn-clear {
+    width: 100%;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}

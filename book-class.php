@@ -1,4 +1,121 @@
-<?php session_start(); ?>
+<?php
+session_start();
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/security.php';
+
+$user = current_user($db);
+$flash = $_SESSION['flash'] ?? '';
+unset($_SESSION['flash']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
+
+    if (!$user) {
+        $_SESSION['flash'] = 'Please log in before booking a class.';
+        redirect_to('login.php');
+    }
+
+    $classId = (int)($_POST['class_id'] ?? 0);
+    $action = $_POST['action'] ?? '';
+
+    $classStmt = $db->prepare('
+        SELECT fc.ClassID, fc.Capacity,
+               COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
+        FROM FITNESS_CLASS fc
+        LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
+        WHERE fc.ClassID = :class_id AND fc.IsActive = 1
+        GROUP BY fc.ClassID
+    ');
+    $classStmt->execute([':class_id' => $classId]);
+    $class = $classStmt->fetch();
+
+    if (!$class) {
+        $_SESSION['flash'] = 'Class not found.';
+        redirect_to('book-class.php');
+    }
+
+    if ($action === 'enroll') {
+        if ((int)$class['EnrolledCount'] >= (int)$class['Capacity']) {
+            $_SESSION['flash'] = 'This class is already full.';
+        } else {
+            $stmt = $db->prepare('
+                INSERT INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
+                VALUES (:class_id, :member_id, "Enrolled")
+                ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Enrolled", EnrolledAt = CURRENT_TIMESTAMP
+            ');
+            $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+            $_SESSION['flash'] = 'Class booked successfully.';
+        }
+    } elseif ($action === 'cancel') {
+        $stmt = $db->prepare('UPDATE CLASS_ENROLLMENT SET Status = "Cancelled" WHERE ClassID = :class_id AND MemberID = :member_id');
+        $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+        $_SESSION['flash'] = 'Booking cancelled.';
+    }
+
+    redirect_to('book-class.php');
+}
+
+$q = trim($_GET['q'] ?? '');
+$type = trim($_GET['type'] ?? '');
+$day = trim($_GET['day'] ?? '');
+$trainer = (int)($_GET['trainer'] ?? 0);
+
+$where = ['fc.IsActive = 1'];
+$params = [];
+
+if ($q !== '') {
+    $where[] = '(fc.Name LIKE :q OR fc.Type LIKE :q OR fc.Description LIKE :q OR u.Name LIKE :q)';
+    $params[':q'] = '%' . $q . '%';
+}
+if ($type !== '') {
+    $where[] = 'fc.Type = :type';
+    $params[':type'] = $type;
+}
+if ($day !== '') {
+    $where[] = 'fc.Day = :day';
+    $params[':day'] = $day;
+}
+if ($trainer > 0) {
+    $where[] = 'fc.TrainerID = :trainer';
+    $params[':trainer'] = $trainer;
+}
+
+$sql = '
+    SELECT
+        fc.ClassID,
+        fc.Name,
+        fc.Type,
+        fc.Day,
+        fc.StartTime,
+        fc.EndTime,
+        fc.Room,
+        fc.Capacity,
+        fc.Description,
+        fc.ImageURL,
+        u.Name AS TrainerName,
+        COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
+    FROM FITNESS_CLASS fc
+    JOIN USER u ON fc.TrainerID = u.UserID
+    LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
+    WHERE ' . implode(' AND ', $where) . '
+    GROUP BY fc.ClassID
+    ORDER BY fc.Day, fc.StartTime
+';
+$stmt = $db->prepare($sql);
+$stmt->execute($params);
+$classes = $stmt->fetchAll();
+
+$typeOptions = $db->query('SELECT DISTINCT Type FROM FITNESS_CLASS WHERE IsActive = 1 ORDER BY Type')->fetchAll(PDO::FETCH_COLUMN);
+$dayOptions = $db->query('SELECT DISTINCT Day FROM FITNESS_CLASS WHERE IsActive = 1 ORDER BY CASE Day WHEN "Monday" THEN 1 WHEN "Tuesday" THEN 2 WHEN "Wednesday" THEN 3 WHEN "Thursday" THEN 4 WHEN "Friday" THEN 5 WHEN "Saturday" THEN 6 ELSE 7 END')->fetchAll(PDO::FETCH_COLUMN);
+$trainerOptions = $db->query('SELECT UserID, Name FROM USER WHERE Role = "Trainer" AND IsActive = 1 ORDER BY Name')->fetchAll();
+
+$enrolledClassIds = [];
+if ($user) {
+    $enrolledStmt = $db->prepare('SELECT ClassID FROM CLASS_ENROLLMENT WHERE MemberID = :member AND Status = "Enrolled"');
+    $enrolledStmt->execute([':member' => $user['UserID']]);
+    $enrolledClassIds = array_map('intval', $enrolledStmt->fetchAll(PDO::FETCH_COLUMN));
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,99 +133,95 @@
   <?php include __DIR__ . '/includes/navbar.php'; ?>
 
   <main class="content">
-    <header class="page-header"><h1>Class Schedule</h1></header>
+    <header class="page-header">
+      <h1>Class Schedule</h1>
+      <p>Filter by type, trainer, day or time, because apparently staring at eight cards was too primitive.</p>
+    </header>
+
+    <?php if ($flash): ?>
+      <p class="page-message"><?= e($flash) ?></p>
+    <?php endif; ?>
 
     <section class="filter-section">
       <div class="filter-title"><h2>Filters</h2></div>
-      <form class="filter-controls">
-        <input type="text" class="input-search" placeholder="Search classes..." />
-        <select class="select-field">
-          <option>All Types</option><option>Yoga</option><option>Cardio</option>
-          <option>Pilates</option><option>CrossFit</option><option>Boxing</option><option>Recovery</option>
+      <form class="filter-controls" method="get" action="book-class.php">
+        <input type="text" name="q" class="input-search" placeholder="Search classes..." value="<?= e($q) ?>">
+
+        <select name="type" class="select-field">
+          <option value="">All Types</option>
+          <?php foreach ($typeOptions as $option): ?>
+            <option value="<?= e($option) ?>" <?= $type === $option ? 'selected' : '' ?>><?= e($option) ?></option>
+          <?php endforeach; ?>
         </select>
-        <select class="select-field">
-          <option>All Days</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option>
-          <option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option>
+
+        <select name="day" class="select-field">
+          <option value="">All Days</option>
+          <?php foreach ($dayOptions as $option): ?>
+            <option value="<?= e($option) ?>" <?= $day === $option ? 'selected' : '' ?>><?= e($option) ?></option>
+          <?php endforeach; ?>
         </select>
-        <select class="select-field">
-          <option>All Trainers</option><option>Trainer 1</option><option>Trainer 2</option>
-          <option>Trainer 3</option><option>Trainer 4</option>
+
+        <select name="trainer" class="select-field">
+          <option value="0">All Trainers</option>
+          <?php foreach ($trainerOptions as $option): ?>
+            <option value="<?= e($option['UserID']) ?>" <?= $trainer === (int)$option['UserID'] ? 'selected' : '' ?>><?= e($option['Name']) ?></option>
+          <?php endforeach; ?>
         </select>
-        <button type="reset" class="btn-clear">Clear</button>
+
+        <button type="submit" class="btn-clear">Apply</button>
+        <a class="btn-clear" href="book-class.php">Clear</a>
       </form>
     </section>
 
     <section class="classes-container">
-      <p class="results-count">Showing 4 available classes</p>
+      <p class="results-count">Showing <?= count($classes) ?> available <?= count($classes) === 1 ? 'class' : 'classes' ?></p>
       <div class="classes-grid">
-        <article class="class-card">
-          <div class="card-image">
-            <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&q=80" alt="Yoga Class" />
-            <span class="tag-type">Yoga</span>
-          </div>
-          <div class="card-body">
-            <h3>Morning Zen Flow</h3>
-            <div class="class-info">
-              <span><strong>Trainer:</strong> Ana Costas</span>
-              <span>🕒 09:00 - 10:00</span><span>📍 Studio B</span>
+        <?php foreach ($classes as $class): ?>
+          <?php
+            $enrolled = (int)$class['EnrolledCount'];
+            $capacity = (int)$class['Capacity'];
+            $spotsLeft = max(0, $capacity - $enrolled);
+            $isFull = $spotsLeft === 0;
+            $isEnrolled = in_array((int)$class['ClassID'], $enrolledClassIds, true);
+            $image = $class['ImageURL'] ?: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80';
+          ?>
+          <article class="class-card">
+            <div class="card-image">
+              <img src="<?= e($image) ?>" alt="<?= e($class['Name']) ?>">
+              <span class="tag-type"><?= e($class['Type']) ?></span>
             </div>
-            <div class="class-footer">
-              <span class="capacity">8/15 spots left</span>
-              <button class="btn-book">Book Now</button>
+            <div class="card-body">
+              <h3><?= e($class['Name']) ?></h3>
+              <p class="class-description"><?= e($class['Description']) ?></p>
+              <div class="class-info">
+                <span><strong>Trainer:</strong> <?= e($class['TrainerName']) ?></span>
+                <span>📅 <?= e($class['Day']) ?></span>
+                <span>🕒 <?= e($class['StartTime']) ?> - <?= e($class['EndTime']) ?></span>
+                <span>📍 <?= e($class['Room']) ?></span>
+              </div>
+              <div class="class-footer">
+                <span class="capacity <?= $isFull ? 'full' : '' ?>"><?= $spotsLeft ?> / <?= $capacity ?> spots left</span>
+                <?php if (!$user): ?>
+                  <a class="btn-book" href="login.php">Login to book</a>
+                <?php elseif ($isEnrolled): ?>
+                  <form method="post" action="book-class.php" class="inline-form">
+                    <?= csrf_input() ?>
+                    <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
+                    <input type="hidden" name="action" value="cancel">
+                    <button class="btn-book btn-book--cancel" type="submit">Cancel</button>
+                  </form>
+                <?php else: ?>
+                  <form method="post" action="book-class.php" class="inline-form">
+                    <?= csrf_input() ?>
+                    <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
+                    <input type="hidden" name="action" value="enroll">
+                    <button class="btn-book" type="submit" <?= $isFull ? 'disabled' : '' ?>><?= $isFull ? 'Full' : 'Book Now' ?></button>
+                  </form>
+                <?php endif; ?>
+              </div>
             </div>
-          </div>
-        </article>
-        <article class="class-card">
-          <div class="card-image">
-            <img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=400&q=80" alt="HIIT Class" />
-            <span class="tag-type">HIIT</span>
-          </div>
-          <div class="card-body">
-            <h3>High-energy interval training</h3>
-            <div class="class-info">
-              <span><strong>Trainer:</strong> Ricardo Silva</span>
-              <span>🕒 18:00 - 19:00</span><span>📍 Studio A</span>
-            </div>
-            <div class="class-footer">
-              <span class="capacity">12/20 spots left</span>
-              <button class="btn-book">Book Now</button>
-            </div>
-          </div>
-        </article>
-        <article class="class-card">
-          <div class="card-image">
-            <img src="https://images.unsplash.com/photo-1518611507436-f9221403cca2?w=400&q=80" alt="Pilates Class" />
-            <span class="tag-type">Pilates</span>
-          </div>
-          <div class="card-body">
-            <h3>Pilates Core Strength</h3>
-            <div class="class-info">
-              <span><strong>Trainer:</strong> Sofia Martins</span>
-              <span>🕒 10:00 - 11:00</span><span>📍 Studio C</span>
-            </div>
-            <div class="class-footer">
-              <span class="capacity">6/12 spots left</span>
-              <button class="btn-book">Book Now</button>
-            </div>
-          </div>
-        </article>
-        <article class="class-card">
-          <div class="card-image">
-            <img src="https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&q=80" alt="Spinning Class" />
-            <span class="tag-type">Spinning</span>
-          </div>
-          <div class="card-body">
-            <h3>Cardio ride with high intensity blocks</h3>
-            <div class="class-info">
-              <span><strong>Trainer:</strong> David Santos</span>
-              <span>🕒 19:00 - 20:00</span><span>📍 Studio A</span>
-            </div>
-            <div class="class-footer">
-              <span class="capacity">15/20 spots left</span>
-              <button class="btn-book">Book Now</button>
-            </div>
-          </div>
-        </article>
+          </article>
+        <?php endforeach; ?>
       </div>
     </section>
   </main>
