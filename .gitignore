@@ -1,1 +1,4 @@
-Database
+.vscode/
+database/database.db
+uploads/photos/*
+!uploads/photos/.gitkeep
