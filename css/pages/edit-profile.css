@@ -236,3 +236,24 @@ input::placeholder {
     padding: 1rem 1rem 1.25rem;
   }
 }
+
+.form-message {
+  width: min(720px, 100%);
+  margin: 0 auto 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.form-message--error {
+  background: #fcebeb;
+  color: #791f1f;
+  border: 1px solid #f7c1c1;
+}
+
+.form-message--success {
+  background: #e1f5ee;
+  color: #085041;
+  border: 1px solid #9fe1cb;
+}

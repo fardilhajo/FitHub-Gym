@@ -1,63 +1,56 @@
-/**
- * Navbar — Hamburger toggle + Ajax search
- */
 (function () {
   'use strict';
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  HAMBURGER TOGGLE
-  // ══════════════════════════════════════════════════════════════════════
-
   const toggle = document.getElementById('nav-toggle');
-  const menu   = document.getElementById('nav-menu');
+  const menu = document.getElementById('nav-menu');
 
   if (toggle && menu) {
     toggle.addEventListener('click', function () {
       const isOpen = menu.classList.toggle('active');
       toggle.classList.toggle('active');
-      toggle.setAttribute('aria-expanded', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
     });
   }
 
-  // ══════════════════════════════════════════════════════════════════════
-  //  AJAX SEARCH (Fetch API)
-  // ══════════════════════════════════════════════════════════════════════
-
-  const searchInput   = document.getElementById('navbar-search');
+  const searchInput = document.getElementById('navbar-search');
   const searchResults = document.getElementById('search-results');
-
-  if (!searchInput || !searchResults) return;
-
   let debounceTimer = null;
 
-  searchInput.addEventListener('input', function () {
-    const query = searchInput.value.trim();
+  if (searchInput && searchResults) {
+    searchInput.addEventListener('input', function () {
+      const query = searchInput.value.trim();
+      clearTimeout(debounceTimer);
 
-    clearTimeout(debounceTimer);
+      if (query.length < 2) {
+        hideResults();
+        return;
+      }
 
-    if (query.length < 2) {
-      hideResults();
-      return;
-    }
+      debounceTimer = setTimeout(function () {
+        fetchResults(query);
+      }, 250);
+    });
 
-    debounceTimer = setTimeout(function () {
-      fetchResults(query);
-    }, 300);
-  });
+    document.addEventListener('click', function (event) {
+      const wrapper = document.getElementById('nav-search-wrapper');
+      if (wrapper && !wrapper.contains(event.target)) {
+        hideResults();
+      }
+    });
+  }
 
   async function fetchResults(query) {
     try {
-      const response = await fetch(
-        'api/search.php?q=' + encodeURIComponent(query)
-      );
+      const response = await fetch('api/search.php?q=' + encodeURIComponent(query), {
+        headers: { Accept: 'application/json' }
+      });
 
       if (!response.ok) {
         hideResults();
         return;
       }
 
-      const data = await response.json();
-      renderResults(data);
+      renderResults(await response.json());
     } catch (err) {
       console.error('Search error:', err);
       hideResults();
@@ -68,24 +61,25 @@
     searchResults.innerHTML = '';
 
     if (!items || items.length === 0) {
-      searchResults.innerHTML =
-        '<p class="search-no-results">No classes found</p>';
+      searchResults.innerHTML = '<p class="search-no-results">No classes found</p>';
       searchResults.classList.add('active');
       return;
     }
 
     items.forEach(function (item) {
-      var link = document.createElement('a');
-      link.href = 'book-class.php';
+      const link = document.createElement('a');
+      link.href = item.Url || 'book-class.php?q=' + encodeURIComponent(item.Name || '');
       link.className = 'search-result-item';
-      link.innerHTML =
-        '<span class="search-result-name">' + escapeHtml(item.Name) + '</span>' +
-        '<span class="search-result-meta">' +
-          escapeHtml(item.Type) + ' · ' +
-          escapeHtml(item.Day || '') + ' · ' +
-          escapeHtml(item.Time || '') +
-          (item.TrainerName ? ' · ' + escapeHtml(item.TrainerName) : '') +
-        '</span>';
+
+      const name = document.createElement('span');
+      name.className = 'search-result-name';
+      name.textContent = item.Name || '';
+
+      const meta = document.createElement('span');
+      meta.className = 'search-result-meta';
+      meta.textContent = [item.Type, item.Day, item.StartTime, item.TrainerName].filter(Boolean).join(' · ');
+
+      link.append(name, meta);
       searchResults.appendChild(link);
     });
 
@@ -93,22 +87,53 @@
   }
 
   function hideResults() {
+    if (!searchResults) return;
     searchResults.classList.remove('active');
     searchResults.innerHTML = '';
   }
 
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function (e) {
-    var wrapper = document.getElementById('nav-search-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
-      hideResults();
-    }
-  });
+  const equipmentList = document.getElementById('equipment-list');
+  const equipmentStats = document.getElementById('equipment-stats');
 
-  // Helper: escape HTML to avoid XSS
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.appendChild(document.createTextNode(text));
-    return div.innerHTML;
+  if (equipmentList && equipmentStats) {
+    refreshEquipment();
+    setInterval(refreshEquipment, 30000);
+  }
+
+  async function refreshEquipment() {
+    try {
+      const response = await fetch('api/equipment.php', { headers: { Accept: 'application/json' } });
+      if (!response.ok) return;
+      const data = await response.json();
+
+      Object.entries(data.stats || {}).forEach(function ([key, value]) {
+        const target = equipmentStats.querySelector('[data-stat="' + key + '"]');
+        if (target) target.textContent = value;
+      });
+
+      if (Array.isArray(data.items)) {
+        equipmentList.innerHTML = '';
+        data.items.forEach(function (item) {
+          const article = document.createElement('article');
+          article.className = 'equipment-item';
+
+          const info = document.createElement('div');
+          const title = document.createElement('h3');
+          title.textContent = item.Name;
+          const meta = document.createElement('p');
+          meta.textContent = item.Category + ' · ' + item.Location;
+          info.append(title, meta);
+
+          const pill = document.createElement('span');
+          pill.className = 'equipment-pill equipment-pill--' + String(item.Status).toLowerCase().replaceAll(' ', '-');
+          pill.textContent = item.Status;
+
+          article.append(info, pill);
+          equipmentList.appendChild(article);
+        });
+      }
+    } catch (err) {
+      console.error('Equipment refresh error:', err);
+    }
   }
 })();

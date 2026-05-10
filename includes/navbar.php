@@ -1,34 +1,17 @@
 <?php
-/**
- * Global navbar component.
- * Include this file inside <body> after session_start().
- * Requires $db (PDO) from db.php.
- */
-
+/** Global navbar component. Include inside <body>. */
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/security.php';
 
-// ── Determine logged-in user ──
-$loggedIn  = isset($_SESSION['user_id']);
-$userName  = '';
+$navUser = current_user($db);
+$loggedIn = $navUser !== null;
+$userName = $loggedIn ? $navUser['Name'] : '';
+$role = $loggedIn ? $navUser['Role'] : '';
 
-if ($loggedIn) {
-    $stmt = $db->prepare('SELECT Name FROM USER WHERE UserID = :id');
-    $stmt->execute([':id' => $_SESSION['user_id']]);
-    $user = $stmt->fetch();
-
-    if ($user) {
-        $userName = htmlspecialchars($user['Name']);
-    } else {
-        // Session references a user that no longer exists
-        $loggedIn = false;
-    }
-}
-
-// ── Build initials for the avatar ──
 $initials = '';
-if ($loggedIn && $userName) {
-    $parts    = explode(' ', $userName);
-    $initials = strtoupper(substr($parts[0], 0, 1));
+if ($loggedIn) {
+    $parts = preg_split('/\s+/', trim($userName));
+    $initials = strtoupper(substr($parts[0] ?? '', 0, 1));
     if (count($parts) > 1) {
         $initials .= strtoupper(substr(end($parts), 0, 1));
     }
@@ -38,7 +21,6 @@ if ($loggedIn && $userName) {
 <nav class="navbar" id="main-navbar">
   <a href="index.php" class="nav-logo">FitHub Gym</a>
 
-  <!-- Hamburger button (mobile) -->
   <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
     <span class="hamburger-line"></span>
     <span class="hamburger-line"></span>
@@ -53,11 +35,18 @@ if ($loggedIn && $userName) {
       <li><a href="equipment.php">Equipment</a></li>
     </ul>
 
+    <div class="nav-search" id="nav-search-wrapper" role="search">
+      <span class="nav-search-icon" aria-hidden="true">⌕</span>
+      <input id="navbar-search" class="nav-search-input" type="search" placeholder="Search classes" autocomplete="off" aria-label="Search classes">
+      <div id="search-results" class="search-results" aria-live="polite"></div>
+    </div>
+
     <div class="nav-actions">
       <?php if ($loggedIn): ?>
-        <a href="edit-profile.php" class="nav-user">
-          <span class="nav-avatar"><?= $initials ?></span>
-          <span class="nav-username"><?= $userName ?></span>
+        <a href="edit-profile.php" class="nav-user" title="Edit profile">
+          <span class="nav-avatar"><?= e($initials) ?></span>
+          <span class="nav-username"><?= e($userName) ?></span>
+          <span class="nav-role"><?= e($role) ?></span>
         </a>
         <a href="logout.php" class="btn-login">Logout</a>
       <?php else: ?>

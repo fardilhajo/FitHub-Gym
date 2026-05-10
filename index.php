@@ -1,17 +1,69 @@
-<?php 
+<?php
 session_start();
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/security.php';
 
-// Fetch top 4 active trainers for the homepage
-$trainersStmt = $db->prepare('
-    SELECT u.UserID, u.Name, u.ProfilePhoto, tp.Specializations 
-    FROM USER u 
-    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID 
-    WHERE u.Role = "Trainer" AND u.IsActive = 1
+$user = current_user($db);
+
+$classesStmt = $db->query('
+    SELECT
+        fc.ClassID,
+        fc.Name,
+        fc.Type,
+        fc.Day,
+        fc.StartTime,
+        fc.EndTime,
+        fc.Room,
+        fc.Capacity,
+        fc.Description,
+        fc.ImageURL,
+        u.Name AS TrainerName,
+        COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
+    FROM FITNESS_CLASS fc
+    JOIN USER u ON fc.TrainerID = u.UserID
+    LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
+    WHERE fc.IsActive = 1
+    GROUP BY fc.ClassID
+    ORDER BY fc.Day, fc.StartTime
     LIMIT 4
 ');
-$trainersStmt->execute();
-$trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
+$classes = $classesStmt->fetchAll();
+
+$trainersStmt = $db->query('
+    SELECT u.UserID, u.Name, u.ProfilePhoto, tp.Specializations
+    FROM USER u
+    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID
+    WHERE u.Role = "Trainer" AND u.IsActive = 1
+    ORDER BY u.Name
+    LIMIT 4
+');
+$trainers = $trainersStmt->fetchAll();
+
+$equipmentStmt = $db->query('
+    SELECT Category,
+           SUM(CASE WHEN Status = "Available" THEN 1 ELSE 0 END) AS AvailableCount,
+           COUNT(*) AS TotalCount,
+           SUM(CASE WHEN Status IN ("In use", "Reserved") THEN 1 ELSE 0 END) AS BusyCount
+    FROM EQUIPMENT
+    GROUP BY Category
+    ORDER BY Category
+    LIMIT 4
+');
+$equipmentGroups = $equipmentStmt->fetchAll();
+
+$nextClass = null;
+if ($user) {
+    $nextStmt = $db->prepare('
+        SELECT fc.Name, fc.Day, fc.StartTime, fc.Room
+        FROM CLASS_ENROLLMENT ce
+        JOIN FITNESS_CLASS fc ON ce.ClassID = fc.ClassID
+        WHERE ce.MemberID = :member AND ce.Status = "Enrolled" AND fc.IsActive = 1
+        ORDER BY fc.Day, fc.StartTime
+        LIMIT 1
+    ');
+    $nextStmt->execute([':member' => $user['UserID']]);
+    $nextClass = $nextStmt->fetch();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,20 +84,30 @@ $trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
   <main class="content">
     <section class="hero-home">
       <div class="hero-copy">
-        <span class="hero-badge">Member Dashboard</span>
-        <h1>Welcome back, João</h1>
-        <p>Track your next class, check equipment availability and find the right trainer for your next session.</p>
+        <span class="hero-badge"><?= $user ? e($user['Role']) . ' Dashboard' : 'Gym management platform' ?></span>
+        <h1><?= $user ? 'Welcome back, ' . e($user['Name']) : 'Train smarter with FitHub' ?></h1>
+        <p>Browse classes, check equipment availability, meet trainers and manage bookings from one place.</p>
       </div>
 
       <article class="next-class-card">
         <span class="card-label">Next Scheduled Class</span>
-        <h2>HIIT Intenso</h2>
-        <div class="class-info-row">
-          <span>📅 8 April</span>
-          <span>🕕 18:00</span>
-          <span>📍 Studio A</span>
-        </div>
-        <a class="primary-link" href="book-class.php">Manage booking</a>
+        <?php if ($nextClass): ?>
+          <h2><?= e($nextClass['Name']) ?></h2>
+          <div class="class-info-row">
+            <span>📅 <?= e($nextClass['Day']) ?></span>
+            <span>🕕 <?= e($nextClass['StartTime']) ?></span>
+            <span>📍 <?= e($nextClass['Room']) ?></span>
+          </div>
+          <a class="primary-link" href="book-class.php">Manage booking</a>
+        <?php elseif ($user): ?>
+          <h2>No booking yet</h2>
+          <p>Find a class that does not make future-you hate present-you.</p>
+          <a class="primary-link" href="book-class.php">Browse classes</a>
+        <?php else: ?>
+          <h2>Create an account</h2>
+          <p>Members can enroll in classes and cancel bookings when life commits its usual sabotage.</p>
+          <a class="primary-link" href="register.php">Join now</a>
+        <?php endif; ?>
       </article>
     </section>
 
@@ -59,109 +121,40 @@ $trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
       <div class="search-panel">
-        <div class="search-bar">
-          <span class="search-icon">⌕</span>
-          <input type="text" placeholder="Search classes...">
-        </div>
-
-        <div class="filter-row">
-          <button class="filter-chip filter-chip--active" type="button">All</button>
-          <button class="filter-chip" type="button">HIIT</button>
-          <button class="filter-chip" type="button">Yoga</button>
-          <button class="filter-chip" type="button">Spinning</button>
-          <button class="filter-chip" type="button">Strength</button>
-          <button class="filter-chip" type="button">Pilates</button>
-        </div>
+        <form class="home-search-form" action="book-class.php" method="get">
+          <div class="search-bar">
+            <span class="search-icon">⌕</span>
+            <input type="text" name="q" placeholder="Search classes, types or trainers...">
+          </div>
+          <button class="book-button" type="submit">Search</button>
+        </form>
       </div>
 
       <div class="class-grid">
-        <article class="class-card">
-          <div class="class-card-top">
-            <div>
-              <h3>HIIT Intenso</h3>
-              <p>High-energy interval training</p>
+        <?php foreach ($classes as $class): ?>
+          <?php $available = max(0, (int)$class['Capacity'] - (int)$class['EnrolledCount']); ?>
+          <article class="class-card">
+            <div class="class-card-top">
+              <div>
+                <h3><?= e($class['Name']) ?></h3>
+                <p><?= e($class['Description']) ?></p>
+              </div>
+              <span class="class-tag"><?= e($class['Type']) ?></span>
             </div>
-            <span class="class-tag">HIIT</span>
-          </div>
-          <div class="trainer-inline">
-            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=80&q=80" alt="Ricardo Silva">
-            <div>
-              <small>Trainer</small>
-              <p>Ricardo Silva</p>
+            <div class="trainer-inline">
+              <div>
+                <small>Trainer</small>
+                <p><?= e($class['TrainerName']) ?></p>
+              </div>
             </div>
-          </div>
-          <div class="class-meta">
-            <span>🕒 18:00</span>
-            <span>👥 12/20</span>
-          </div>
-          <a class="book-button" href="book-class.php">Book now</a>
-        </article>
-
-        <article class="class-card">
-          <div class="class-card-top">
-            <div>
-              <h3>Yoga Flow</h3>
-              <p>Balance, breathing and mobility</p>
+            <div class="class-meta">
+              <span>📅 <?= e($class['Day']) ?></span>
+              <span>🕒 <?= e($class['StartTime']) ?>-<?= e($class['EndTime']) ?></span>
+              <span>👥 <?= $available ?>/<?= e($class['Capacity']) ?> spots</span>
             </div>
-            <span class="class-tag">Yoga</span>
-          </div>
-          <div class="trainer-inline">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Ana Costa">
-            <div>
-              <small>Trainer</small>
-              <p>Ana Costa</p>
-            </div>
-          </div>
-          <div class="class-meta">
-            <span>🕘 09:00</span>
-            <span>👥 8/15</span>
-          </div>
-          <a class="book-button" href="book-class.php">Book now</a>
-        </article>
-
-        <article class="class-card">
-          <div class="class-card-top">
-            <div>
-              <h3>Spinning Power</h3>
-              <p>Cardio ride with high intensity blocks</p>
-            </div>
-            <span class="class-tag">Spinning</span>
-          </div>
-          <div class="trainer-inline">
-            <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?auto=format&fit=crop&w=80&q=80" alt="Miguel Sousa">
-            <div>
-              <small>Trainer</small>
-              <p>Miguel Sousa</p>
-            </div>
-          </div>
-          <div class="class-meta">
-            <span>🕖 19:00</span>
-            <span>👥 15/20</span>
-          </div>
-          <a class="book-button" href="book-class.php">Book now</a>
-        </article>
-
-        <article class="class-card">
-          <div class="class-card-top">
-            <div>
-              <h3>Pilates Essential</h3>
-              <p>Core strength and body control</p>
-            </div>
-            <span class="class-tag">Pilates</span>
-          </div>
-          <div class="trainer-inline">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" alt="Sofia Martins">
-            <div>
-              <small>Trainer</small>
-              <p>Sofia Martins</p>
-            </div>
-          </div>
-          <div class="class-meta">
-            <span>🕙 10:00</span>
-            <span>👥 6/12</span>
-          </div>
-          <a class="book-button" href="book-class.php">Book now</a>
-        </article>
+            <a class="book-button" href="book-class.php?q=<?= urlencode($class['Name']) ?>">Book now</a>
+          </article>
+        <?php endforeach; ?>
       </div>
     </section>
 
@@ -171,40 +164,20 @@ $trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
           <p class="section-kicker">Gym floor</p>
           <h2>Equipment Status</h2>
         </div>
+        <a class="section-link" href="equipment.php">View equipment</a>
       </div>
 
       <div class="equipment-grid">
-        <article class="equipment-card">
-          <div class="equipment-status equipment-status--green"></div>
-          <div>
-            <h3>Treadmills</h3>
-            <p>4 available</p>
-          </div>
-        </article>
-
-        <article class="equipment-card">
-          <div class="equipment-status equipment-status--red"></div>
-          <div>
-            <h3>Free Weights</h3>
-            <p>Very busy</p>
-          </div>
-        </article>
-
-        <article class="equipment-card">
-          <div class="equipment-status equipment-status--green"></div>
-          <div>
-            <h3>Bikes</h3>
-            <p>2 available</p>
-          </div>
-        </article>
-
-        <article class="equipment-card">
-          <div class="equipment-status equipment-status--green"></div>
-          <div>
-            <h3>Machines</h3>
-            <p>8 available</p>
-          </div>
-        </article>
+        <?php foreach ($equipmentGroups as $group): ?>
+          <?php $statusClass = ((int)$group['AvailableCount'] > 0) ? 'equipment-status--green' : 'equipment-status--red'; ?>
+          <article class="equipment-card">
+            <div class="equipment-status <?= e($statusClass) ?>"></div>
+            <div>
+              <h3><?= e($group['Category']) ?></h3>
+              <p><?= e($group['AvailableCount']) ?> available / <?= e($group['TotalCount']) ?> total</p>
+            </div>
+          </article>
+        <?php endforeach; ?>
       </div>
     </section>
 
@@ -219,19 +192,15 @@ $trainers = $trainersStmt->fetchAll(PDO::FETCH_ASSOC);
 
       <div class="team-grid">
         <?php foreach ($trainers as $trainer): ?>
-          <?php 
-            $isHttp = strpos($trainer['ProfilePhoto'], 'http') === 0;
-            $photo = ($trainer['ProfilePhoto'] && ($isHttp || file_exists(__DIR__ . '/' . $trainer['ProfilePhoto']))) 
-                ? htmlspecialchars($trainer['ProfilePhoto']) 
-                : 'https://ui-avatars.com/api/?name=' . urlencode($trainer['Name']) . '&background=f18c4f&color=fff';
-            
-            $specs = explode(',', $trainer['Specializations']);
-            $mainSpec = isset($specs[0]) ? trim($specs[0]) : 'Personal Trainer';
+          <?php
+            $photo = $trainer['ProfilePhoto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($trainer['Name']) . '&background=f18c4f&color=fff';
+            $specs = array_filter(array_map('trim', explode(',', $trainer['Specializations'] ?? '')));
+            $mainSpec = $specs[0] ?? 'Personal Trainer';
           ?>
-          <a href="trainer-profile.php?id=<?= $trainer['UserID'] ?>" class="team-card" style="text-decoration:none; color:inherit; cursor:pointer; transition:transform 0.2s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-            <img src="<?= $photo ?>" alt="<?= htmlspecialchars($trainer['Name']) ?>">
-            <h3><?= htmlspecialchars($trainer['Name']) ?></h3>
-            <p><?= htmlspecialchars($mainSpec) ?></p>
+          <a href="trainer-profile.php?id=<?= e($trainer['UserID']) ?>" class="team-card">
+            <img src="<?= e($photo) ?>" alt="<?= e($trainer['Name']) ?>">
+            <h3><?= e($trainer['Name']) ?></h3>
+            <p><?= e($mainSpec) ?></p>
           </a>
         <?php endforeach; ?>
       </div>
