@@ -1,50 +1,46 @@
 <?php
 session_start();
-
-// ── Redirect if not logged in ──
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
-
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/security.php';
 
-$userId = $_SESSION['user_id'];
-$error   = '';
+require_login();
+
+$userId = (int)$_SESSION['user_id'];
+$error = '';
 $success = '';
 
-// ── Load current user data ──
-$profileStmt = $db->prepare('SELECT Name, Username, ProfilePhoto FROM USER WHERE UserID = :id');
+$profileStmt = $db->prepare('SELECT UserID, Name, Username, Role, ProfilePhoto FROM USER WHERE UserID = :id AND IsActive = 1');
 $profileStmt->execute([':id' => $userId]);
 $profileUser = $profileStmt->fetch();
 
 if (!$profileUser) {
     session_destroy();
-    header('Location: login.php');
-    exit;
+    redirect_to('login.php');
 }
 
-// ── Handle form POST ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name     = trim($_POST['full_name'] ?? '');
+    verify_csrf();
+
+    $name = trim($_POST['full_name'] ?? '');
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm_password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
 
-    if (!$name || !$username) {
+    if ($name === '' || $username === '') {
         $error = 'Name and username are required.';
-    } elseif ($password && strlen($password) < 6) {
+    } elseif (strlen($username) < 3) {
+        $error = 'Username must be at least 3 characters.';
+    } elseif ($password !== '' && strlen($password) < 6) {
         $error = 'Password must be at least 6 characters.';
-    } elseif ($password && $password !== $confirm) {
+    } elseif ($password !== '' && $password !== $confirm) {
         $error = 'Passwords do not match.';
     } else {
-        // Check username uniqueness (exclude current user)
-        $check = $db->prepare('SELECT UserID FROM USER WHERE Username = :u AND UserID != :id');
-        $check->execute([':u' => $username, ':id' => $userId]);
+        $check = $db->prepare('SELECT UserID FROM USER WHERE Username = :username AND UserID != :id');
+        $check->execute([':username' => $username, ':id' => $userId]);
+
         if ($check->fetch()) {
             $error = 'Username already taken.';
         } else {
-            // ── Handle photo upload ──
             $photoPath = $profileUser['ProfilePhoto'];
 
             if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
@@ -53,16 +49,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     mkdir($uploadDir, 0755, true);
                 }
 
-                $ext      = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
-                $allowed  = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $allowedMime = [
+                    'image/jpeg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/gif' => 'gif',
+                    'image/webp' => 'webp',
+                ];
+                $mime = mime_content_type($_FILES['photo']['tmp_name']);
 
-                if (!in_array($ext, $allowed)) {
+                if (!isset($allowedMime[$mime])) {
                     $error = 'Invalid image format. Use JPG, PNG, GIF or WebP.';
                 } elseif ($_FILES['photo']['size'] > 5 * 1024 * 1024) {
                     $error = 'Image too large. Maximum 5 MB.';
                 } else {
-                    $filename  = 'user_' . $userId . '_' . time() . '.' . $ext;
-                    $destPath  = $uploadDir . $filename;
+                    $filename = 'user_' . $userId . '_' . bin2hex(random_bytes(8)) . '.' . $allowedMime[$mime];
+                    $destPath = $uploadDir . $filename;
 
                     if (move_uploaded_file($_FILES['photo']['tmp_name'], $destPath)) {
                         $photoPath = 'uploads/photos/' . $filename;
@@ -72,34 +73,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            if (!$error) {
-                // ── Update user in database ──
-                if ($password) {
+            if ($error === '') {
+                if ($password !== '') {
                     $hash = password_hash($password, PASSWORD_DEFAULT);
-                    $upd  = $db->prepare('UPDATE USER SET Name = :name, Username = :user, PasswordHash = :hash, ProfilePhoto = :photo WHERE UserID = :id');
-                    $upd->execute([':name' => $name, ':user' => $username, ':hash' => $hash, ':photo' => $photoPath, ':id' => $userId]);
+                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, PasswordHash = :hash, ProfilePhoto = :photo WHERE UserID = :id');
+                    $upd->execute([':name' => $name, ':username' => $username, ':hash' => $hash, ':photo' => $photoPath, ':id' => $userId]);
                 } else {
-                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :user, ProfilePhoto = :photo WHERE UserID = :id');
-                    $upd->execute([':name' => $name, ':user' => $username, ':photo' => $photoPath, ':id' => $userId]);
+                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, ProfilePhoto = :photo WHERE UserID = :id');
+                    $upd->execute([':name' => $name, ':username' => $username, ':photo' => $photoPath, ':id' => $userId]);
                 }
 
-                // Update session
                 $_SESSION['user_name'] = $name;
-
-                // Reload user data
                 $profileStmt->execute([':id' => $userId]);
                 $profileUser = $profileStmt->fetch();
-
-                $success = 'Profile updated successfully!';
+                $success = 'Profile updated successfully.';
             }
         }
     }
 }
 
-// ── Build avatar URL ──
-$avatarSrc = $profileUser['ProfilePhoto']
-    ? htmlspecialchars($profileUser['ProfilePhoto'])
-    : 'https://ui-avatars.com/api/?name=' . urlencode($profileUser['Name']) . '&background=f18c4f&color=fff&size=128';
+$avatarSrc = $profileUser['ProfilePhoto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($profileUser['Name']) . '&background=f18c4f&color=fff&size=128';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -124,20 +117,20 @@ $avatarSrc = $profileUser['ProfilePhoto']
     </header>
 
     <?php if ($error): ?>
-      <p style="color:#ef4444; text-align:center; font-weight:600; margin-bottom:1rem;"><?= htmlspecialchars($error) ?></p>
+      <p class="form-message form-message--error"><?= e($error) ?></p>
     <?php endif; ?>
 
     <?php if ($success): ?>
-      <p style="color:#22c55e; text-align:center; font-weight:600; margin-bottom:1rem;"><?= htmlspecialchars($success) ?></p>
+      <p class="form-message form-message--success"><?= e($success) ?></p>
     <?php endif; ?>
 
     <form action="edit-profile.php" method="post" enctype="multipart/form-data" class="edit-profile-form">
+      <?= csrf_input() ?>
 
-      <!-- Profile photo -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-          <img id="avatar-preview" src="<?= $avatarSrc ?>" alt="Profile photo" class="avatar-img">
-          <label for="photo" class="avatar-upload-btn">
+          <img id="avatar-preview" src="<?= e($avatarSrc) ?>" alt="Profile photo" class="avatar-img">
+          <label for="photo" class="avatar-upload-btn" aria-label="Upload profile photo">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
@@ -148,20 +141,16 @@ $avatarSrc = $profileUser['ProfilePhoto']
         <p class="avatar-hint">Click the camera icon to upload a new photo</p>
       </div>
 
-      <!-- Personal info -->
       <fieldset class="form-group">
         <legend>Personal Information</legend>
 
         <label for="full-name">Full Name</label>
-        <input id="full-name" type="text" name="full_name" placeholder="Your full name"
-               value="<?= htmlspecialchars($profileUser['Name']) ?>" required>
+        <input id="full-name" type="text" name="full_name" placeholder="Your full name" value="<?= e($profileUser['Name']) ?>" required>
 
         <label for="username">Username</label>
-        <input id="username" type="text" name="username" placeholder="Username"
-               value="<?= htmlspecialchars($profileUser['Username']) ?>" required>
+        <input id="username" type="text" name="username" placeholder="Username" value="<?= e($profileUser['Username']) ?>" required>
       </fieldset>
 
-      <!-- Password -->
       <fieldset class="form-group">
         <legend>Change Password <span class="legend-hint">(leave blank to keep current)</span></legend>
 
@@ -179,13 +168,16 @@ $avatarSrc = $profileUser['ProfilePhoto']
   </main>
 
   <script>
-    document.getElementById('photo').addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => { document.getElementById('avatar-preview').src = e.target.result; };
-      reader.readAsDataURL(file);
-    });
+    const photoInput = document.getElementById('photo');
+    if (photoInput) {
+      photoInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('avatar-preview').src = e.target.result; };
+        reader.readAsDataURL(file);
+      });
+    }
   </script>
   <script src="js/navbar.js"></script>
 </body>
