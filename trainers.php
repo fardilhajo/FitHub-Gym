@@ -1,16 +1,19 @@
 <?php
 session_start();
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/security.php';
 
-// Fetch all trainers and their specializations
-$stmt = $db->prepare('
-    SELECT u.UserID, u.Name, u.ProfilePhoto, tp.Specializations 
-    FROM USER u 
-    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID 
+$stmt = $db->query('
+    SELECT u.UserID, u.Name, u.ProfilePhoto, tp.Specializations,
+           COUNT(fc.ClassID) AS ClassCount
+    FROM USER u
+    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID
+    LEFT JOIN FITNESS_CLASS fc ON fc.TrainerID = u.UserID AND fc.IsActive = 1
     WHERE u.Role = "Trainer" AND u.IsActive = 1
+    GROUP BY u.UserID
+    ORDER BY u.Name
 ');
-$stmt->execute();
-$trainers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$trainers = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,33 +27,6 @@ $trainers = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/navbar.css">
   <link rel="stylesheet" href="css/pages/home.css">
-  <style>
-    .trainers-page-header {
-      text-align: center;
-      margin-top: 4rem;
-      margin-bottom: 3rem;
-    }
-    .trainers-page-header h1 {
-      font-family: 'Crimson Pro', serif;
-      font-size: 3rem;
-      color: var(--dark);
-      margin-bottom: 1rem;
-    }
-    .trainers-page-header p {
-      color: var(--gray);
-      font-size: 1.1rem;
-    }
-    .team-card {
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      text-decoration: none;
-      color: inherit;
-    }
-    .team-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    }
-  </style>
 </head>
 <body>
   <?php include __DIR__ . '/includes/navbar.php'; ?>
@@ -58,25 +34,21 @@ $trainers = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <main class="content">
     <div class="trainers-page-header">
       <h1>Our Coaching Team</h1>
-      <p>Meet the experts who will help you achieve your goals.</p>
+      <p>Meet the trainers and the classes they teach.</p>
     </div>
 
     <section class="page-section">
       <div class="team-grid">
         <?php foreach ($trainers as $trainer): ?>
-          <?php 
-            $isHttp = strpos($trainer['ProfilePhoto'], 'http') === 0;
-            $photo = ($trainer['ProfilePhoto'] && ($isHttp || file_exists(__DIR__ . '/' . $trainer['ProfilePhoto']))) 
-                ? htmlspecialchars($trainer['ProfilePhoto']) 
-                : 'https://ui-avatars.com/api/?name=' . urlencode($trainer['Name']) . '&background=f18c4f&color=fff';
-            // Extract just the first specialization to show on the card
-            $specs = explode(',', $trainer['Specializations']);
-            $mainSpec = isset($specs[0]) ? trim($specs[0]) : 'Personal Trainer';
+          <?php
+            $photo = $trainer['ProfilePhoto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($trainer['Name']) . '&background=f18c4f&color=fff';
+            $specs = array_filter(array_map('trim', explode(',', $trainer['Specializations'] ?? '')));
+            $mainSpec = $specs[0] ?? 'Personal Trainer';
           ?>
-          <a href="trainer-profile.php?id=<?= $trainer['UserID'] ?>" class="team-card">
-            <img src="<?= $photo ?>" alt="<?= htmlspecialchars($trainer['Name']) ?>">
-            <h3><?= htmlspecialchars($trainer['Name']) ?></h3>
-            <p><?= htmlspecialchars($mainSpec) ?></p>
+          <a href="trainer-profile.php?id=<?= e($trainer['UserID']) ?>" class="team-card">
+            <img src="<?= e($photo) ?>" alt="<?= e($trainer['Name']) ?>">
+            <h3><?= e($trainer['Name']) ?></h3>
+            <p><?= e($mainSpec) ?> · <?= e($trainer['ClassCount']) ?> classes</p>
           </a>
         <?php endforeach; ?>
       </div>
