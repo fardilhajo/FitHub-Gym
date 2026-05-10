@@ -312,3 +312,13 @@ body {
     min-height: 3.6rem;
   }
 }
+.trainer-class-row .ano-certificado span {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.back-trainers-link {
+  color: var(--orange);
+  text-decoration: none;
+  font-weight: 700;
+}
