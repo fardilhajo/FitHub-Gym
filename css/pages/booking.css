@@ -215,38 +215,8 @@ GRID DE AULAS
 }
 
 /* ==========================================================================
-FOOTER E RESPONSIVIDADE
+RESPONSIVIDADE
 ========================================================================== */
-
-/* FOOTER */
-
-.main-footer {
-  margin-top: 3rem;
-  padding: 2.5rem 5%;
-  background: var(--surface);
-  backdrop-filter: blur(8px);
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.social-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.social-links a {
-  color: var(--orange-dark);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-/* RESPONSIVIDADE */
 
 @media (max-width: 1024px) {
   .classes-grid {
@@ -265,6 +235,7 @@ FOOTER E RESPONSIVIDADE
     flex-direction: column;
   }
 }
+
 .page-header p {
   color: var(--text-soft);
   margin-top: -1rem;
@@ -316,11 +287,5 @@ FOOTER E RESPONSIVIDADE
   .select-field,
   .btn-clear {
     width: 100%;
-  }
-
-  .footer-content {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
   }
 }

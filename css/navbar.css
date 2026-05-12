@@ -66,6 +66,22 @@
   text-decoration: none;
 }
 
+.btn-analytics {
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-analytics:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: white;
+}
+
 .btn-join {
   background: white;
   color: var(--orange);
@@ -307,5 +323,56 @@
 
   .nav-actions {
     flex-wrap: wrap;
+  }
+}
+
+/* ==========================================================================
+   STICKY FOOTER LAYOUT
+   ========================================================================== */
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+/* ==========================================================================
+   FOOTER — Global styles
+   ========================================================================== */
+
+.main-footer {
+  margin-top: 3rem;
+  padding: 2.5rem 5%;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.social-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.social-links a {
+  color: var(--orange-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
 }
