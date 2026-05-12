@@ -1,94 +1,81 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=23453743&assignment_repo_type=AssignmentRepo)
+# ltw02g06
 
-# LTW Project - ltw02g06
+A PHP/SQLite gym management platform for FitHub Gym.
 
-A web platform for personal trainers built with PHP, SQLite, HTML and CSS.
+## Features
 
-## Requirements
+**All users:**
+- [x] Register a new account.
+- [x] Log in and out.
+- [x] Edit their profile, including name, username, password, and profile photo.
 
-- PHP 8.0 or higher (with PDO and PDO_SQLite extensions enabled)
-- A terminal / command prompt
+**Members:**
+- [x] Browse the schedule of available fitness classes, filtering by type, trainer, day, or text search.
+- [x] Enroll in and cancel enrollment from upcoming classes, subject to capacity limits.
+- [x] View trainer profiles, including their specializations and the classes they teach.
+- [x] Check the current availability of equipment in the main training area.
+- [ ] Leave ratings and reviews for classes they have attended.
 
-## Setup
+**Trainers:**
+- [x] Public profile with bio, specializations, and certifications.
+- [x] Public class schedule with enrollment counts.
+- [ ] Private roster management page.
 
-### 1. Clone the repository
+**Admins:**
+- [ ] Manage members and trainers.
+- [ ] Manage the class catalog and assign trainers.
+- [ ] Manage equipment availability.
+- [ ] Elevate a user to admin status.
+- [ ] Oversee platform operation.
+
+**Extra:**
+- [x] Ajax class search in the navbar.
+- [x] Ajax equipment availability refresh.
+- [x] SQLite database script and seed data.
+- [x] CSRF protection on forms that change data.
+- [x] Passwords stored with `password_hash()`.
+- [x] PDO prepared statements.
+
+## Running
+
+From the project root:
 
 ```bash
-git clone https://github.com/FEUP-LTW-2026/ltw-project-ltw02g06.git
-cd ltw-project-ltw02g06
+php -S localhost:9000
 ```
 
-### 2. Create the database connection file
+Then open:
 
-Create the file `Database/db.php` with the following content:
-
-```php
-<?php
-function getDB(): PDO {
-    $db = new PDO('sqlite:' . __DIR__ . '/LTW-DataBAse-1.db');
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    return $db;
-}
-?>
+```text
+http://localhost:9000/
 ```
 
-### 3. Start the local PHP server
-
-From the project root, run:
+The app automatically creates `database/database.db` from `database/database.sql` if the database file does not exist. You can also recreate it manually:
 
 ```bash
-php -S localhost:8000
+rm -f database/database.db
+sqlite3 database/database.db < database/database.sql
+php -S localhost:9000
 ```
 
-Then open your browser at [http://localhost:8000](http://localhost:8000).
+## Credentials
 
-## Connecting pages to the database
+- admin / p4s5w0rd
+- member / 123456
+- ana / 123456
+- ricardo / 123456
+- sofia / 123456
+- david / 123456
 
-HTML pages that need dynamic data should be renamed to `.php` and use PDO to query the database.
+## Pages
 
-**Fetch a single row:**
-```php
-<?php
-require_once 'Database/db.php';
-$db = getDB();
+- `index.php` - dashboard/homepage
+- `book-class.php` - class schedule, filters, enroll/cancel booking
+- `trainers.php` - trainer list
+- `trainer-profile.php?id=3` - trainer profile and class schedule
+- `equipment.php` - equipment availability with Ajax refresh
+- `login.php`, `register.php`, `edit-profile.php` - account flows
 
-$stmt = $db->prepare('SELECT * FROM trainers WHERE id = ?');
-$stmt->execute([$_GET['id'] ?? 1]);
-$trainer = $stmt->fetch();
-?>
-```
+## Notes for final delivery
 
-**Fetch all rows:**
-```php
-$stmt = $db->query('SELECT * FROM trainers');
-$trainers = $stmt->fetchAll();
-```
-
-**Insert data:**
-```php
-$stmt = $db->prepare('INSERT INTO bookings (user_id, trainer_id, date) VALUES (?, ?, ?)');
-$stmt->execute([$userId, $trainerId, $date]);
-```
-
-**Output data safely in HTML (always use `htmlspecialchars` to prevent XSS):**
-```php
-<h1><?= htmlspecialchars($trainer['name']) ?></h1>
-<p><?= htmlspecialchars($trainer['bio']) ?></p>
-```
-
-> Always use prepared statements with `?` placeholders — never put user input directly in SQL queries.
-
-## Project Structure
-
-```
-ltw-project-ltw02g06/
-├── Database/
-│   ├── LTW-DataBAse-1.db   # SQLite database
-│   └── db.php              # PDO connection helper
-├── profile.php             # Trainer profile page
-├── book-class.php          # Class booking page
-├── index.php               # Home page
-├── style.css               # Shared styles
-└── README.md
-```
+The final delivery still needs the admin management screens and member reviews if the group wants every base requirement checked. The current version covers the expected week 10-12 work: database, PHP pages, class booking, dynamic trainers/equipment, and JavaScript/Ajax.

@@ -25,72 +25,6 @@ VARIÁVEIS E CONFIGURAÇÕES GERAIS
 
 
 /* ==========================================================================
-NAVBAR
-========================================================================== */
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 20px 5%;
-  background: var(--orange);
-  box-shadow: 0 8px 24px rgba(216, 114, 54, 0.16);
-}
-
-.nav-logo {
-  font-family: 'Crimson Pro', serif;
-  font-size: 1.7rem;
-  font-weight: 700;
-  color: white;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  list-style: none;
-  gap: 1.4rem;
-}
-
-.nav-links a {
-  color: rgba(255, 255, 255, 0.95);
-  text-decoration: none;
-  font-weight: 600;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.nav-links a:hover {
-  opacity: 0.82;
-  transform: translateY(-1px);
-}
-
-.nav-actions {
-  display: flex;
-  gap: 0.9rem;
-  align-items: center;
-}
-
-.btn-login,
-.btn-join {
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.btn-login {
-  color: white;
-}
-
-.btn-join {
-  background: white;
-  color: var(--orange);
-  padding: 0.7rem 1.1rem;
-  border-radius: 999px;
-  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
-}
-
-/* ==========================================================================
 LAYOUT E CABEÇALHO
 ========================================================================== */
 
@@ -320,6 +254,8 @@ FOOTER E RESPONSIVIDADE
   }
 }
 
+
+
 @media (max-width: 640px) {
   .classes-grid {
     grid-template-columns: 1fr;
@@ -327,5 +263,64 @@ FOOTER E RESPONSIVIDADE
 
   .filter-controls {
     flex-direction: column;
+  }
+}
+.page-header p {
+  color: var(--text-soft);
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  max-width: 52rem;
+}
+
+.page-message,
+.form-message {
+  width: min(720px, 100%);
+  margin: 0 auto 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fffaf6;
+  color: var(--text-dark);
+  font-weight: 700;
+  text-align: center;
+}
+
+.class-description {
+  color: var(--text-soft);
+  line-height: 1.5;
+  margin-bottom: 0.9rem;
+}
+
+.inline-form {
+  margin: 0;
+}
+
+.btn-book {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn-book--cancel {
+  background: #ef4444;
+}
+
+@media (max-width: 640px) {
+  .filter-controls {
+    flex-direction: column;
+  }
+
+  .input-search,
+  .select-field,
+  .btn-clear {
+    width: 100%;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
   }
 }

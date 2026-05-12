@@ -25,74 +25,6 @@ VARIÁVEIS E CONFIGURAÇÕES GERAIS
 
 
 /* ==========================================================================
-NAVBAR
-========================================================================== */
-
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 20px 5%;
-    background: var(--orange);
-    box-shadow: 0 8px 24px rgba(216, 114, 54, 0.16);
-  }
-  
-  .nav-logo {
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.7rem;
-    font-weight: 700;
-    color: white;
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  
-  .nav-links {
-    display: flex;
-    align-items: center;
-    list-style: none;
-    gap: 1.4rem;
-  }
-  
-  .nav-links a {
-    color: rgba(255, 255, 255, 0.95);
-    text-decoration: none;
-    font-weight: 600;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
-  
-  .nav-links a:hover {
-    opacity: 0.82;
-    transform: translateY(-1px);
-  }
-  
-  .nav-actions {
-    display: flex;
-    gap: 0.9rem;
-    align-items: center;
-  }
-  
-  .btn-login,
-  .btn-join {
-    cursor: pointer;
-    font-weight: 700;
-  }
-  
-  .btn-login {
-    color: white;
-  }
-  
-  .btn-join {
-    background: white;
-    color: var(--orange);
-    padding: 0.7rem 1.1rem;
-    border-radius: 999px;
-    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.18);
-  }
-
-
-/* ==========================================================================
 LAYOUT E CABEÇALHO
 ========================================================================== */
 
@@ -177,3 +109,73 @@ Cards
     }
 }
 
+
+.page-header p {
+  color: var(--text-soft);
+  margin-top: -1rem;
+}
+
+.equipment-list-section {
+  margin-top: 2rem;
+}
+
+.equipment-list-section h2 {
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.equipment-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.equipment-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.equipment-item h3 {
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.equipment-item p {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.equipment-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: #fffaf6;
+  color: var(--text-body);
+}
+
+.equipment-pill--available { background: #e1f5ee; color: #085041; }
+.equipment-pill--in-use { background: #fcebeb; color: #791f1f; }
+.equipment-pill--reserved { background: #faeeda; color: #633806; }
+.equipment-pill--maintenance { background: #eee; color: #444; }
+
+@media (max-width: 900px) {
+  .equipment-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .equipment-list {
+    grid-template-columns: 1fr;
+  }
+}
