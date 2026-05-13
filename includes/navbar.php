@@ -33,6 +33,9 @@ if ($loggedIn) {
       <li><a href="book-class.php">Classes</a></li>
       <li><a href="trainers.php">Trainers</a></li>
       <li><a href="equipment.php">Equipment</a></li>
+      <?php if ($role === 'Admin'): ?>
+        <li><a href="admin.php" class="nav-admin-link">Admin Dashboard</a></li>
+      <?php endif; ?>
     </ul>
 
     <div class="nav-search" id="nav-search-wrapper" role="search">
