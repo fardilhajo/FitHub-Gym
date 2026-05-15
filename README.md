@@ -22,11 +22,11 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [ ] Private roster management page.
 
 **Admins:**
-- [ ] Manage members and trainers.
-- [ ] Manage the class catalog and assign trainers.
-- [ ] Manage equipment availability.
-- [ ] Elevate a user to admin status.
-- [ ] Oversee platform operation.
+- [x] Manage members and trainers.
+- [x] Manage the class catalog and assign trainers.
+- [x] Manage equipment availability.
+- [x] Elevate a user to admin status.
+- [x] Oversee platform operation.
 
 **Extra:**
 - [x] Ajax class search in the navbar.
