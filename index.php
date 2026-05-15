@@ -207,6 +207,12 @@ if ($user) {
     </section>
   </main>
 
+  <footer class="main-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 FitHub Gym. Move your body, change your life.</p>
+      <div class="social-links"><a href="#">Instagram</a><a href="#">Facebook</a></div>
+    </div>
+  </footer>
   <script src="js/navbar.js"></script>
 </body>
 </html>

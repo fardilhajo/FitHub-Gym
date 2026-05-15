@@ -42,6 +42,9 @@ if ($loggedIn) {
     </div>
 
     <div class="nav-actions">
+      <?php if ($loggedIn && $role === 'Trainer'): ?>
+        <a href="trainer-analytics.php" class="btn-analytics">My Analytics</a>
+      <?php endif; ?>
       <?php if ($loggedIn): ?>
         <a href="edit-profile.php" class="nav-user" title="Edit profile">
           <span class="nav-avatar"><?= e($initials) ?></span>
