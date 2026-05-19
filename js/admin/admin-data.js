@@ -35,81 +35,14 @@ var ROOMS = ["Studio A", "Studio B", "Studio C", "Spin Room", "Main Floor", "Com
 var DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 var EQUIPMENT_STATUSES = ["Available", "In use", "Reserved", "Maintenance"];
 
-/* ----- Seed data (matches your DB schema) ------------------------------ */
-var seedUsers = [
-  { UserID: 1,  Name: "Admin User",     Username: "admin",   Role: "Admin",   IsActive: 1, Joined: "2024-08-12", LastLogin: "Today, 09:14" },
-  { UserID: 2,  Name: "Marta Costa",    Username: "member",  Role: "Member",  IsActive: 1, Joined: "2025-02-04", LastLogin: "Today, 07:52" },
-  { UserID: 3,  Name: "Ana Pereira",    Username: "ana",     Role: "Trainer", IsActive: 1, Joined: "2024-09-21", LastLogin: "Yesterday, 18:30" },
-  { UserID: 4,  Name: "Ricardo Faria",  Username: "ricardo", Role: "Trainer", IsActive: 1, Joined: "2024-11-03", LastLogin: "Today, 06:10" },
-  { UserID: 5,  Name: "Sofia Almeida",  Username: "sofia",   Role: "Trainer", IsActive: 1, Joined: "2025-01-14", LastLogin: "2 days ago" },
-  { UserID: 6,  Name: "David Marques",  Username: "david",   Role: "Trainer", IsActive: 0, Joined: "2024-07-08", LastLogin: "3 weeks ago" },
-  { UserID: 7,  Name: "Inês Silva",     Username: "ines",    Role: "Member",  IsActive: 1, Joined: "2025-03-22", LastLogin: "Today, 12:01" },
-  { UserID: 8,  Name: "João Ribeiro",   Username: "joao_r",  Role: "Member",  IsActive: 1, Joined: "2024-12-30", LastLogin: "Today, 11:44" },
-  { UserID: 9,  Name: "Carla Mendes",   Username: "carla",   Role: "Member",  IsActive: 1, Joined: "2025-04-01", LastLogin: "Yesterday, 19:05" },
-  { UserID: 10, Name: "Pedro Santos",   Username: "pedro_s", Role: "Member",  IsActive: 1, Joined: "2025-04-18", LastLogin: "Yesterday, 08:22" },
-  { UserID: 11, Name: "Beatriz Lopes",  Username: "bea",     Role: "Member",  IsActive: 1, Joined: "2025-05-02", LastLogin: "4 days ago" },
-  { UserID: 12, Name: "Miguel Sousa",   Username: "miguel",  Role: "Member",  IsActive: 0, Joined: "2024-10-11", LastLogin: "2 months ago" },
-  { UserID: 13, Name: "Helena Cruz",    Username: "helena",  Role: "Member",  IsActive: 1, Joined: "2025-01-29", LastLogin: "Today, 10:33" },
-  { UserID: 14, Name: "Tiago Nunes",    Username: "tiago",   Role: "Member",  IsActive: 1, Joined: "2025-03-14", LastLogin: "Yesterday, 21:09" },
-  { UserID: 15, Name: "Rita Carvalho",  Username: "rita",    Role: "Member",  IsActive: 1, Joined: "2025-02-19", LastLogin: "Today, 08:47" }
-];
-
-var seedTrainerProfiles = {
-  3: { Bio: "Strength & conditioning coach. Yes, those are her squats on Instagram.", Specializations: "Strength, HIIT, Mobility", Certifications: 4 },
-  4: { Bio: "Ex-cyclist turned spin instructor. Pain is a feature, not a bug.",       Specializations: "Spinning, Cardio, HIIT",    Certifications: 3 },
-  5: { Bio: "Yoga and breathwork. Promises not to chant. Much.",                       Specializations: "Yoga, Pilates, Mobility",   Certifications: 5 },
-  6: { Bio: "Combat sports background. On sabbatical.",                                Specializations: "Boxing, CrossFit",          Certifications: 2 }
-};
-
-var seedClasses = [
-  { ClassID: 101, Name: "Sunrise HIIT",        Type: "HIIT",     TrainerID: 3, Day: "Monday",    StartTime: "07:00", EndTime: "07:45", Room: "Studio A",   Capacity: 16, Enrolled: 14, IsActive: 1, Description: "Wake up, burn out, repeat." },
-  { ClassID: 102, Name: "Power Hour Strength", Type: "Strength", TrainerID: 3, Day: "Wednesday", StartTime: "18:00", EndTime: "19:00", Room: "Main Floor", Capacity: 12, Enrolled: 12, IsActive: 1, Description: "Compound lifts, big weights, bigger ego (just kidding)." },
-  { ClassID: 103, Name: "Spin & Sweat",        Type: "Spinning", TrainerID: 4, Day: "Tuesday",   StartTime: "19:30", EndTime: "20:15", Room: "Spin Room",  Capacity: 20, Enrolled: 18, IsActive: 1, Description: "Beat-matched climbs. You will hate the playlist by minute 30." },
-  { ClassID: 104, Name: "Threshold Ride",      Type: "Spinning", TrainerID: 4, Day: "Thursday",  StartTime: "06:30", EndTime: "07:15", Room: "Spin Room",  Capacity: 20, Enrolled: 9,  IsActive: 1, Description: "FTP test territory. Bring a towel and lower expectations." },
-  { ClassID: 105, Name: "Morning Flow Yoga",   Type: "Yoga",     TrainerID: 5, Day: "Monday",    StartTime: "08:30", EndTime: "09:30", Room: "Studio C",   Capacity: 18, Enrolled: 17, IsActive: 1, Description: "Slow ramp, deep breath, exit calm." },
-  { ClassID: 106, Name: "Reformer Pilates",    Type: "Pilates",  TrainerID: 5, Day: "Friday",    StartTime: "12:00", EndTime: "12:50", Room: "Studio B",   Capacity: 8,  Enrolled: 8,  IsActive: 1, Description: "Core focus, controlled movement, surprising soreness." },
-  { ClassID: 107, Name: "Mobility Lab",        Type: "Mobility", TrainerID: 3, Day: "Saturday",  StartTime: "10:00", EndTime: "10:45", Room: "Studio C",   Capacity: 14, Enrolled: 6,  IsActive: 1, Description: "Hip openers. Bring patience, leave with range of motion." },
-  { ClassID: 108, Name: "Boxing Fundamentals", Type: "Boxing",   TrainerID: 6, Day: "Wednesday", StartTime: "20:00", EndTime: "21:00", Room: "Combat Room",Capacity: 10, Enrolled: 0,  IsActive: 0, Description: "On pause while David is on sabbatical." },
-  { ClassID: 109, Name: "Lunchtime Pilates",   Type: "Pilates",  TrainerID: 5, Day: "Tuesday",   StartTime: "12:30", EndTime: "13:15", Room: "Studio B",   Capacity: 12, Enrolled: 11, IsActive: 1, Description: "45 minutes. In and out before your meeting." },
-  { ClassID: 110, Name: "Weekend Warrior HIIT",Type: "HIIT",     TrainerID: 3, Day: "Saturday",  StartTime: "09:00", EndTime: "09:45", Room: "Main Floor", Capacity: 18, Enrolled: 13, IsActive: 1, Description: "Saturday morning's least forgiving alarm." }
-];
-
-var seedEquipment = [
-  { EquipmentID: 201, Name: "Treadmill #1",        Category: "Cardio",       Status: "Available",   Location: "Cardio Zone", UpdatedAt: "10 min ago" },
-  { EquipmentID: 202, Name: "Treadmill #2",        Category: "Cardio",       Status: "In use",      Location: "Cardio Zone", UpdatedAt: "2 min ago" },
-  { EquipmentID: 203, Name: "Treadmill #3",        Category: "Cardio",       Status: "Maintenance", Location: "Cardio Zone", UpdatedAt: "Yesterday" },
-  { EquipmentID: 204, Name: "Rowing Machine A",    Category: "Cardio",       Status: "Available",   Location: "Cardio Zone", UpdatedAt: "5 min ago" },
-  { EquipmentID: 205, Name: "Rowing Machine B",    Category: "Cardio",       Status: "Available",   Location: "Cardio Zone", UpdatedAt: "1 hr ago" },
-  { EquipmentID: 206, Name: "Stationary Bike",     Category: "Cardio",       Status: "Reserved",    Location: "Cardio Zone", UpdatedAt: "20 min ago" },
-  { EquipmentID: 207, Name: "Squat Rack #1",       Category: "Strength",     Status: "In use",      Location: "Main Floor",  UpdatedAt: "Just now" },
-  { EquipmentID: 208, Name: "Squat Rack #2",       Category: "Strength",     Status: "Available",   Location: "Main Floor",  UpdatedAt: "8 min ago" },
-  { EquipmentID: 209, Name: "Bench Press",         Category: "Strength",     Status: "In use",      Location: "Main Floor",  UpdatedAt: "Just now" },
-  { EquipmentID: 210, Name: "Cable Machine",       Category: "Strength",     Status: "Available",   Location: "Main Floor",  UpdatedAt: "15 min ago" },
-  { EquipmentID: 211, Name: "Dumbbell Set 5-30kg", Category: "Free Weights", Status: "Available",   Location: "Main Floor",  UpdatedAt: "1 hr ago" },
-  { EquipmentID: 212, Name: "Kettlebell Set",      Category: "Free Weights", Status: "Available",   Location: "Studio A",    UpdatedAt: "2 hr ago" },
-  { EquipmentID: 213, Name: "Olympic Barbells",    Category: "Free Weights", Status: "Maintenance", Location: "Main Floor",  UpdatedAt: "Yesterday" },
-  { EquipmentID: 214, Name: "Reformer #1",         Category: "Pilates",      Status: "Reserved",    Location: "Studio B",    UpdatedAt: "30 min ago" },
-  { EquipmentID: 215, Name: "Reformer #2",         Category: "Pilates",      Status: "Available",   Location: "Studio B",    UpdatedAt: "1 hr ago" },
-  { EquipmentID: 216, Name: "Yoga Mat Bundle",     Category: "Studio",       Status: "Available",   Location: "Studio C",    UpdatedAt: "Earlier today" }
-];
-
-var seedActivity = [
-  { id: 1, icon: "user-plus", tone: "green",   text: "<strong>Rita Carvalho</strong> joined as a Member.",            time: "10 minutes ago" },
-  { id: 2, icon: "edit",      tone: "default", text: "<strong>Sunrise HIIT</strong> capacity raised from 14 to 16.",  time: "32 minutes ago" },
-  { id: 3, icon: "crown",     tone: "default", text: "<strong>Inês Silva</strong> was promoted to Admin.",            time: "1 hour ago" },
-  { id: 4, icon: "wrench",    tone: "red",     text: "<strong>Treadmill #3</strong> marked as Maintenance by Ana P.", time: "Yesterday" },
-  { id: 5, icon: "pause",     tone: "default", text: "<strong>Boxing Fundamentals</strong> deactivated.",             time: "2 days ago" },
-  { id: 6, icon: "user-plus", tone: "green",   text: "<strong>Beatriz Lopes</strong> joined as a Member.",            time: "3 days ago" }
-];
-
-/* ----- Global app state ------------------------------------------------ */
+/* ----- Global app state (populated from DB on boot) -------------------- */
 var state = {
   view: "dashboard",
-  users: seedUsers.slice(),
-  classes: seedClasses.slice(),
-  equipment: seedEquipment.slice(),
-  trainerProfiles: Object.assign({}, seedTrainerProfiles),
-  activity: seedActivity.slice(),
+  users: [],
+  classes: [],
+  equipment: [],
+  trainerProfiles: {},
+  activity: [],
 
   // Per-view filters
   members: { search: "", role: "All", status: "All" },

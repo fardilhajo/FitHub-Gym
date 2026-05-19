@@ -518,7 +518,7 @@ function modalClass(m) {
   var typeOpts = SPECIALIZATIONS.map(function (s) {
     return '<option' + (c.Type === s ? " selected" : "") + '>' + s + '</option>';
   }).join("");
-  var trainerOpts = '<option value="">— pick one —</option>' + trainers.map(function (t) {
+  var trainerOpts = trainers.map(function (t) {
     return '<option value="' + t.UserID + '"' + (String(c.TrainerID) === String(t.UserID) ? " selected" : "") + '>' + escapeHtml(t.Name) + '</option>';
   }).join("");
   var dayOpts = DAYS.map(function (d) {

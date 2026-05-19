@@ -33,9 +33,6 @@ if ($loggedIn) {
       <li><a href="book-class.php">Classes</a></li>
       <li><a href="trainers.php">Trainers</a></li>
       <li><a href="equipment.php">Equipment</a></li>
-      <?php if ($role === 'Admin'): ?>
-        <li><a href="admin.php" class="nav-admin-link">Admin Dashboard</a></li>
-      <?php endif; ?>
     </ul>
 
     <div class="nav-search" id="nav-search-wrapper" role="search">
@@ -46,12 +43,21 @@ if ($loggedIn) {
 
     <div class="nav-actions">
       <?php if ($loggedIn): ?>
-        <a href="edit-profile.php" class="nav-user" title="Edit profile">
-          <span class="nav-avatar"><?= e($initials) ?></span>
-          <span class="nav-username"><?= e($userName) ?></span>
-          <span class="nav-role"><?= e($role) ?></span>
-        </a>
-        <a href="logout.php" class="btn-login">Logout</a>
+        <div class="nav-user-dropdown" id="nav-user-dropdown">
+          <button class="nav-user nav-user-toggle" type="button" aria-haspopup="true" aria-expanded="false" id="nav-user-btn">
+            <span class="nav-avatar"><?= e($initials) ?></span>
+            <span class="nav-username"><?= e($userName) ?></span>
+            <span class="nav-role"><?= e($role) ?></span>
+            <span class="nav-caret" aria-hidden="true">&#9662;</span>
+          </button>
+          <div class="nav-user-menu" id="nav-user-menu" role="menu">
+            <a href="edit-profile.php" class="nav-user-menu-item" role="menuitem">Edit Profile</a>
+            <?php if ($role === 'Admin'): ?>
+              <a href="admin.php" class="nav-user-menu-item" role="menuitem">Admin Dashboard</a>
+            <?php endif; ?>
+            <a href="logout.php" class="nav-user-menu-item nav-user-menu-item--logout" role="menuitem">Logout</a>
+          </div>
+        </div>
       <?php else: ?>
         <a href="login.php" class="btn-login">Login</a>
         <a href="register.php" class="btn-join">Join Now</a>
