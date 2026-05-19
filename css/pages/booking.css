@@ -87,15 +87,20 @@ FILTROS
 }
 
 .btn-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.25rem;
   padding: 0.55rem 1.25rem;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: #fffaf6;
   color: var(--text-body);
+  font-family: inherit;
   font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
   transition: all 0.2s;
 }
 
