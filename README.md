@@ -35,6 +35,8 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] CSRF protection on forms that change data.
 - [x] Passwords stored with `password_hash()`.
 - [x] PDO prepared statements.
+- [x] Member Progress Tracking
+- [x] Nutrition Plans
 
 ## Running
 
