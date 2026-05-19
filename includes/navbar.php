@@ -31,6 +31,8 @@ if ($loggedIn) {
     <ul class="nav-links">
       <li><a href="index.php">Home</a></li>
       <li><a href="book-class.php">Classes</a></li>
+      <li><a href="personal-training.php">Personal Training</a></li>
+      <li><a href="membership-plans.php">Plans</a></li>
       <li><a href="trainers.php">Trainers</a></li>
       <li><a href="equipment.php">Equipment</a></li>
       <?php if ($role === 'Admin'): ?>
