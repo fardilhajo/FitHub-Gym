@@ -22,10 +22,7 @@ function render() {
     if (item.id === "members")   badge = state.users.length;
     if (item.id === "trainers")  badge = state.users.filter(function (u) { return u.Role === "Trainer"; }).length;
     if (item.id === "classes")   badge = state.classes.length;
-    if (item.id === "equipment") {
-      var down = state.equipment.filter(function (e) { return e.Status === "Maintenance"; }).length;
-      badge = down ? down + "!" : "";
-    }
+    if (item.id === "equipment") badge = state.equipment.length;
     var badgeHtml = badge !== "" ? '<span class="admin-nav-badge">' + badge + '</span>' : "";
     return ''
       + '<button class="admin-nav-item' + (state.view === item.id ? " is-active" : "") + '" data-action="jump" data-view="' + item.id + '">'
@@ -88,6 +85,49 @@ function toast(text, kind) {
   }, 3000);
 }
 
+/* ----- API helpers ---------------------------------------------------- */
+
+function apiCall(method, url, data, done) {
+  fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(data)
+  })
+    .then(function (r) { return r.json(); })
+    .then(done)
+    .catch(function (err) {
+      console.error('API error:', err);
+      done({ ok: false, error: 'Network error' });
+    });
+}
+
+function replaceInArray(arr, key, obj) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i][key] === obj[key]) { arr[i] = obj; return; }
+  }
+}
+
+/* ----- Data load ------------------------------------------------------ */
+
+function loadData(done) {
+  fetch('api/admin/data.php', { headers: { Accept: 'application/json' } })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      state.users          = data.users          || [];
+      state.classes        = data.classes        || [];
+      state.equipment      = data.equipment      || [];
+      state.trainerProfiles = data.trainerProfiles || {};
+      done();
+    })
+    .catch(function (err) {
+      console.error('Failed to load admin data:', err);
+      done();
+    });
+}
+
 /* ----- Form helpers --------------------------------------------------- */
 
 function collectForm(form) {
@@ -119,45 +159,49 @@ function submitUserForm(form) {
     return;
   }
 
-  if (state.modal.isNew) {
-    var id = nextId(state.users, "UserID");
-    state.users.push({
-      UserID: id,
-      Name: d.Name,
-      Username: d.Username,
-      Role: d.Role || "Member",
-      IsActive: 1,
-      Joined: new Date().toISOString().slice(0, 10),
-      LastLogin: "Never"
+  var isNew = state.modal.isNew;
+  if (isNew) {
+    apiCall('POST', 'api/admin/users.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error creating user', 'error'); return; }
+      state.users.push(res.user);
+      toast('Created ' + res.user.Name);
+      state.modal = null;
+      render();
     });
-    toast("Created " + d.Name);
   } else {
-    var u = findById(state.users, "UserID", state.modal.id);
-    if (u) {
-      u.Name = d.Name;
-      u.Username = d.Username;
-      u.Role = d.Role;
-      u.IsActive = d.IsActive ? 1 : 0;
-      toast("Updated " + u.Name);
-    }
+    d.UserID = state.modal.id;
+    apiCall('PATCH', 'api/admin/users.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error saving user', 'error'); return; }
+      replaceInArray(state.users, 'UserID', res.user);
+      toast('Updated ' + res.user.Name);
+      state.modal = null;
+      render();
+    });
   }
-  state.modal = null;
-  render();
 }
 
 function submitTrainerForm(form) {
   var d = collectForm(form);
   var id = state.modal.trainer.UserID;
-  var trainer = findById(state.users, "UserID", id);
-  if (trainer) trainer.Name = d.Name;
-  state.trainerProfiles[id] = {
-    Bio: d.Bio || "",
-    Specializations: d.Specializations || "",
-    Certifications: Number(d.Certifications) || 0
-  };
-  toast("Profile saved");
-  state.modal = null;
-  render();
+  apiCall('PATCH', 'api/admin/trainers.php', {
+    TrainerID:       id,
+    Name:            d.Name,
+    Bio:             d.Bio             || '',
+    Specializations: d.Specializations || '',
+    Certifications:  d.Certifications  || 0
+  }, function (res) {
+    if (!res.ok) { toast(res.error || 'Error saving profile', 'error'); return; }
+    var trainer = findById(state.users, 'UserID', id);
+    if (trainer) trainer.Name = d.Name;
+    state.trainerProfiles[id] = {
+      Bio:             d.Bio             || '',
+      Specializations: d.Specializations || '',
+      Certifications:  Number(d.Certifications) || 0
+    };
+    toast('Profile saved');
+    state.modal = null;
+    render();
+  });
 }
 
 function submitClassForm(form) {
@@ -175,23 +219,28 @@ function submitClassForm(form) {
   }
 
   d.TrainerID = Number(d.TrainerID);
-  d.IsActive = Number(d.IsActive);
-  d.Capacity = Number(d.Capacity);
+  d.IsActive  = Number(d.IsActive);
+  d.Capacity  = Number(d.Capacity);
 
-  if (state.modal.isNew) {
-    d.ClassID = nextId(state.classes, "ClassID");
-    d.Enrolled = 0;
-    state.classes.push(d);
-    toast('Created "' + d.Name + '"');
+  var isNew = state.modal.isNew;
+  if (isNew) {
+    apiCall('POST', 'api/admin/classes.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error creating class', 'error'); return; }
+      state.classes.push(res.class);
+      toast('Created "' + res.class.Name + '"');
+      state.modal = null;
+      render();
+    });
   } else {
-    var c = findById(state.classes, "ClassID", state.modal.id);
-    if (c) {
-      for (var k in d) if (d.hasOwnProperty(k)) c[k] = d[k];
-      toast('Updated "' + c.Name + '"');
-    }
+    d.ClassID = state.modal.id;
+    apiCall('PATCH', 'api/admin/classes.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error saving class', 'error'); return; }
+      replaceInArray(state.classes, 'ClassID', res.class);
+      toast('Updated "' + res.class.Name + '"');
+      state.modal = null;
+      render();
+    });
   }
-  state.modal = null;
-  render();
 }
 
 function submitEquipmentForm(form) {
@@ -206,21 +255,25 @@ function submitEquipmentForm(form) {
     return;
   }
 
-  if (state.modal.isNew) {
-    d.EquipmentID = nextId(state.equipment, "EquipmentID");
-    d.UpdatedAt = "Just now";
-    state.equipment.push(d);
-    toast("Added " + d.Name);
+  var isNew = state.modal.isNew;
+  if (isNew) {
+    apiCall('POST', 'api/admin/equipment.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error adding equipment', 'error'); return; }
+      state.equipment.push(res.equipment);
+      toast('Added ' + res.equipment.Name);
+      state.modal = null;
+      render();
+    });
   } else {
-    var e = findById(state.equipment, "EquipmentID", state.modal.id);
-    if (e) {
-      for (var k in d) if (d.hasOwnProperty(k)) e[k] = d[k];
-      e.UpdatedAt = "Just now";
-      toast("Updated " + e.Name);
-    }
+    d.EquipmentID = state.modal.id;
+    apiCall('PATCH', 'api/admin/equipment.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error saving equipment', 'error'); return; }
+      replaceInArray(state.equipment, 'EquipmentID', res.equipment);
+      toast('Updated ' + res.equipment.Name);
+      state.modal = null;
+      render();
+    });
   }
-  state.modal = null;
-  render();
 }
 
 /* ----- Event delegation ----------------------------------------------- */
@@ -237,7 +290,6 @@ function setupEvents() {
 
     if (action === "jump") {
       state.view = target.getAttribute("data-view");
-      // Reset modals + scroll to top on view change
       state.modal = null; state.confirm = null;
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -245,7 +297,6 @@ function setupEvents() {
     }
 
     if (action === "modal-close" || action === "modal-close-bg") {
-      // Backdrop close: only if the backdrop itself, not the inner modal
       if (action === "modal-close-bg" && ev.target !== target) return;
       state.modal = null;
       render();
@@ -262,8 +313,8 @@ function setupEvents() {
     if (action === "confirm-yes") {
       var fn = state.confirm && state.confirm.onConfirm;
       state.confirm = null;
-      if (fn) fn();
       render();
+      if (fn) fn();
       return;
     }
 
@@ -300,7 +351,15 @@ function setupEvents() {
         body: up.Name + " will get full admin access to FitHub. They'll be able to manage every member, trainer, class and piece of equipment.",
         kind: "warning",
         confirmLabel: "Yes, promote",
-        onConfirm: function () { up.Role = "Admin"; toast(up.Name + " is now an Admin"); render(); }
+        onConfirm: function () {
+          apiCall('PATCH', 'api/admin/users.php', { UserID: up.UserID, Name: up.Name, Username: up.Username, Role: 'Admin', IsActive: up.IsActive }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            replaceInArray(state.users, 'UserID', res.user);
+            state.activity.unshift({ id: Date.now(), icon: 'crown', tone: 'default', text: '<strong>' + escapeHtml(res.user.Name) + '</strong> was promoted to Admin.', time: 'Just now' });
+            toast(res.user.Name + ' is now an Admin');
+            render();
+          });
+        }
       };
       render();
       return;
@@ -313,7 +372,14 @@ function setupEvents() {
         body: ud.Name + " will lose access to FitHub. Their bookings and enrollments stay on record — you can reactivate them anytime.",
         kind: "danger",
         confirmLabel: "Deactivate",
-        onConfirm: function () { ud.IsActive = 0; toast(ud.Name + " deactivated"); render(); }
+        onConfirm: function () {
+          apiCall('PATCH', 'api/admin/users.php', { UserID: ud.UserID, Name: ud.Name, Username: ud.Username, Role: ud.Role, IsActive: 0 }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            replaceInArray(state.users, 'UserID', res.user);
+            toast(res.user.Name + ' deactivated');
+            render();
+          });
+        }
       };
       render();
       return;
@@ -326,7 +392,14 @@ function setupEvents() {
         body: ua.Name + " will regain access to FitHub immediately.",
         kind: "info",
         confirmLabel: "Reactivate",
-        onConfirm: function () { ua.IsActive = 1; toast(ua.Name + " reactivated"); render(); }
+        onConfirm: function () {
+          apiCall('PATCH', 'api/admin/users.php', { UserID: ua.UserID, Name: ua.Name, Username: ua.Username, Role: ua.Role, IsActive: 1 }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            replaceInArray(state.users, 'UserID', res.user);
+            toast(res.user.Name + ' reactivated');
+            render();
+          });
+        }
       };
       render();
       return;
@@ -343,10 +416,9 @@ function setupEvents() {
     }
     if (action === "trainer-spec-toggle") {
       var spec = target.getAttribute("data-spec");
-      var form = root.querySelector('form[data-form="trainer"]');
-      if (!form) return;
-      // Persist form values into modal state before re-render
-      var current = collectForm(form);
+      var trainerForm = root.querySelector('form[data-form="trainer"]');
+      if (!trainerForm) return;
+      var current = collectForm(trainerForm);
       var specs = (current.Specializations || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
       var idx = specs.indexOf(spec);
       if (idx >= 0) specs.splice(idx, 1); else specs.push(spec);
@@ -372,11 +444,22 @@ function setupEvents() {
     }
     if (action === "class-toggle") {
       var ct = findById(state.classes, "ClassID", Number(id));
-      if (ct) {
-        ct.IsActive = ct.IsActive ? 0 : 1;
-        toast('"' + ct.Name + '"' + (ct.IsActive ? " reactivated" : " paused"));
+      if (!ct) return;
+      var payload = Object.assign({}, ct, { IsActive: ct.IsActive ? 0 : 1 });
+      apiCall('PATCH', 'api/admin/classes.php', payload, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        replaceInArray(state.classes, 'ClassID', res.class);
+        var label = res.class.IsActive ? 'reactivated' : 'paused';
+        toast('"' + res.class.Name + '" ' + label);
+        state.activity.unshift({
+          id:   Date.now(),
+          icon: 'edit',
+          tone: res.class.IsActive ? 'green' : 'red',
+          text: '<strong>' + escapeHtml(res.class.Name) + '</strong> was ' + label + '.',
+          time: 'Just now'
+        });
         render();
-      }
+      });
       return;
     }
     if (action === "class-delete") {
@@ -388,9 +471,12 @@ function setupEvents() {
         kind: "danger",
         confirmLabel: "Delete class",
         onConfirm: function () {
-          state.classes = state.classes.filter(function (x) { return x.ClassID !== cd.ClassID; });
-          toast('Deleted "' + cd.Name + '"');
-          render();
+          apiCall('DELETE', 'api/admin/classes.php', { ClassID: cd.ClassID }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            state.classes = state.classes.filter(function (x) { return x.ClassID !== cd.ClassID; });
+            toast('Deleted "' + cd.Name + '"');
+            render();
+          });
         }
       };
       render();
@@ -404,9 +490,9 @@ function setupEvents() {
       return;
     }
     if (action === "equipment-edit") {
-      var e = findById(state.equipment, "EquipmentID", Number(id));
-      if (e) {
-        state.modal = { kind: "equipment", isNew: false, id: e.EquipmentID, data: Object.assign({}, e) };
+      var eq = findById(state.equipment, "EquipmentID", Number(id));
+      if (eq) {
+        state.modal = { kind: "equipment", isNew: false, id: eq.EquipmentID, data: Object.assign({}, eq) };
         render();
       }
       return;
@@ -414,7 +500,7 @@ function setupEvents() {
 
     /* ----- Misc ----- */
     if (action === "refresh") {
-      toast("Refreshed");
+      loadData(function () { toast("Refreshed"); render(); });
       return;
     }
     if (action === "export-csv") {
@@ -432,8 +518,6 @@ function setupEvents() {
     var bucket = state[parts[0]];
     if (bucket) {
       bucket[parts[1]] = el.value;
-      // Re-render without losing focus on this input
-      var name = el.name;
       var bindAttr = bind;
       var caret = el.selectionStart;
       render();
@@ -452,14 +536,16 @@ function setupEvents() {
     var bind = el.getAttribute && el.getAttribute("data-bind");
 
     if (action === "equipment-status") {
-      var id = Number(el.getAttribute("data-id"));
-      var item = findById(state.equipment, "EquipmentID", id);
-      if (item) {
-        item.Status = el.value;
-        item.UpdatedAt = "Just now";
-        toast(item.Name + " → " + el.value);
+      var eqId = Number(el.getAttribute("data-id"));
+      var item = findById(state.equipment, "EquipmentID", eqId);
+      if (!item) return;
+      var newStatus = el.value;
+      apiCall('PATCH', 'api/admin/equipment.php', Object.assign({}, item, { Status: newStatus }), function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+        replaceInArray(state.equipment, 'EquipmentID', res.equipment);
+        toast(res.equipment.Name + ' → ' + res.equipment.Status);
         render();
-      }
+      });
       return;
     }
 
@@ -484,6 +570,8 @@ function setupEvents() {
 /* ----- Boot ----------------------------------------------------------- */
 
 document.addEventListener("DOMContentLoaded", function () {
+  var root = document.getElementById("admin-root");
+  if (root) root.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:60vh;color:var(--text-soft);font-size:0.95rem;gap:0.6rem">' + Icons.Refresh + ' Loading…</div>';
   setupEvents();
-  render();
+  loadData(function () { render(); });
 });
