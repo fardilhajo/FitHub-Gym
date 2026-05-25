@@ -413,3 +413,15 @@ FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
     flex-direction: column;
   }
 }
+
+/* ========================================================================
+   Class waitlist
+   ======================================================================== */
+
+.btn-book--waitlist {
+  background: #854f0b;
+}
+
+.btn-book--waitlist-cancel {
+  background: #6b7280;
+}

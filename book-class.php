@@ -3,10 +3,72 @@ session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/notifications.php';
+require_once __DIR__ . '/includes/feature-schema.php';
+
+ensure_class_waitlist_schema($db);
 
 $user = current_user($db);
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
+
+function get_class_for_booking(PDO $db, int $classId): ?array
+{
+    $stmt = $db->prepare('
+        SELECT fc.ClassID, fc.Name, fc.Day, fc.StartTime, fc.Capacity,
+               COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
+        FROM FITNESS_CLASS fc
+        LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
+        WHERE fc.ClassID = :class_id AND fc.IsActive = 1
+        GROUP BY fc.ClassID
+    ');
+    $stmt->execute([':class_id' => $classId]);
+    $class = $stmt->fetch();
+
+    return $class ?: null;
+}
+
+function promote_next_waitlisted_member(PDO $db, array $class): ?array
+{
+    $countStmt = $db->prepare('SELECT COUNT(*) FROM CLASS_ENROLLMENT WHERE ClassID = :class_id AND Status = "Enrolled"');
+    $countStmt->execute([':class_id' => $class['ClassID']]);
+    if ((int)$countStmt->fetchColumn() >= (int)$class['Capacity']) {
+        return null;
+    }
+
+    $waitStmt = $db->prepare('
+        SELECT cw.WaitlistID, cw.MemberID, u.Name
+        FROM CLASS_WAITLIST cw
+        JOIN USER u ON u.UserID = cw.MemberID
+        WHERE cw.ClassID = :class_id AND cw.Status = "Waiting"
+        ORDER BY cw.JoinedAt ASC, cw.WaitlistID ASC
+        LIMIT 1
+    ');
+    $waitStmt->execute([':class_id' => $class['ClassID']]);
+    $next = $waitStmt->fetch();
+
+    if (!$next) {
+        return null;
+    }
+
+    $enrollStmt = $db->prepare('
+        INSERT INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
+        VALUES (:class_id, :member_id, "Enrolled")
+        ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Enrolled", EnrolledAt = CURRENT_TIMESTAMP
+    ');
+    $enrollStmt->execute([
+        ':class_id' => $class['ClassID'],
+        ':member_id' => $next['MemberID'],
+    ]);
+
+    $updateStmt = $db->prepare('
+        UPDATE CLASS_WAITLIST
+        SET Status = "Enrolled", PromotedAt = CURRENT_TIMESTAMP
+        WHERE WaitlistID = :waitlist_id
+    ');
+    $updateStmt->execute([':waitlist_id' => $next['WaitlistID']]);
+
+    return $next;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
@@ -16,19 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect_to('login.php');
     }
 
+    if ($user['Role'] !== 'Member') {
+        $_SESSION['flash'] = 'Only members can book classes or join waitlists.';
+        redirect_to('book-class.php');
+    }
+
     $classId = (int)($_POST['class_id'] ?? 0);
     $action = $_POST['action'] ?? '';
-
-    $classStmt = $db->prepare('
-        SELECT fc.ClassID, fc.Name, fc.Day, fc.StartTime, fc.Capacity,
-               COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
-        FROM FITNESS_CLASS fc
-        LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
-        WHERE fc.ClassID = :class_id AND fc.IsActive = 1
-        GROUP BY fc.ClassID
-    ');
-    $classStmt->execute([':class_id' => $classId]);
-    $class = $classStmt->fetch();
+    $class = get_class_for_booking($db, $classId);
 
     if (!$class) {
         $_SESSION['flash'] = 'Class not found.';
@@ -36,29 +93,148 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'enroll') {
-        if ((int)$class['EnrolledCount'] >= (int)$class['Capacity']) {
-            $_SESSION['flash'] = 'This class is already full.';
-        } else {
-            $stmt = $db->prepare('
-                INSERT INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
-                VALUES (:class_id, :member_id, "Enrolled")
-                ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Enrolled", EnrolledAt = CURRENT_TIMESTAMP
-            ');
-            $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
-            $_SESSION['flash'] = 'Class booked successfully.';
+        $db->beginTransaction();
+        try {
+            $class = get_class_for_booking($db, $classId);
+            if (!$class) {
+                throw new RuntimeException('Class not found.');
+            }
+
+            $alreadyStmt = $db->prepare('SELECT 1 FROM CLASS_ENROLLMENT WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Enrolled"');
+            $alreadyStmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+            if ($alreadyStmt->fetchColumn()) {
+                $_SESSION['flash'] = 'You are already enrolled in this class.';
+            } elseif ((int)$class['EnrolledCount'] >= (int)$class['Capacity']) {
+                $waitStmt = $db->prepare('
+                    INSERT INTO CLASS_WAITLIST (ClassID, MemberID, Status)
+                    VALUES (:class_id, :member_id, "Waiting")
+                    ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Waiting", JoinedAt = CURRENT_TIMESTAMP, PromotedAt = NULL
+                ');
+                $waitStmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+                $_SESSION['flash'] = 'This class is full, so you were added to the waitlist.';
+            } else {
+                $stmt = $db->prepare('
+                    INSERT INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
+                    VALUES (:class_id, :member_id, "Enrolled")
+                    ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Enrolled", EnrolledAt = CURRENT_TIMESTAMP
+                ');
+                $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+                $waitStmt = $db->prepare('UPDATE CLASS_WAITLIST SET Status = "Enrolled", PromotedAt = CURRENT_TIMESTAMP WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Waiting"');
+                $waitStmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+                $_SESSION['flash'] = 'Class booked successfully.';
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            $_SESSION['flash'] = 'Could not book this class. Please try again.';
+        }
+
+        if ($_SESSION['flash'] === 'Class booked successfully.') {
+            notify($db, (int)$user['UserID'], 'booking_confirmed',
+                'Booking Confirmed: ' . $class['Name'],
+                'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been confirmed. See you there!'
+            );
+        } elseif ($_SESSION['flash'] === 'This class is full, so you were added to the waitlist.') {
+            notify($db, (int)$user['UserID'], 'general',
+                'Waitlist Joined: ' . $class['Name'],
+                'You joined the waitlist for ' . $class['Name'] . '. You will be enrolled automatically if a spot opens.'
+            );
+        }
+    } elseif ($action === 'join_waitlist') {
+        $db->beginTransaction();
+        try {
+            $class = get_class_for_booking($db, $classId);
+            if (!$class) {
+                throw new RuntimeException('Class not found.');
+            }
+
+            $alreadyStmt = $db->prepare('SELECT 1 FROM CLASS_ENROLLMENT WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Enrolled"');
+            $alreadyStmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+            if ($alreadyStmt->fetchColumn()) {
+                $_SESSION['flash'] = 'You are already enrolled in this class.';
+            } elseif ((int)$class['EnrolledCount'] < (int)$class['Capacity']) {
+                $stmt = $db->prepare('
+                    INSERT INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
+                    VALUES (:class_id, :member_id, "Enrolled")
+                    ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Enrolled", EnrolledAt = CURRENT_TIMESTAMP
+                ');
+                $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+                $waitStmt = $db->prepare('UPDATE CLASS_WAITLIST SET Status = "Enrolled", PromotedAt = CURRENT_TIMESTAMP WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Waiting"');
+                $waitStmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+                $_SESSION['flash'] = 'A spot was available, so you were booked directly.';
+            } else {
+                $stmt = $db->prepare('
+                    INSERT INTO CLASS_WAITLIST (ClassID, MemberID, Status)
+                    VALUES (:class_id, :member_id, "Waiting")
+                    ON CONFLICT(ClassID, MemberID) DO UPDATE SET Status = "Waiting", JoinedAt = CURRENT_TIMESTAMP, PromotedAt = NULL
+                ');
+                $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+                $_SESSION['flash'] = 'You joined the class waitlist.';
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            $_SESSION['flash'] = 'Could not update the waitlist. Please try again.';
+        }
+
+        if (in_array($_SESSION['flash'], ['You joined the class waitlist.', 'This class is full, so you were added to the waitlist.'], true)) {
+            notify($db, (int)$user['UserID'], 'general',
+                'Waitlist Joined: ' . $class['Name'],
+                'You joined the waitlist for ' . $class['Name'] . '. You will be enrolled automatically if a spot opens.'
+            );
+        } elseif ($_SESSION['flash'] === 'A spot was available, so you were booked directly.') {
             notify($db, (int)$user['UserID'], 'booking_confirmed',
                 'Booking Confirmed: ' . $class['Name'],
                 'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been confirmed. See you there!'
             );
         }
-    } elseif ($action === 'cancel') {
-        $stmt = $db->prepare('UPDATE CLASS_ENROLLMENT SET Status = "Cancelled" WHERE ClassID = :class_id AND MemberID = :member_id');
+    } elseif ($action === 'leave_waitlist') {
+        $stmt = $db->prepare('UPDATE CLASS_WAITLIST SET Status = "Cancelled" WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Waiting"');
         $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
-        $_SESSION['flash'] = 'Booking cancelled.';
-        notify($db, (int)$user['UserID'], 'booking_cancelled',
-            'Booking Cancelled: ' . $class['Name'],
-            'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been cancelled.'
-        );
+        $_SESSION['flash'] = $stmt->rowCount() > 0 ? 'You left the waitlist.' : 'You were not on that waitlist.';
+    } elseif ($action === 'cancel') {
+        $promoted = null;
+        $db->beginTransaction();
+        try {
+            $stmt = $db->prepare('UPDATE CLASS_ENROLLMENT SET Status = "Cancelled" WHERE ClassID = :class_id AND MemberID = :member_id AND Status = "Enrolled"');
+            $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
+
+            if ($stmt->rowCount() > 0) {
+                $promoted = promote_next_waitlisted_member($db, $class);
+                $_SESSION['flash'] = $promoted
+                    ? 'Booking cancelled. The first waitlisted member was automatically enrolled.'
+                    : 'Booking cancelled.';
+            } else {
+                $_SESSION['flash'] = 'You were not enrolled in that class.';
+            }
+
+            $db->commit();
+        } catch (Throwable $e) {
+            $db->rollBack();
+            $_SESSION['flash'] = 'Could not cancel this booking. Please try again.';
+        }
+
+        if (strpos($_SESSION['flash'], 'Booking cancelled') === 0) {
+            notify($db, (int)$user['UserID'], 'booking_cancelled',
+                'Booking Cancelled: ' . $class['Name'],
+                'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been cancelled.'
+            );
+        }
+
+        if ($promoted) {
+            notify($db, (int)$promoted['MemberID'], 'booking_confirmed',
+                'Waitlist Spot Opened: ' . $class['Name'],
+                'Good news: a spot opened for ' . $class['Name'] . ', so you were automatically enrolled.'
+            );
+        }
     }
 
     redirect_to('book-class.php');
@@ -102,15 +278,30 @@ $sql = '
         fc.Description,
         fc.ImageURL,
         u.Name AS TrainerName,
-        COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount,
-        ROUND(AVG(cr.Rating), 1) AS AvgRating,
-        COUNT(cr.ReviewID) AS ReviewCount
+        COALESCE(enrolled.EnrolledCount, 0) AS EnrolledCount,
+        COALESCE(waiting.WaitlistCount, 0) AS WaitlistCount,
+        reviews.AvgRating,
+        COALESCE(reviews.ReviewCount, 0) AS ReviewCount
     FROM FITNESS_CLASS fc
     JOIN USER u ON fc.TrainerID = u.UserID
-    LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
-    LEFT JOIN CLASS_REVIEW cr ON cr.ClassID = fc.ClassID
+    LEFT JOIN (
+        SELECT ClassID, COUNT(*) AS EnrolledCount
+        FROM CLASS_ENROLLMENT
+        WHERE Status = "Enrolled"
+        GROUP BY ClassID
+    ) enrolled ON enrolled.ClassID = fc.ClassID
+    LEFT JOIN (
+        SELECT ClassID, COUNT(*) AS WaitlistCount
+        FROM CLASS_WAITLIST
+        WHERE Status = "Waiting"
+        GROUP BY ClassID
+    ) waiting ON waiting.ClassID = fc.ClassID
+    LEFT JOIN (
+        SELECT ClassID, ROUND(AVG(Rating), 1) AS AvgRating, COUNT(*) AS ReviewCount
+        FROM CLASS_REVIEW
+        GROUP BY ClassID
+    ) reviews ON reviews.ClassID = fc.ClassID
     WHERE ' . implode(' AND ', $where) . '
-    GROUP BY fc.ClassID
     ORDER BY fc.Day, fc.StartTime
 ';
 $stmt = $db->prepare($sql);
@@ -122,10 +313,15 @@ $dayOptions = $db->query('SELECT DISTINCT Day FROM FITNESS_CLASS WHERE IsActive 
 $trainerOptions = $db->query('SELECT UserID, Name FROM USER WHERE Role = "Trainer" AND IsActive = 1 ORDER BY Name')->fetchAll();
 
 $enrolledClassIds = [];
+$waitlistedClassIds = [];
 if ($user) {
     $enrolledStmt = $db->prepare('SELECT ClassID FROM CLASS_ENROLLMENT WHERE MemberID = :member AND Status = "Enrolled"');
     $enrolledStmt->execute([':member' => $user['UserID']]);
     $enrolledClassIds = array_map('intval', $enrolledStmt->fetchAll(PDO::FETCH_COLUMN));
+
+    $waitlistStmt = $db->prepare('SELECT ClassID FROM CLASS_WAITLIST WHERE MemberID = :member AND Status = "Waiting"');
+    $waitlistStmt->execute([':member' => $user['UserID']]);
+    $waitlistedClassIds = array_map('intval', $waitlistStmt->fetchAll(PDO::FETCH_COLUMN));
 }
 ?>
 <!DOCTYPE html>
@@ -193,8 +389,10 @@ if ($user) {
             $enrolled = (int)$class['EnrolledCount'];
             $capacity = (int)$class['Capacity'];
             $spotsLeft = max(0, $capacity - $enrolled);
+            $waitlistCount = (int)$class['WaitlistCount'];
             $isFull = $spotsLeft === 0;
             $isEnrolled = in_array((int)$class['ClassID'], $enrolledClassIds, true);
+            $isWaitlisted = in_array((int)$class['ClassID'], $waitlistedClassIds, true);
             $image = $class['ImageURL'] ?: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80';
           ?>
           <article class="class-card">
@@ -210,6 +408,9 @@ if ($user) {
                 <span>📅 <?= e($class['Day']) ?></span>
                 <span>🕒 <?= e($class['StartTime']) ?> - <?= e($class['EndTime']) ?></span>
                 <span>📍 <?= e($class['Room']) ?></span>
+                <?php if ($waitlistCount > 0): ?>
+                  <span>⏳ <?= $waitlistCount ?> on waitlist</span>
+                <?php endif; ?>
               </div>
               <?php if ($class['AvgRating']): ?>
                 <div class="class-rating">
@@ -225,6 +426,8 @@ if ($user) {
                 <span class="capacity <?= $isFull ? 'full' : '' ?>"><?= $spotsLeft ?> / <?= $capacity ?> spots left</span>
                 <?php if (!$user): ?>
                   <a class="btn-book" href="login.php">Login to book</a>
+                <?php elseif ($user['Role'] !== 'Member'): ?>
+                  <button class="btn-book" type="button" disabled>Members only</button>
                 <?php elseif ($isEnrolled): ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>
@@ -232,12 +435,19 @@ if ($user) {
                     <input type="hidden" name="action" value="cancel">
                     <button class="btn-book btn-book--cancel" type="submit">Cancel</button>
                   </form>
+                <?php elseif ($isWaitlisted): ?>
+                  <form method="post" action="book-class.php" class="inline-form">
+                    <?= csrf_input() ?>
+                    <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
+                    <input type="hidden" name="action" value="leave_waitlist">
+                    <button class="btn-book btn-book--waitlist-cancel" type="submit">Leave waitlist</button>
+                  </form>
                 <?php else: ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>
                     <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
-                    <input type="hidden" name="action" value="enroll">
-                    <button class="btn-book" type="submit" <?= $isFull ? 'disabled' : '' ?>><?= $isFull ? 'Full' : 'Book Now' ?></button>
+                    <input type="hidden" name="action" value="<?= $isFull ? 'join_waitlist' : 'enroll' ?>">
+                    <button class="btn-book <?= $isFull ? 'btn-book--waitlist' : '' ?>" type="submit"><?= $isFull ? 'Join waitlist' : 'Book Now' ?></button>
                   </form>
                 <?php endif; ?>
               </div>

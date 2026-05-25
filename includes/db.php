@@ -22,6 +22,9 @@ try {
     if (!$hasUserTable && is_file($sqlPath)) {
         $db->exec(file_get_contents($sqlPath));
     }
+
+    require_once __DIR__ . '/feature-schema.php';
+    ensure_booking_feature_schema($db);
 } catch (PDOException $e) {
     http_response_code(500);
     echo 'Database connection failed: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

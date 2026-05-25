@@ -1,8 +1,11 @@
 <?php
 require_once __DIR__ . '/mail.php';
+require_once __DIR__ . '/feature-schema.php';
 
 function create_notification(PDO $db, int $userId, string $type, string $title, string $message): void
 {
+    ensure_notification_schema($db);
+
     $stmt = $db->prepare('
         INSERT INTO NOTIFICATION (UserID, Type, Title, Message)
         VALUES (:uid, :type, :title, :msg)
