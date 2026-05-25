@@ -1,0 +1,223 @@
+.myclasses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.myclass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.myclass-image {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.myclass-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.myclass-body {
+  padding: 1.1rem 1.2rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.myclass-body h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* Stars */
+.star-display {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.star {
+  font-size: 1.2rem;
+  color: #d1d5db;
+}
+
+.star--filled {
+  color: #f59e0b;
+}
+
+.review-date {
+  font-size: 0.75rem;
+  color: var(--text-soft);
+  margin-left: 0.5rem;
+}
+
+.review-comment {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  font-style: italic;
+}
+
+.no-review-hint {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+/* Buttons */
+.btn-rate,
+.btn-edit-review {
+  align-self: flex-start;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--orange-dark);
+  transition: background 0.15s;
+}
+
+.btn-rate:hover,
+.btn-edit-review:hover {
+  background: #fff3ec;
+}
+
+/* Review form (hidden by default) */
+.review-form {
+  display: none;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 0.4rem;
+}
+
+.review-form--open {
+  display: flex;
+}
+
+/* Star picker */
+.star-picker {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.star-label input[type="radio"] {
+  display: none;
+}
+
+.star-icon {
+  font-size: 1.6rem;
+  color: #d1d5db;
+  cursor: pointer;
+  transition: color 0.1s, transform 0.1s;
+  user-select: none;
+}
+
+.star-label input[type="radio"]:checked ~ .star-icon,
+.star-label:has(~ .star-label input[type="radio"]:checked) .star-icon {
+  /* filled via JS below */
+}
+
+.star--hover {
+  color: #fbbf24;
+  transform: scale(1.15);
+}
+
+/* Fill checked stars using sibling trick */
+.star-picker:has(.star-label:nth-child(1) input:checked) .star-label:nth-child(1) .star-icon,
+.star-picker:has(.star-label:nth-child(2) input:checked) .star-label:nth-child(-n+2) .star-icon,
+.star-picker:has(.star-label:nth-child(3) input:checked) .star-label:nth-child(-n+3) .star-icon,
+.star-picker:has(.star-label:nth-child(4) input:checked) .star-label:nth-child(-n+4) .star-icon,
+.star-picker:has(.star-label:nth-child(5) input:checked) .star-label:nth-child(-n+5) .star-icon {
+  color: #f59e0b;
+}
+
+.review-textarea {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  resize: vertical;
+  color: var(--text-dark);
+  background: var(--surface);
+}
+
+.review-textarea:focus {
+  outline: 2px solid var(--orange-dark);
+  outline-offset: 1px;
+}
+
+.review-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.btn-submit-review {
+  padding: 0.45rem 1.1rem;
+  background: var(--orange-dark);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-submit-review:hover {
+  opacity: 0.88;
+}
+
+.btn-cancel-review {
+  padding: 0.45rem 0.9rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--text-soft);
+}
+
+.btn-cancel-review:hover {
+  background: #f3f4f6;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-soft);
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
+.empty-state a {
+  color: var(--orange-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.existing-review {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+@media (max-width: 640px) {
+  .myclasses-grid {
+    grid-template-columns: 1fr;
+    padding: 0 0.5rem 2rem;
+  }
+}

@@ -14,7 +14,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] Enroll in and cancel enrollment from upcoming classes, subject to capacity limits.
 - [x] View trainer profiles, including their specializations and the classes they teach.
 - [x] Check the current availability of equipment in the main training area.
-- [ ] Leave ratings and reviews for classes they have attended.
+- [x] Leave ratings and reviews for classes they have attended.
 
 **Trainers:**
 - [x] Public profile with bio, specializations, and certifications.
@@ -34,6 +34,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] SQLite database script and seed data.
 - [x] CSRF protection on forms that change data.
 - [x] Passwords stored with `password_hash()`.
+- [x] Membership Plans.
 - [x] PDO prepared statements.
 - [x] Member Progress Tracking
 - [x] Nutrition Plans
@@ -72,10 +73,15 @@ php -S localhost:9000
 ## Pages
 
 - `index.php` - dashboard/homepage
-- `book-class.php` - class schedule, filters, enroll/cancel booking
+- `book-class.php` - class schedule, filters, enroll/cancel booking with average ratings
+- `my-classes.php` - member's enrolled classes with rating and review submission
 - `trainers.php` - trainer list
 - `trainer-profile.php?id=3` - trainer profile and class schedule
+- `trainer-analytics.php` - trainer attendance stats, ratings and class engagement (trainer only)
+- `trainer-nutrition.php` - create and assign nutrition plans to members (trainer only)
 - `equipment.php` - equipment availability with Ajax refresh
+- `progress.php` - workout log, fitness goals and progress tracking (member only)
+- `nutrition.php` - view assigned nutrition plans with meal and calorie breakdown (member only)
 - `login.php`, `register.php`, `edit-profile.php` - account flows
 
 ## Notes for final delivery
