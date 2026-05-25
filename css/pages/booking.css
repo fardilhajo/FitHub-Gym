@@ -283,6 +283,34 @@ RESPONSIVIDADE
   background: #ef4444;
 }
 
+.class-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-top: 0.1rem;
+}
+
+.class-rating .star {
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+.class-rating .star--filled {
+  color: #f59e0b;
+}
+
+.rating-avg {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-left: 0.25rem;
+}
+
+.rating-count {
+  font-size: 0.78rem;
+  color: var(--text-soft);
+}
+
 @media (max-width: 640px) {
   .filter-controls {
     flex-direction: column;

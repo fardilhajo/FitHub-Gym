@@ -9,7 +9,7 @@ $userId = (int)$_SESSION['user_id'];
 $error = '';
 $success = '';
 
-$profileStmt = $db->prepare('SELECT UserID, Name, Username, Role, ProfilePhoto FROM USER WHERE UserID = :id AND IsActive = 1');
+$profileStmt = $db->prepare('SELECT UserID, Name, Username, Role, ProfilePhoto, Email FROM USER WHERE UserID = :id AND IsActive = 1');
 $profileStmt->execute([':id' => $userId]);
 $profileUser = $profileStmt->fetch();
 
@@ -23,11 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = trim($_POST['full_name'] ?? '');
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
 
     if ($name === '' || $username === '') {
         $error = 'Name and username are required.';
+    } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Please enter a valid email address.';
     } elseif (strlen($username) < 3) {
         $error = 'Username must be at least 3 characters.';
     } elseif ($password !== '' && strlen($password) < 6) {
@@ -76,11 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($error === '') {
                 if ($password !== '') {
                     $hash = password_hash($password, PASSWORD_DEFAULT);
-                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, PasswordHash = :hash, ProfilePhoto = :photo WHERE UserID = :id');
-                    $upd->execute([':name' => $name, ':username' => $username, ':hash' => $hash, ':photo' => $photoPath, ':id' => $userId]);
+                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, PasswordHash = :hash, ProfilePhoto = :photo, Email = :email WHERE UserID = :id');
+                    $upd->execute([':name' => $name, ':username' => $username, ':hash' => $hash, ':photo' => $photoPath, ':email' => $email ?: null, ':id' => $userId]);
                 } else {
-                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, ProfilePhoto = :photo WHERE UserID = :id');
-                    $upd->execute([':name' => $name, ':username' => $username, ':photo' => $photoPath, ':id' => $userId]);
+                    $upd = $db->prepare('UPDATE USER SET Name = :name, Username = :username, ProfilePhoto = :photo, Email = :email WHERE UserID = :id');
+                    $upd->execute([':name' => $name, ':username' => $username, ':photo' => $photoPath, ':email' => $email ?: null, ':id' => $userId]);
                 }
 
                 $_SESSION['user_name'] = $name;
@@ -149,6 +152,9 @@ $avatarSrc = $profileUser['ProfilePhoto'] ?: 'https://ui-avatars.com/api/?name='
 
         <label for="username">Username</label>
         <input id="username" type="text" name="username" placeholder="Username" value="<?= e($profileUser['Username']) ?>" required>
+
+        <label for="email">Email <span class="legend-hint">(optional — used for notifications)</span></label>
+        <input id="email" type="email" name="email" placeholder="you@example.com" value="<?= e($profileUser['Email'] ?? '') ?>">
       </fieldset>
 
       <fieldset class="form-group">

@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/notifications.php';
 
 $user = current_user($db);
 $flash = $_SESSION['flash'] ?? '';
@@ -19,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     $classStmt = $db->prepare('
-        SELECT fc.ClassID, fc.Capacity,
+        SELECT fc.ClassID, fc.Name, fc.Day, fc.StartTime, fc.Capacity,
                COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
         FROM FITNESS_CLASS fc
         LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
@@ -45,11 +46,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ');
             $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
             $_SESSION['flash'] = 'Class booked successfully.';
+            notify($db, (int)$user['UserID'], 'booking_confirmed',
+                'Booking Confirmed: ' . $class['Name'],
+                'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been confirmed. See you there!'
+            );
         }
     } elseif ($action === 'cancel') {
         $stmt = $db->prepare('UPDATE CLASS_ENROLLMENT SET Status = "Cancelled" WHERE ClassID = :class_id AND MemberID = :member_id');
         $stmt->execute([':class_id' => $classId, ':member_id' => $user['UserID']]);
         $_SESSION['flash'] = 'Booking cancelled.';
+        notify($db, (int)$user['UserID'], 'booking_cancelled',
+            'Booking Cancelled: ' . $class['Name'],
+            'Your booking for ' . $class['Name'] . ' on ' . $class['Day'] . ' at ' . $class['StartTime'] . ' has been cancelled.'
+        );
     }
 
     redirect_to('book-class.php');
@@ -93,10 +102,13 @@ $sql = '
         fc.Description,
         fc.ImageURL,
         u.Name AS TrainerName,
-        COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
+        COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount,
+        ROUND(AVG(cr.Rating), 1) AS AvgRating,
+        COUNT(cr.ReviewID) AS ReviewCount
     FROM FITNESS_CLASS fc
     JOIN USER u ON fc.TrainerID = u.UserID
     LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
+    LEFT JOIN CLASS_REVIEW cr ON cr.ClassID = fc.ClassID
     WHERE ' . implode(' AND ', $where) . '
     GROUP BY fc.ClassID
     ORDER BY fc.Day, fc.StartTime
@@ -199,6 +211,16 @@ if ($user) {
                 <span>🕒 <?= e($class['StartTime']) ?> - <?= e($class['EndTime']) ?></span>
                 <span>📍 <?= e($class['Room']) ?></span>
               </div>
+              <?php if ($class['AvgRating']): ?>
+                <div class="class-rating">
+                  <?php $avg = (float)$class['AvgRating']; $filled = round($avg); ?>
+                  <?php for ($i = 1; $i <= 5; $i++): ?>
+                    <span class="star <?= $i <= $filled ? 'star--filled' : '' ?>">★</span>
+                  <?php endfor; ?>
+                  <span class="rating-avg"><?= e($avg) ?></span>
+                  <span class="rating-count">(<?= (int)$class['ReviewCount'] ?>)</span>
+                </div>
+              <?php endif; ?>
               <div class="class-footer">
                 <span class="capacity <?= $isFull ? 'full' : '' ?>"><?= $spotsLeft ?> / <?= $capacity ?> spots left</span>
                 <?php if (!$user): ?>

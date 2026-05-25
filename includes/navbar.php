@@ -9,12 +9,17 @@ $userName = $loggedIn ? $navUser['Name'] : '';
 $role = $loggedIn ? $navUser['Role'] : '';
 
 $initials = '';
+$navUnreadCount = 0;
 if ($loggedIn) {
     $parts = preg_split('/\s+/', trim($userName));
     $initials = strtoupper(substr($parts[0] ?? '', 0, 1));
     if (count($parts) > 1) {
         $initials .= strtoupper(substr(end($parts), 0, 1));
     }
+
+    $unreadStmt = $db->prepare('SELECT COUNT(*) FROM NOTIFICATION WHERE UserID = :uid AND IsRead = 0');
+    $unreadStmt->execute([':uid' => $navUser['UserID']]);
+    $navUnreadCount = (int)$unreadStmt->fetchColumn();
 }
 ?>
 
@@ -46,10 +51,33 @@ if ($loggedIn) {
         <a href="trainer-analytics.php" class="btn-analytics">My Analytics</a>
         <a href="trainer-nutrition.php" class="btn-analytics">Nutrition Plans</a>
       <?php elseif ($loggedIn && $role === 'Member'): ?>
+        <a href="my-classes.php" class="btn-analytics">My Classes</a>
         <a href="progress.php" class="btn-analytics">My Progress</a>
         <a href="nutrition.php" class="btn-analytics">My Nutrition</a>
       <?php endif; ?>
       <?php if ($loggedIn): ?>
+        <div class="nav-bell-wrapper" id="nav-bell-wrapper">
+          <button class="nav-bell" id="nav-bell-btn" aria-label="Notifications" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <?php if ($navUnreadCount > 0): ?>
+              <span class="bell-badge" id="bell-badge"><?= min($navUnreadCount, 99) ?></span>
+            <?php else: ?>
+              <span class="bell-badge bell-badge--hidden" id="bell-badge"></span>
+            <?php endif; ?>
+          </button>
+          <div class="notif-dropdown" id="notif-dropdown" aria-hidden="true">
+            <div class="notif-header">
+              <span>Notifications</span>
+              <button class="notif-read-all" id="notif-read-all" type="button">Mark all read</button>
+            </div>
+            <ul class="notif-list" id="notif-list">
+              <li class="notif-empty">Loading…</li>
+            </ul>
+          </div>
+        </div>
         <a href="edit-profile.php" class="nav-user" title="Edit profile">
           <span class="nav-avatar"><?= e($initials) ?></span>
           <span class="nav-username"><?= e($userName) ?></span>

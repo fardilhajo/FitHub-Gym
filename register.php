@@ -10,11 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $name = trim($_POST['full_name'] ?? '');
     $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
 
     if ($name === '' || $username === '' || $password === '' || $confirm === '') {
         $error = 'Please fill in all fields.';
+    } elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Please enter a valid email address.';
     } elseif (strlen($username) < 3) {
         $error = 'Username must be at least 3 characters.';
     } elseif (strlen($password) < 6) {
@@ -29,12 +32,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Username already taken.';
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $db->prepare('INSERT INTO USER (Name, Username, PasswordHash, Role, IsActive) VALUES (:name, :username, :hash, :role, 1)');
+            $stmt = $db->prepare('INSERT INTO USER (Name, Username, PasswordHash, Role, Email, IsActive) VALUES (:name, :username, :hash, :role, :email, 1)');
             $stmt->execute([
                 ':name' => $name,
                 ':username' => $username,
                 ':hash' => $hash,
                 ':role' => 'Member',
+                ':email' => $email ?: null,
             ]);
 
             session_regenerate_id(true);
@@ -80,6 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
       <label for="username">Username</label>
       <input id="username" type="text" name="username" class="input-username" placeholder="Username" value="<?= e($_POST['username'] ?? '') ?>" required>
+
+      <label for="email">Email <span style="color:#9ca3af;font-weight:400;font-size:0.85em">(optional — for notifications)</span></label>
+      <input id="email" type="email" name="email" class="input-username" placeholder="you@example.com" value="<?= e($_POST['email'] ?? '') ?>">
 
       <label for="password">Password</label>
       <input id="password" type="password" name="password" class="input-password" placeholder="Minimum 6 characters" minlength="6" required>
