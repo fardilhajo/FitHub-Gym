@@ -15,7 +15,7 @@ VARIÁVEIS E CONFIGURAÇÕES GERAIS
     --border: rgba(216, 114, 54, 0.16);
     --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
   }
-  
+
   body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
@@ -320,5 +320,96 @@ RESPONSIVIDADE
   .select-field,
   .btn-clear {
     width: 100%;
+  }
+}
+
+
+/* ==========================================================================
+FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
+========================================================================== */
+
+.page-header p,
+.class-description {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.page-message {
+  background: #fffaf6;
+  border: 1px solid var(--border);
+  color: var(--orange-dark);
+  border-radius: 18px;
+  padding: 0.9rem 1.1rem;
+  margin: 0 0 1.25rem;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+}
+
+.feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.inline-form {
+  display: inline-flex;
+  margin: 0;
+}
+
+.btn-book {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-book--cancel {
+  background: #fffaf6;
+  color: var(--orange-dark);
+  border: 1px solid var(--border);
+}
+
+.plan-card {
+  position: relative;
+  min-height: 100%;
+}
+
+.plan-card--current {
+  border-color: rgba(216, 114, 54, 0.42);
+  box-shadow: 0 20px 44px rgba(216, 114, 54, 0.22);
+}
+
+.plan-tag {
+  position: static;
+  margin-bottom: 1rem;
+}
+
+.plan-price {
+  color: var(--text-dark);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin: 0.35rem 0 0.9rem;
+}
+
+.plan-price span {
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .classes-grid,
+  .feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .classes-grid,
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .class-footer {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

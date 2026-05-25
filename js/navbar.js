@@ -133,6 +133,33 @@
     });
   }
 
+  const userBtn = document.getElementById('nav-user-btn');
+  const userMenu = document.getElementById('nav-user-menu');
+
+  if (userBtn && userMenu) {
+    userBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const isOpen = userMenu.classList.toggle('active');
+      userBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    document.addEventListener('click', function (e) {
+      const dropdown = document.getElementById('nav-user-dropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        userMenu.classList.remove('active');
+        userBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        userMenu.classList.remove('active');
+        userBtn.setAttribute('aria-expanded', 'false');
+        userBtn.focus();
+      }
+    });
+  }
+
   const searchInput = document.getElementById('navbar-search');
   const searchResults = document.getElementById('search-results');
   let debounceTimer = null;

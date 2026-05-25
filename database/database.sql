@@ -1,6 +1,11 @@
 PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS NOTIFICATION;
+DROP TABLE IF EXISTS MEMBER_MEMBERSHIP;
+DROP TABLE IF EXISTS MEMBERSHIP_PLAN;
+DROP TABLE IF EXISTS PERSONAL_TRAINING_BOOKING;
+DROP TABLE IF EXISTS TRAINER_AVAILABILITY;
+
 DROP TABLE IF EXISTS MEAL;
 DROP TABLE IF EXISTS NUTRITION_PLAN;
 DROP TABLE IF EXISTS FITNESS_GOAL;
@@ -41,6 +46,51 @@ CREATE TABLE TRAINER_PROFILE (
     Specializations TEXT,
     Certifications TEXT,
     FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE TRAINER_AVAILABILITY (
+    AvailabilityID INTEGER PRIMARY KEY AUTOINCREMENT,
+    TrainerID INTEGER NOT NULL,
+    Day TEXT NOT NULL,
+    StartTime TEXT NOT NULL,
+    EndTime TEXT NOT NULL,
+    Location TEXT NOT NULL DEFAULT 'PT Studio',
+    IsActive INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE PERSONAL_TRAINING_BOOKING (
+    BookingID INTEGER PRIMARY KEY AUTOINCREMENT,
+    AvailabilityID INTEGER NOT NULL,
+    TrainerID INTEGER NOT NULL,
+    MemberID INTEGER NOT NULL,
+    SessionDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Status TEXT NOT NULL CHECK (Status IN ('Booked', 'Cancelled')) DEFAULT 'Booked',
+    Notes TEXT,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (AvailabilityID, MemberID),
+    FOREIGN KEY (AvailabilityID) REFERENCES TRAINER_AVAILABILITY(AvailabilityID) ON DELETE CASCADE,
+    FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (MemberID) REFERENCES USER(UserID) ON DELETE CASCADE
+);
+
+CREATE TABLE MEMBERSHIP_PLAN (
+    PlanID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL UNIQUE,
+    PriceMonthly REAL NOT NULL CHECK (PriceMonthly >= 0),
+    AccessLevel TEXT NOT NULL,
+    Description TEXT NOT NULL,
+    IsActive INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE MEMBER_MEMBERSHIP (
+    MembershipID INTEGER PRIMARY KEY AUTOINCREMENT,
+    MemberID INTEGER NOT NULL UNIQUE,
+    PlanID INTEGER NOT NULL,
+    SubscribedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    Status TEXT NOT NULL CHECK (Status IN ('Active', 'Cancelled')) DEFAULT 'Active',
+    FOREIGN KEY (MemberID) REFERENCES USER(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (PlanID) REFERENCES MEMBERSHIP_PLAN(PlanID) ON DELETE CASCADE
 );
 
 CREATE TABLE FITNESS_CLASS (
@@ -185,3 +235,18 @@ INSERT INTO EQUIPMENT (Name, Category, Status, Location) VALUES
 ('Dumbbell Set', 'Free Weights', 'Available', 'Free Weights'),
 ('Rowing Machine 01', 'Rowers', 'Available', 'Cardio Zone'),
 ('Leg Press', 'Machines', 'Reserved', 'Strength Zone');
+
+INSERT INTO TRAINER_AVAILABILITY (TrainerID, Day, StartTime, EndTime, Location) VALUES
+(3, 'Monday', '08:00', '09:00', 'PT Studio 1'),
+(3, 'Wednesday', '10:00', '11:00', 'PT Studio 1'),
+(4, 'Tuesday', '17:00', '18:00', 'PT Studio 2'),
+(4, 'Thursday', '18:00', '19:00', 'PT Studio 2'),
+(5, 'Wednesday', '10:00', '11:00', 'PT Studio 3'),
+(5, 'Friday', '07:30', '08:30', 'PT Studio 3'),
+(6, 'Monday', '08:00', '09:00', 'PT Studio 1'),
+(6, 'Friday', '07:30', '08:30', 'PT Studio 1');
+
+INSERT INTO MEMBERSHIP_PLAN (Name, PriceMonthly, AccessLevel, Description) VALUES
+('Basic', 19.99, 'Gym floor + standard classes', 'Access to gym equipment, standard class booking and progress tracking.'),
+('Premium', 34.99, 'Everything in Basic + nutrition + priority classes', 'Adds nutrition plans, priority booking and extended class access.'),
+('Elite', 54.99, 'Premium + personal training discounts', 'Best for members who want coaching, priority support and personal training perks.');
