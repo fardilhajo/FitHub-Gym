@@ -69,6 +69,7 @@ php -S localhost:9000
 - ricardo / 123456
 - sofia / 123456
 - david / 123456
+- dummy01 through dummy30 / 123456
 
 ## Pages
 

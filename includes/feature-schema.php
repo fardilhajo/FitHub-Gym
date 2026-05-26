@@ -264,4 +264,151 @@ function seed_booking_features(PDO $db): void
             }
         }
     }
+
+    seed_dummy_member_data($db);
+}
+
+function seed_dummy_member_data(PDO $db): void
+{
+    $dummyMembers = [
+        ['Marta Almeida', 'dummy01'],
+        ['Tiago Ferreira', 'dummy02'],
+        ['Inês Rocha', 'dummy03'],
+        ['Bruno Lopes', 'dummy04'],
+        ['Carolina Pereira', 'dummy05'],
+        ['Miguel Costa', 'dummy06'],
+        ['Beatriz Ribeiro', 'dummy07'],
+        ['Tomás Martins', 'dummy08'],
+        ['Leonor Sousa', 'dummy09'],
+        ['Diogo Cardoso', 'dummy10'],
+        ['Mariana Teixeira', 'dummy11'],
+        ['Gonçalo Neves', 'dummy12'],
+        ['Rita Figueiredo', 'dummy13'],
+        ['Pedro Barros', 'dummy14'],
+        ['Joana Moreira', 'dummy15'],
+        ['André Nunes', 'dummy16'],
+        ['Catarina Gomes', 'dummy17'],
+        ['Francisco Pinto', 'dummy18'],
+        ['Sara Correia', 'dummy19'],
+        ['Nuno Carvalho', 'dummy20'],
+        ['Clara Matos', 'dummy21'],
+        ['Henrique Dias', 'dummy22'],
+        ['Patrícia Ramos', 'dummy23'],
+        ['Vasco Fernandes', 'dummy24'],
+        ['Mafalda Antunes', 'dummy25'],
+        ['Duarte Azevedo', 'dummy26'],
+        ['Eva Monteiro', 'dummy27'],
+        ['Rafael Cunha', 'dummy28'],
+        ['Isabel Batista', 'dummy29'],
+        ['Luís Faria', 'dummy30'],
+    ];
+
+    $passwordHash = '$2y$12$f31/JOY0apMh8LjcP78Hv.rjomcW/H5Lrd4vLgC5vahKqOHMbH1uS';
+    $userStmt = $db->prepare('
+        INSERT OR IGNORE INTO USER (Name, Username, PasswordHash, Role, ProfilePhoto, Email, IsActive)
+        VALUES (:name, :username, :password_hash, "Member", NULL, :email, 1)
+    ');
+
+    foreach ($dummyMembers as [$name, $username]) {
+        $userStmt->execute([
+            ':name' => $name,
+            ':username' => $username,
+            ':password_hash' => $passwordHash,
+            ':email' => $username . '@fithub.test',
+        ]);
+    }
+
+    $dummyUsers = $db->query('
+        SELECT Username, UserID
+        FROM USER
+        WHERE Username LIKE "dummy__" AND Role = "Member"
+        ORDER BY Username
+    ')->fetchAll(PDO::FETCH_KEY_PAIR);
+
+    if (!$dummyUsers) {
+        return;
+    }
+
+    $planIds = $db->query('SELECT Name, PlanID FROM MEMBERSHIP_PLAN ORDER BY PlanID')->fetchAll(PDO::FETCH_KEY_PAIR);
+    $planCycle = array_values(array_filter([
+        $planIds['Basic'] ?? null,
+        $planIds['Premium'] ?? null,
+        $planIds['Elite'] ?? null,
+    ]));
+
+    if ($planCycle) {
+        $membershipStmt = $db->prepare('
+            INSERT OR IGNORE INTO MEMBER_MEMBERSHIP (MemberID, PlanID, Status)
+            VALUES (:member_id, :plan_id, "Active")
+        ');
+        foreach (array_values($dummyUsers) as $index => $memberId) {
+            $membershipStmt->execute([
+                ':member_id' => $memberId,
+                ':plan_id' => $planCycle[$index % count($planCycle)],
+            ]);
+        }
+    }
+
+    $classCount = (int)$db->query('SELECT COUNT(*) FROM FITNESS_CLASS WHERE IsActive = 1')->fetchColumn();
+    if ($classCount > 0) {
+        $enrollmentPairs = [
+            [1, 2],
+            [3, 4],
+            [5, 6],
+            [7, 8],
+            [1, 3],
+            [2, 4],
+            [5, 7],
+            [6, 8],
+        ];
+        $enrollmentStmt = $db->prepare('
+            INSERT OR IGNORE INTO CLASS_ENROLLMENT (ClassID, MemberID, Status)
+            VALUES (:class_id, :member_id, "Enrolled")
+        ');
+        foreach (array_values($dummyUsers) as $index => $memberId) {
+            foreach ($enrollmentPairs[$index % count($enrollmentPairs)] as $classId) {
+                $enrollmentStmt->execute([
+                    ':class_id' => $classId,
+                    ':member_id' => $memberId,
+                ]);
+            }
+        }
+    }
+
+    $reservationSeeds = [
+        ['dummy06', 5, '+1 day', '+18 hours', '+19 hours'],
+        ['dummy21', 12, '+2 days', '+10 hours', '+11 hours'],
+    ];
+    $reservationExistsStmt = $db->prepare('
+        SELECT COUNT(*)
+        FROM EQUIPMENT_RESERVATION
+        WHERE EquipmentID = :equipment_id AND MemberID = :member_id
+    ');
+    $reservationStmt = $db->prepare('
+        INSERT INTO EQUIPMENT_RESERVATION (EquipmentID, MemberID, StartAt, EndAt, Status)
+        VALUES (:equipment_id, :member_id, datetime("now", :day_offset, "start of day", :start_offset), datetime("now", :day_offset, "start of day", :end_offset), "Reserved")
+    ');
+
+    foreach ($reservationSeeds as [$username, $equipmentId, $dayOffset, $startOffset, $endOffset]) {
+        $memberId = $dummyUsers[$username] ?? null;
+        if (!$memberId) {
+            continue;
+        }
+
+        $reservationExistsStmt->execute([
+            ':equipment_id' => $equipmentId,
+            ':member_id' => $memberId,
+        ]);
+        if ((int)$reservationExistsStmt->fetchColumn() > 0) {
+            continue;
+        }
+
+        $reservationStmt->execute([
+            ':equipment_id' => $equipmentId,
+            ':member_id' => $memberId,
+            ':day_offset' => $dayOffset,
+            ':start_offset' => $startOffset,
+            ':end_offset' => $endOffset,
+        ]);
+    }
 }
