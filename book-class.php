@@ -4,17 +4,19 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/notifications.php';
 require_once __DIR__ . '/includes/feature-schema.php';
+require_once __DIR__ . '/includes/membership-access.php';
 
-ensure_class_waitlist_schema($db);
+ensure_booking_feature_schema($db);
 
 $user = current_user($db);
+$activeMembershipPlan = active_membership_plan($db, $user);
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
 function get_class_for_booking(PDO $db, int $classId): ?array
 {
     $stmt = $db->prepare('
-        SELECT fc.ClassID, fc.Name, fc.Day, fc.StartTime, fc.Capacity,
+        SELECT fc.ClassID, fc.Name, fc.Type, fc.Day, fc.StartTime, fc.Capacity,
                COUNT(CASE WHEN ce.Status = "Enrolled" THEN 1 END) AS EnrolledCount
         FROM FITNESS_CLASS fc
         LEFT JOIN CLASS_ENROLLMENT ce ON ce.ClassID = fc.ClassID
@@ -39,8 +41,10 @@ function promote_next_waitlisted_member(PDO $db, array $class): ?array
         SELECT cw.WaitlistID, cw.MemberID, u.Name
         FROM CLASS_WAITLIST cw
         JOIN USER u ON u.UserID = cw.MemberID
+        LEFT JOIN MEMBER_MEMBERSHIP mm ON mm.MemberID = cw.MemberID AND mm.Status = "Active"
+        LEFT JOIN MEMBERSHIP_PLAN mp ON mp.PlanID = mm.PlanID AND mp.IsActive = 1
         WHERE cw.ClassID = :class_id AND cw.Status = "Waiting"
-        ORDER BY cw.JoinedAt ASC, cw.WaitlistID ASC
+        ORDER BY CASE mp.Name WHEN "Elite" THEN 3 WHEN "Premium" THEN 2 WHEN "Basic" THEN 1 ELSE 0 END DESC, cw.JoinedAt ASC, cw.WaitlistID ASC
         LIMIT 1
     ');
     $waitStmt->execute([':class_id' => $class['ClassID']]);
@@ -90,6 +94,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$class) {
         $_SESSION['flash'] = 'Class not found.';
         redirect_to('book-class.php');
+    }
+
+    if (in_array($action, ['enroll', 'join_waitlist'], true)) {
+        $requiredTier = class_required_membership($class);
+        if (!membership_plan_allows($activeMembershipPlan, 'Basic')) {
+            $_SESSION['flash'] = 'Choose an active membership plan before booking classes.';
+            redirect_to('membership-plans.php');
+        }
+
+        if (!membership_plan_allows($activeMembershipPlan, $requiredTier)) {
+            $_SESSION['flash'] = membership_upgrade_message($requiredTier, $class['Name']);
+            redirect_to('book-class.php');
+        }
     }
 
     if ($action === 'enroll') {
@@ -394,6 +411,8 @@ if ($user) {
             $isEnrolled = in_array((int)$class['ClassID'], $enrolledClassIds, true);
             $isWaitlisted = in_array((int)$class['ClassID'], $waitlistedClassIds, true);
             $image = $class['ImageURL'] ?: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=700&q=80';
+            $requiredTier = class_required_membership($class);
+            $canBookThisClass = $user && $user['Role'] === 'Member' && membership_plan_allows($activeMembershipPlan, $requiredTier);
           ?>
           <article class="class-card">
             <div class="card-image">
@@ -408,6 +427,7 @@ if ($user) {
                 <span>📅 <?= e($class['Day']) ?></span>
                 <span>🕒 <?= e($class['StartTime']) ?> - <?= e($class['EndTime']) ?></span>
                 <span>📍 <?= e($class['Room']) ?></span>
+                <span><strong>Membership:</strong> <?= e(membership_tier_label($requiredTier)) ?> required</span>
                 <?php if ($waitlistCount > 0): ?>
                   <span>⏳ <?= $waitlistCount ?> on waitlist</span>
                 <?php endif; ?>
@@ -442,6 +462,8 @@ if ($user) {
                     <input type="hidden" name="action" value="leave_waitlist">
                     <button class="btn-book btn-book--waitlist-cancel" type="submit">Leave waitlist</button>
                   </form>
+                <?php elseif (!$canBookThisClass): ?>
+                  <a class="btn-book" href="membership-plans.php"><?= membership_plan_allows($activeMembershipPlan, 'Basic') ? e(membership_tier_label($requiredTier) . ' required') : 'Choose a plan' ?></a>
                 <?php else: ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>

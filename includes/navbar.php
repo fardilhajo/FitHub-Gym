@@ -2,11 +2,16 @@
 /** Global navbar component. Include inside <body>. */
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/security.php';
+require_once __DIR__ . '/membership-access.php';
 
 $navUser = current_user($db);
 $loggedIn = $navUser !== null;
 $userName = $loggedIn ? $navUser['Name'] : '';
 $role = $loggedIn ? $navUser['Role'] : '';
+$navMembershipPlan = ($loggedIn && $role === 'Member') ? active_membership_plan($db, $navUser) : null;
+$navHasBasic = membership_plan_allows($navMembershipPlan, 'Basic');
+$navHasPremium = membership_plan_allows($navMembershipPlan, 'Premium');
+$navHasElite = membership_plan_allows($navMembershipPlan, 'Elite');
 
 $initials = '';
 $navUnreadCount = 0;
@@ -51,9 +56,19 @@ if ($loggedIn) {
         <a href="trainer-analytics.php" class="btn-analytics">My Analytics</a>
         <a href="trainer-nutrition.php" class="btn-analytics">Nutrition Plans</a>
       <?php elseif ($loggedIn && $role === 'Member'): ?>
-        <a href="my-classes.php" class="btn-analytics">My Classes</a>
-        <a href="progress.php" class="btn-analytics">My Progress</a>
-        <a href="nutrition.php" class="btn-analytics">My Nutrition</a>
+        <?php if ($navHasBasic): ?>
+          <a href="my-classes.php" class="btn-analytics">My Classes</a>
+          <a href="progress.php" class="btn-analytics">My Progress</a>
+        <?php endif; ?>
+        <?php if ($navHasPremium): ?>
+          <a href="nutrition.php" class="btn-analytics">My Nutrition</a>
+        <?php endif; ?>
+        <?php if ($navHasElite): ?>
+          <a href="personal-training.php" class="btn-analytics">Personal Training</a>
+        <?php endif; ?>
+        <?php if (!$navHasBasic): ?>
+          <a href="membership-plans.php" class="btn-analytics">Choose Plan</a>
+        <?php endif; ?>
       <?php endif; ?>
       <?php if ($loggedIn): ?>
         <div class="nav-bell-wrapper" id="nav-bell-wrapper">
@@ -87,6 +102,9 @@ if ($loggedIn) {
           </button>
           <div class="nav-user-menu" id="nav-user-menu" role="menu">
             <a href="edit-profile.php" class="nav-user-menu-item" role="menuitem">Edit Profile</a>
+            <?php if ($role === 'Member' || $role === 'Admin'): ?>
+              <a href="membership-plans.php" class="nav-user-menu-item" role="menuitem">Membership Plans</a>
+            <?php endif; ?>
             <?php if ($role === 'Admin'): ?>
               <a href="admin.php" class="nav-user-menu-item" role="menuitem">Admin Dashboard</a>
             <?php endif; ?>

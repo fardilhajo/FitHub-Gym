@@ -4,10 +4,13 @@ require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/notifications.php';
 require_once __DIR__ . '/includes/feature-schema.php';
+require_once __DIR__ . '/includes/membership-access.php';
 
-ensure_equipment_reservation_schema($db);
+ensure_booking_feature_schema($db);
 
 $user = current_user($db);
+$activeMembershipPlan = active_membership_plan($db, $user);
+$canReserveEquipment = membership_plan_allows($activeMembershipPlan, 'Basic');
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
@@ -47,6 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $action = $_POST['action'] ?? '';
+
+    if ($action === 'reserve_equipment' && !$canReserveEquipment) {
+        $_SESSION['flash'] = 'Choose an active Basic membership or higher before reserving equipment.';
+        redirect_to('membership-plans.php');
+    }
 
     if ($action === 'reserve_equipment') {
         $equipmentId = (int)($_POST['equipment_id'] ?? 0);
@@ -265,6 +273,8 @@ $minStart = (new DateTimeImmutable('+5 minutes'))->format('Y-m-d\\TH:i');
         <p class="empty-state">Please <a href="login.php">log in</a> as a member to reserve equipment.</p>
       <?php elseif ($user['Role'] !== 'Member'): ?>
         <p class="empty-state">Only member accounts can reserve equipment.</p>
+      <?php elseif (!$canReserveEquipment): ?>
+        <p class="empty-state">Equipment reservations require an active Basic membership or higher. <a href="membership-plans.php">Choose a plan</a></p>
       <?php else: ?>
         <form class="reservation-form" method="post" action="equipment.php">
           <?= csrf_input() ?>

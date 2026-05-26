@@ -3,18 +3,31 @@ session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/feature-schema.php';
+require_once __DIR__ . '/includes/membership-access.php';
 
 ensure_booking_feature_schema($db);
 $user = current_user($db);
+
+if ($user && !in_array($user['Role'], ['Member', 'Admin'], true)) {
+    http_response_code(403);
+    echo 'Membership plans are not available for trainer accounts.';
+    exit;
+}
+
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
-    if (!$user || $user['Role'] !== 'Member') {
+    if (!$user) {
         $_SESSION['flash'] = 'Please log in as a member before choosing a plan.';
         redirect_to('login.php');
+    }
+
+    if ($user['Role'] !== 'Member') {
+        $_SESSION['flash'] = 'Admins can view membership plans, but only members can subscribe.';
+        redirect_to('membership-plans.php');
     }
 
     $planId = (int)($_POST['plan_id'] ?? 0);
@@ -38,10 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $plans = $db->query('SELECT PlanID, Name, PriceMonthly, AccessLevel, Description FROM MEMBERSHIP_PLAN WHERE IsActive = 1 ORDER BY PriceMonthly')->fetchAll();
 $currentPlanId = null;
-if ($user) {
-    $stmt = $db->prepare('SELECT PlanID FROM MEMBER_MEMBERSHIP WHERE MemberID = :member AND Status = "Active"');
-    $stmt->execute([':member' => $user['UserID']]);
-    $currentPlanId = $stmt->fetchColumn() ?: null;
+$currentPlan = active_membership_plan($db, $user);
+if ($currentPlan) {
+    $currentPlanId = $currentPlan['PlanID'];
 }
 ?>
 <!DOCTYPE html>
@@ -82,6 +94,8 @@ if ($user) {
               </div>
               <?php if (!$user): ?>
                 <a class="btn-book" href="login.php">Login to subscribe</a>
+              <?php elseif ($user['Role'] === 'Admin'): ?>
+                <button class="btn-book" disabled>Admin view only</button>
               <?php elseif ($user['Role'] !== 'Member'): ?>
                 <button class="btn-book" disabled>Members only</button>
               <?php elseif ($isCurrent): ?>

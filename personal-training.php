@@ -3,9 +3,12 @@ session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/feature-schema.php';
+require_once __DIR__ . '/includes/membership-access.php';
 
 ensure_booking_feature_schema($db);
 $user = current_user($db);
+$activeMembershipPlan = active_membership_plan($db, $user);
+$canBookPersonalTraining = membership_plan_allows($activeMembershipPlan, 'Elite');
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
@@ -19,6 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $availabilityId = (int)($_POST['availability_id'] ?? 0);
     $action = $_POST['action'] ?? '';
+
+    if ($action === 'book' && !$canBookPersonalTraining) {
+        $_SESSION['flash'] = 'Personal training bookings require an active Elite membership.';
+        redirect_to('membership-plans.php');
+    }
 
     $slotStmt = $db->prepare('SELECT AvailabilityID, TrainerID FROM TRAINER_AVAILABILITY WHERE AvailabilityID = :id AND IsActive = 1');
     $slotStmt->execute([':id' => $availabilityId]);
@@ -111,6 +119,9 @@ if ($user) {
     </header>
 
     <?php if ($flash): ?><p class="page-message"><?= e($flash) ?></p><?php endif; ?>
+    <?php if ($user && $user['Role'] === 'Member' && !$canBookPersonalTraining): ?>
+      <p class="page-message">Personal training is an Elite perk. You can browse the slots, but booking needs an <a href="membership-plans.php">Elite membership</a>.</p>
+    <?php endif; ?>
 
     <section class="filter-section">
       <div class="filter-title"><h2>Find a slot</h2></div>
@@ -168,6 +179,8 @@ if ($user) {
                     <input type="hidden" name="action" value="cancel">
                     <button class="btn-book btn-book--cancel" type="submit">Cancel</button>
                   </form>
+                <?php elseif (!$canBookPersonalTraining): ?>
+                  <a class="btn-book" href="membership-plans.php">Elite required</a>
                 <?php else: ?>
                   <form method="post" action="personal-training.php" class="inline-form">
                     <?= csrf_input() ?>

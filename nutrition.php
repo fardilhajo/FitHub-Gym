@@ -2,10 +2,19 @@
 session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/feature-schema.php';
+require_once __DIR__ . '/includes/membership-access.php';
 
+ensure_booking_feature_schema($db);
 $user = current_user($db);
 if (!$user || $user['Role'] !== 'Member') {
     redirect_to('login.php');
+}
+
+$activeMembershipPlan = active_membership_plan($db, $user);
+if (!membership_plan_allows($activeMembershipPlan, 'Premium')) {
+    $_SESSION['flash'] = 'Nutrition plans require an active Premium membership or higher.';
+    redirect_to('membership-plans.php');
 }
 
 $memberID = (int)$user['UserID'];
