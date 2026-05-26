@@ -45,12 +45,6 @@ if ($loggedIn) {
       <li><a href="equipment.php">Equipment</a></li>
     </ul>
 
-    <div class="nav-search" id="nav-search-wrapper" role="search">
-      <span class="nav-search-icon" aria-hidden="true">⌕</span>
-      <input id="navbar-search" class="nav-search-input" type="search" placeholder="Search classes" autocomplete="off" aria-label="Search classes">
-      <div id="search-results" class="search-results" aria-live="polite"></div>
-    </div>
-
     <div class="nav-actions">
       <?php if ($loggedIn && $role === 'Trainer'): ?>
         <a href="trainer-analytics.php" class="btn-analytics">My Analytics</a>

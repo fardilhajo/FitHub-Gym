@@ -183,7 +183,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent), #7dd3fc);
+  background: linear-gradient(90deg, var(--accent), #d4e8a0);
 }
 
 input,
@@ -226,7 +226,7 @@ legend {
   display: grid;
   place-items: center;
   border-radius: 0.5rem;
-  background: #ff6f3d;
+  background: #7a8a3a;
   color: #fff;
   font-size: 0.9rem;
   font-weight: 800;

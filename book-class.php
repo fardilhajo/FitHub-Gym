@@ -393,7 +393,6 @@ if ($user) {
           <?php endforeach; ?>
         </select>
 
-        <button type="submit" class="btn-clear">Apply</button>
         <a class="btn-clear" href="book-class.php">Clear</a>
       </form>
     </section>
@@ -487,5 +486,26 @@ if ($user) {
     </div>
   </footer>
   <script src="js/navbar.js"></script>
+  <script>
+    (function () {
+      const form = document.querySelector('.filter-controls');
+      if (!form) return;
+
+      const selects = form.querySelectorAll('select');
+      const textInput = form.querySelector('input[name="q"]');
+      let debounceTimer;
+
+      selects.forEach(function (sel) {
+        sel.addEventListener('change', function () { form.submit(); });
+      });
+
+      if (textInput) {
+        textInput.addEventListener('input', function () {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(function () { form.submit(); }, 400);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
