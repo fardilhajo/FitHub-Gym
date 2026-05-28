@@ -38,7 +38,8 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] PDO prepared statements.
 - [x] Member Progress Tracking
 - [x] Nutrition Plans
-- [x] Disputes and Feedback (Reports)
+- [x] Disputes and Feedback
+
 
 ## Running
 

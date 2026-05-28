@@ -620,6 +620,57 @@ function viewReports() {
 }
 
 /* =====================================================================
+   PROMOTIONS
+   ===================================================================== */
+function viewPromotions() {
+  var promos = state.promotions || [];
+
+  var rows = promos.map(function (p) {
+    var typeKind = p.Type === "Class" ? "role-member" : "role-trainer";
+    var targetName = p.Type === "Class" ? p.ClassName : p.TrainerName;
+    var statusClass = p.IsActive ? "active" : "inactive";
+    var statusText = p.IsActive ? "Active" : "Paused";
+
+    var actions = ''
+      + '<button class="btn-icon" title="Edit promotion" data-action="promotion-edit" data-id="' + p.PromotionID + '">' + Icons.Edit + '</button>'
+      + '<button class="btn-icon" title="' + (p.IsActive ? "Pause" : "Activate") + '" data-action="promotion-toggle" data-id="' + p.PromotionID + '">' + (p.IsActive ? Icons.Power : Icons.Check) + '</button>'
+      + '<button class="btn-icon is-danger" title="Delete" data-action="promotion-delete" data-id="' + p.PromotionID + '">' + Icons.Trash + '</button>';
+
+    return ''
+      + '<tr>'
+      +   '<td>' + tmplPill(typeKind, escapeHtml(p.Type)) + '</td>'
+      +   '<td><strong style="color:var(--text-dark)">' + escapeHtml(targetName || "Deleted " + p.Type) + '</strong></td>'
+      +   '<td><strong style="color:var(--text-dark)">' + escapeHtml(p.PromoTitle) + '</strong></td>'
+      +   '<td><span style="color:var(--text-soft);font-size:0.85rem">' + escapeHtml(p.PromoDescription || "—") + '</span></td>'
+      +   '<td>' + tmplPill(statusClass, statusText) + '</td>'
+      +   '<td class="col-actions"><div class="actions-row">' + actions + '</div></td>'
+      + '</tr>';
+  }).join("");
+
+  var tableHtml = promos.length === 0
+    ? tmplEmptyState("Star", "No featured promotions", "Create a promotion to highlight a class or trainer on the homepage.")
+    : '<div class="table-wrap"><table class="admin-table">'
+      + '<thead><tr><th>Type</th><th>Target</th><th>Promo Title</th><th>Promo Description</th><th>Status</th><th class="col-actions">Actions</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>';
+
+  return ''
+    + '<header class="admin-header">'
+    +   '<div class="admin-header-copy">'
+    +     '<h1>Featured Promotions</h1>'
+    +     '<p>Highlight specific classes or trainers at the top of the homepage with custom titles and taglines.</p>'
+    +   '</div>'
+    +   '<div class="admin-header-actions">'
+    +     '<button class="btn-primary" data-action="promotion-new">' + Icons.Plus + ' New promotion</button>'
+    +   '</div>'
+    + '</header>'
+    + '<section class="panel">'
+    +   '<div class="toolbar"><div class="toolbar-count"><strong>' + promos.length + '</strong> promotions configured</div></div>'
+    +   tableHtml
+    + '</section>';
+}
+
+/* =====================================================================
    MODAL TEMPLATES
    ===================================================================== */
 
@@ -745,6 +796,55 @@ function modalEquipment(m) {
     + tmplModalFooter(isNew ? "Add to inventory" : "Save", "equipment");
 }
 
+function modalPromotion(m) {
+  var isNew = m.isNew;
+  var p = m.data || { Type: "Class", ClassID: "", TrainerID: "", PromoTitle: "", PromoDescription: "", IsActive: 1 };
+  var errs = m.errors || {};
+
+  var classes = state.classes.filter(function (c) { return c.IsActive; });
+  var trainers = state.users.filter(function (u) { return u.Role === "Trainer" && u.IsActive; });
+
+  var classOpts = '<option value="">-- Select Class --</option>' + classes.map(function (c) {
+    return '<option value="' + c.ClassID + '"' + (String(p.ClassID) === String(c.ClassID) ? " selected" : "") + '>' + escapeHtml(c.Name) + '</option>';
+  }).join("");
+
+  var trainerOpts = '<option value="">-- Select Trainer --</option>' + trainers.map(function (t) {
+    return '<option value="' + t.UserID + '"' + (String(p.TrainerID) === String(t.UserID) ? " selected" : "") + '>' + escapeHtml(t.Name) + '</option>';
+  }).join("");
+
+  var typeOpts = ["Class", "Trainer"].map(function (t) {
+    return '<option' + (p.Type === t ? " selected" : "") + '>' + t + '</option>';
+  }).join("");
+
+  var displayClass = p.Type === "Class" ? "block" : "none";
+  var displayTrainer = p.Type === "Trainer" ? "block" : "none";
+
+  return ''
+    + '<form class="form-grid" data-form="promotion">'
+    +   '<div class="field"><label>Promotion Type</label><select name="Type">' + typeOpts + '</select></div>'
+    +   '<div class="field"><label>Status</label><select name="IsActive">'
+    +     '<option value="1"' + (p.IsActive ? " selected" : "") + '>Active</option>'
+    +     '<option value="0"' + (!p.IsActive ? " selected" : "") + '>Paused</option>'
+    +   '</select></div>'
+    +   '<div class="field full field-class-select" style="display:' + displayClass + '"><label>Target Class</label>'
+    +     '<select name="ClassID" class="' + (errs.ClassID ? "has-error" : "") + '">' + classOpts + '</select>'
+    +     (errs.ClassID ? '<span class="field-error">' + errs.ClassID + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full field-trainer-select" style="display:' + displayTrainer + '"><label>Target Trainer</label>'
+    +     '<select name="TrainerID" class="' + (errs.TrainerID ? "has-error" : "") + '">' + trainerOpts + '</select>'
+    +     (errs.TrainerID ? '<span class="field-error">' + errs.TrainerID + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full"><label>Promo Title / Headline</label>'
+    +     '<input name="PromoTitle" class="' + (errs.PromoTitle ? "has-error" : "") + '" value="' + escapeHtml(p.PromoTitle) + '" placeholder="e.g. Try Morning Yoga Reset!">'
+    +     (errs.PromoTitle ? '<span class="field-error">' + errs.PromoTitle + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full"><label>Promo Description / Tagline</label>'
+    +     '<textarea name="PromoDescription" rows="3" placeholder="A short description that will be highlighted on the homepage.">' + escapeHtml(p.PromoDescription) + '</textarea>'
+    +   '</div>'
+    + '</form>'
+    + tmplModalFooter(isNew ? "Create promotion" : "Save changes", "promotion");
+}
+
 function modalUserActions(m) {
   var u = m.user;
   var roleKind = "role-" + u.Role.toLowerCase();
@@ -808,6 +908,7 @@ function renderModal() {
   else if (m.kind === "trainer")   { title = "Edit " + m.trainer.Name; subtitle = "@" + m.trainer.Username + " · Trainer profile"; body = modalTrainer(m); width = 620; }
   else if (m.kind === "class")     { title = m.isNew ? "New class" : "Edit " + (m.data ? m.data.Name : ""); subtitle = m.isNew ? "Members will see this in the schedule as soon as you save." : ""; body = modalClass(m); width = 640; }
   else if (m.kind === "equipment") { title = m.isNew ? "Add equipment" : "Edit " + (m.data ? m.data.Name : ""); subtitle = ""; body = modalEquipment(m); width = 520; }
+  else if (m.kind === "promotion") { title = m.isNew ? "New promotion" : "Edit promotion"; subtitle = m.isNew ? "Create a homepage featured promotion." : ""; body = modalPromotion(m); width = 560; }
   else return "";
 
   return ''

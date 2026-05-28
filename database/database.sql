@@ -1,6 +1,7 @@
 PRAGMA foreign_keys = ON;
 
 DROP TABLE IF EXISTS REPORT_RESPONSE;
+DROP TABLE IF EXISTS FEATURED_PROMOTION;
 DROP TABLE IF EXISTS REPORT;
 DROP TABLE IF EXISTS NOTIFICATION;
 DROP TABLE IF EXISTS EQUIPMENT_RESERVATION;
@@ -457,3 +458,24 @@ INSERT INTO REPORT_RESPONSE (ReportID, UserID, Message) VALUES
 (2, 8, 'Thank you for the update. Will there be a make-up class?'),
 (3, 1, 'We''ve confirmed the duplicate charge and issued a refund of €19.99 to your card. It should appear within 3–5 business days.'),
 (3, 10, 'Received the refund. Thank you for the quick resolution!');
+
+CREATE TABLE FEATURED_PROMOTION (
+    PromotionID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Type TEXT NOT NULL CHECK (Type IN ('Class', 'Trainer')),
+    ClassID INTEGER,
+    TrainerID INTEGER,
+    PromoTitle TEXT NOT NULL,
+    PromoDescription TEXT,
+    IsActive INTEGER NOT NULL DEFAULT 1,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ClassID) REFERENCES FITNESS_CLASS(ClassID) ON DELETE CASCADE,
+    FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE,
+    CHECK (
+        (Type = 'Class' AND ClassID IS NOT NULL AND TrainerID IS NULL) OR
+        (Type = 'Trainer' AND TrainerID IS NOT NULL AND ClassID IS NULL)
+    )
+);
+
+INSERT INTO FEATURED_PROMOTION (PromotionID, Type, ClassID, TrainerID, PromoTitle, PromoDescription, IsActive) VALUES
+(1, 'Class', 1, NULL, 'Morning Yoga Reset', 'Wake up your body and focus your mind with Ana. Perfect for beginners and advanced yogis.', 1),
+(2, 'Trainer', NULL, 4, 'HIIT & Strength Masterclass', 'Get personalized training programs and high intensity sessions with Coach Ricardo.', 1);
