@@ -4,24 +4,24 @@
    ========================================================================== */
 
 :root {
-  --orange: #f18c4f;
-  --orange-dark: #d87236;
-  --cream: #fff7f1;
-  --peach: #faebe0;
+  --orange: #7a8a3a;
+  --orange-dark: #5c6820;
+  --cream: #f5f6ed;
+  --peach: #e5e8cc;
   --surface: rgba(255, 255, 255, 0.72);
   --surface-strong: #ffffff;
-  --text-dark: #2a1b15;
-  --text-body: #4a3b34;
-  --text-soft: #7d675b;
-  --border: rgba(216, 114, 54, 0.16);
-  --border-strong: rgba(216, 114, 54, 0.32);
-  --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
-  --shadow-lg: 0 28px 60px rgba(216, 114, 54, 0.22);
+  --text-dark: #1e2210;
+  --text-body: #363e1a;
+  --text-soft: #686e3a;
+  --border: rgba(122, 138, 58, 0.16);
+  --border-strong: rgba(122, 138, 58, 0.32);
+  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
+  --shadow-lg: 0 28px 60px rgba(122, 138, 58, 0.22);
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
   color: var(--text-body);
   min-height: 100vh;
 }
@@ -105,7 +105,7 @@ body {
 }
 
 .admin-nav-item:hover {
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-dark);
 }
 
@@ -113,7 +113,7 @@ body {
   background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
   color: white;
   border-color: transparent;
-  box-shadow: 0 8px 20px rgba(216, 114, 54, 0.28);
+  box-shadow: 0 8px 20px rgba(122, 138, 58, 0.28);
 }
 
 .admin-nav-item.is-active .admin-nav-icon { color: white; }
@@ -127,7 +127,7 @@ body {
 
 .admin-nav-badge {
   margin-left: auto;
-  background: rgba(241, 140, 79, 0.16);
+  background: rgba(122, 138, 58, 0.16);
   color: var(--orange-dark);
   font-size: 0.72rem;
   font-weight: 800;
@@ -227,13 +227,13 @@ body {
 .btn-primary {
   background: var(--orange);
   color: white;
-  box-shadow: 0 8px 20px rgba(216, 114, 54, 0.25);
+  box-shadow: 0 8px 20px rgba(122, 138, 58, 0.25);
 }
 
 .btn-primary:hover { transform: translateY(-1px); background: var(--orange-dark); }
 
 .btn-secondary {
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-dark);
   border-color: var(--border);
 }
@@ -248,7 +248,7 @@ body {
   font-size: 0.85rem;
 }
 
-.btn-ghost:hover { background: #fffaf6; color: var(--text-dark); }
+.btn-ghost:hover { background: #f5f6ed; color: var(--text-dark); }
 
 .btn-danger {
   background: #fcebeb;
@@ -264,7 +264,7 @@ body {
   min-height: 0;
   padding: 0;
   border-radius: 10px;
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-soft);
   border: 1px solid var(--border);
   display: inline-flex;
@@ -320,7 +320,7 @@ body {
   border-radius: 8px;
   display: grid;
   place-items: center;
-  background: #fdf0e8;
+  background: #e5e8cc;
   color: var(--orange-dark);
 }
 
@@ -419,7 +419,7 @@ body {
 .toolbar-search input {
   width: 100%;
   height: 2.7rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 0 0.95rem 0 2.4rem;
@@ -445,7 +445,7 @@ body {
 
 .toolbar select {
   height: 2.7rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 0 2.4rem 0 0.95rem;
@@ -490,7 +490,7 @@ body {
 .admin-table thead th {
   text-align: left;
   padding: 0.85rem 1rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border-bottom: 1px solid var(--border);
   color: var(--text-soft);
   font-weight: 700;
@@ -558,12 +558,12 @@ body {
   font-size: 0.74rem;
   font-weight: 800;
   white-space: nowrap;
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-body);
   border: 1px solid var(--border);
 }
 
-.pill--role-admin    { background: #fdf0e8; color: var(--orange-dark); border-color: rgba(216, 114, 54, 0.28); }
+.pill--role-admin    { background: #e5e8cc; color: var(--orange-dark); border-color: rgba(122, 138, 58, 0.28); }
 .pill--role-trainer  { background: #e7f1fd; color: #1d4f9a; border-color: rgba(29, 79, 154, 0.2); }
 .pill--role-member   { background: #eee; color: #444; border-color: #dcdcdc; }
 
@@ -590,7 +590,7 @@ body {
 .mini-meter {
   width: 5.5rem;
   height: 0.4rem;
-  background: rgba(216, 114, 54, 0.12);
+  background: rgba(122, 138, 58, 0.12);
   border-radius: 999px;
   overflow: hidden;
   flex-shrink: 0;
@@ -674,7 +674,7 @@ body {
   transition: background 0.15s, color 0.15s;
 }
 
-.modal-close:hover { background: #fffaf6; color: var(--text-dark); }
+.modal-close:hover { background: #f5f6ed; color: var(--text-dark); }
 .modal-close svg { width: 1.1rem; height: 1.1rem; }
 
 /* ===== Forms ============================================================ */
@@ -704,7 +704,7 @@ body {
 .field textarea {
   width: 100%;
   height: 2.7rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0 0.85rem;
@@ -844,7 +844,7 @@ body {
   align-items: flex-start;
   gap: 0.85rem;
   padding: 0.75rem 0.9rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   border-radius: 14px;
 }
@@ -856,7 +856,7 @@ body {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  background: #fdf0e8;
+  background: #e5e8cc;
   color: var(--orange-dark);
 }
 
@@ -885,7 +885,7 @@ body {
   border-radius: 18px;
   display: grid;
   place-items: center;
-  background: #fdf0e8;
+  background: #e5e8cc;
   color: var(--orange-dark);
 }
 
@@ -920,7 +920,7 @@ body {
 }
 
 .toast svg { width: 1.05rem; height: 1.05rem; color: #6ee7b7; }
-.toast.is-error svg { color: #f87171; }
+.toast.is-error svg { color: #7a8a3a; }
 
 @keyframes toast-in {
   from { transform: translateY(20px); opacity: 0; }
@@ -935,7 +935,7 @@ body {
   justify-content: space-between;
   gap: 0.85rem;
   padding: 0.7rem 1rem;
-  background: #fdf0e8;
+  background: #e5e8cc;
   border: 1px solid var(--border-strong);
   border-radius: 14px;
   margin-bottom: 0.85rem;

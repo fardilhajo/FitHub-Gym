@@ -3,22 +3,22 @@ VARIÁVEIS E CONFIGURAÇÕES GERAIS
 ========================================================================== */
 
 :root {
-    --orange: #f18c4f;
-    --orange-dark: #d87236;
-    --cream: #fff7f1;
-    --peach: #faebe0;
+    --orange: #7a8a3a;
+    --orange-dark: #5c6820;
+    --cream: #f5f6ed;
+    --peach: #e5e8cc;
     --surface: rgba(255, 255, 255, 0.72);
     --surface-strong: #ffffff;
-    --text-dark: #2a1b15;
-    --text-body: #4a3b34;
-    --text-soft: #7d675b;
-    --border: rgba(216, 114, 54, 0.16);
-    --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
+    --text-dark: #1e2210;
+    --text-body: #363e1a;
+    --text-soft: #686e3a;
+    --border: rgba(122, 138, 58, 0.16);
+    --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
   }
 
   body {
     font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+    background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
     color: var(--text-body);
     min-height: 100vh;
   }
@@ -74,7 +74,7 @@ FILTROS
 .input-search,
 .select-field {
   height: 3rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 0 1rem;
@@ -94,7 +94,7 @@ FILTROS
   padding: 0.55rem 1.25rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-body);
   font-family: inherit;
   font-size: 0.86rem;
@@ -155,7 +155,7 @@ GRID DE AULAS
   position: absolute;
   top: 0.8rem;
   right: 0.8rem;
-  background: #fdf0e8;
+  background: #e5e8cc;
   color: var(--orange-dark);
   padding: 0.3rem 0.85rem;
   border-radius: 999px;
@@ -255,7 +255,7 @@ RESPONSIVIDADE
   padding: 0.85rem 1rem;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-dark);
   font-weight: 700;
   text-align: center;
@@ -335,7 +335,7 @@ FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
 }
 
 .page-message {
-  background: #fffaf6;
+  background: #f5f6ed;
   border: 1px solid var(--border);
   color: var(--orange-dark);
   border-radius: 18px;
@@ -362,7 +362,7 @@ FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
 }
 
 .btn-book--cancel {
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--orange-dark);
   border: 1px solid var(--border);
 }
@@ -373,8 +373,8 @@ FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
 }
 
 .plan-card--current {
-  border-color: rgba(216, 114, 54, 0.42);
-  box-shadow: 0 20px 44px rgba(216, 114, 54, 0.22);
+  border-color: rgba(122, 138, 58, 0.42);
+  box-shadow: 0 20px 44px rgba(122, 138, 58, 0.22);
 }
 
 .plan-tag {
@@ -419,7 +419,7 @@ FEATURE PAGES: PERSONAL TRAINING + MEMBERSHIP PLANS
    ======================================================================== */
 
 .btn-book--waitlist {
-  background: #854f0b;
+  background: #7a5230;
 }
 
 .btn-book--waitlist-cancel {

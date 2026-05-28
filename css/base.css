@@ -1,13 +1,13 @@
 :root {
-  --bg: #07101d;
-  --surface: rgba(11, 22, 38, 0.88);
-  --surface-strong: rgba(17, 31, 51, 0.95);
+  --bg: #100d06;
+  --surface: rgba(20, 15, 5, 0.88);
+  --surface-strong: rgba(30, 22, 8, 0.95);
   --surface-border: rgba(255, 255, 255, 0.08);
   --text: #f5f7fb;
-  --text-soft: #c8d1e1;
-  --text-muted: #8f9cb2;
-  --accent: #6ee7b7;
-  --accent-strong: #22c55e;
+  --text-soft: #d4ccb5;
+  --text-muted: #a09060;
+  --accent: #a0b44a;
+  --accent-strong: #7a8a3a;
 
   --container: 76rem;
 
@@ -30,7 +30,7 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: #f7f1eb;
+  background: #f5f0e8;
   color: #1c1c1c;
 }
 
