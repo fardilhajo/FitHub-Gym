@@ -297,7 +297,7 @@ $mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
             <select name="member_id" required>
               <option value="">Select member</option>
               <?php foreach ($members as $m): ?>
-                <option value="<?= (int)$m['UserID'] ?>"><?= e($m['Name']) ?></option>
+                <option value="<?= (int)$m['UserID'] ?>" <?= (isset($_GET['member_id']) && (int)$_GET['member_id'] === (int)$m['UserID']) ? 'selected' : '' ?>><?= e($m['Name']) ?></option>
               <?php endforeach; ?>
             </select>
           </div>
