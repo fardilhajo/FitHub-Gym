@@ -69,6 +69,7 @@ if ($loggedIn) {
         <?php if (!$navHasBasic): ?>
           <a href="membership-plans.php" class="btn-analytics">Choose Plan</a>
         <?php endif; ?>
+        <a href="reports.php" class="btn-analytics">Reports</a>
       <?php endif; ?>
       <?php if ($loggedIn): ?>
         <div class="nav-bell-wrapper" id="nav-bell-wrapper">

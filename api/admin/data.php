@@ -86,9 +86,19 @@ $equipment = array_map(function ($e) {
     ];
 }, $eqRows);
 
+// Reports summary counts
+$reportsCount = [
+    'total'      => (int)$db->query('SELECT COUNT(*) FROM REPORT')->fetchColumn(),
+    'open'       => (int)$db->query("SELECT COUNT(*) FROM REPORT WHERE Status = 'Open'")->fetchColumn(),
+    'inProgress' => (int)$db->query("SELECT COUNT(*) FROM REPORT WHERE Status = 'In Progress'")->fetchColumn(),
+    'resolved'   => (int)$db->query("SELECT COUNT(*) FROM REPORT WHERE Status = 'Resolved'")->fetchColumn(),
+    'closed'     => (int)$db->query("SELECT COUNT(*) FROM REPORT WHERE Status = 'Closed'")->fetchColumn(),
+];
+
 echo json_encode([
-    'users'          => $users,
+    'users'           => $users,
     'trainerProfiles' => $trainerProfiles,
-    'classes'        => $classes,
-    'equipment'      => $equipment,
+    'classes'         => $classes,
+    'equipment'       => $equipment,
+    'reports'         => $reportsCount,
 ], JSON_THROW_ON_ERROR);

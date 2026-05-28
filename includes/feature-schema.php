@@ -65,6 +65,7 @@ function ensure_booking_feature_schema(PDO $db): void
     ensure_class_review_schema($db);
     ensure_nutrition_schema($db);
     ensure_progress_schema($db);
+    ensure_report_schema($db);
     seed_booking_features($db);
 }
 
@@ -89,7 +90,7 @@ function ensure_notification_schema(PDO $db): void
         CREATE TABLE IF NOT EXISTS NOTIFICATION (
             NotificationID INTEGER PRIMARY KEY AUTOINCREMENT,
             UserID INTEGER NOT NULL,
-            Type TEXT NOT NULL CHECK (Type IN ("booking_confirmed", "booking_cancelled", "class_reminder", "membership_renewal", "general")),
+            Type TEXT NOT NULL CHECK (Type IN ("booking_confirmed", "booking_cancelled", "class_reminder", "membership_renewal", "general", "report_update")),
             Title TEXT NOT NULL,
             Message TEXT NOT NULL,
             IsRead INTEGER NOT NULL DEFAULT 0,
@@ -223,6 +224,44 @@ function ensure_progress_schema(PDO $db): void
             FOREIGN KEY (MemberID) REFERENCES USER(UserID) ON DELETE CASCADE
         )
     ');
+}
+
+function ensure_report_schema(PDO $db): void
+{
+    $db->exec('PRAGMA foreign_keys = ON');
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS REPORT (
+            ReportID     INTEGER PRIMARY KEY AUTOINCREMENT,
+            MemberID     INTEGER NOT NULL,
+            Category     TEXT NOT NULL CHECK (Category IN ("Equipment", "Class", "Billing", "Staff", "Other")),
+            Subject      TEXT NOT NULL,
+            Description  TEXT NOT NULL,
+            Status       TEXT NOT NULL CHECK (Status IN ("Open", "In Progress", "Resolved", "Closed")) DEFAULT "Open",
+            Priority     TEXT NOT NULL CHECK (Priority IN ("Low", "Medium", "High")) DEFAULT "Medium",
+            EquipmentID  INTEGER,
+            ClassID      INTEGER,
+            CreatedAt    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UpdatedAt    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (MemberID)    REFERENCES USER(UserID)           ON DELETE CASCADE,
+            FOREIGN KEY (EquipmentID) REFERENCES EQUIPMENT(EquipmentID) ON DELETE SET NULL,
+            FOREIGN KEY (ClassID)     REFERENCES FITNESS_CLASS(ClassID)  ON DELETE SET NULL
+        )
+    ');
+
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS REPORT_RESPONSE (
+            ResponseID  INTEGER PRIMARY KEY AUTOINCREMENT,
+            ReportID    INTEGER NOT NULL,
+            UserID      INTEGER NOT NULL,
+            Message     TEXT NOT NULL,
+            CreatedAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ReportID) REFERENCES REPORT(ReportID) ON DELETE CASCADE,
+            FOREIGN KEY (UserID)   REFERENCES USER(UserID)     ON DELETE CASCADE
+        )
+    ');
+
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_report_member ON REPORT (MemberID, Status)');
+    $db->exec('CREATE INDEX IF NOT EXISTS idx_report_status ON REPORT (Status, CreatedAt)');
 }
 
 function seed_booking_features(PDO $db): void
