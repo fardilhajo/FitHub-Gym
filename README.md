@@ -39,8 +39,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] Member Progress Tracking
 - [x] Nutrition Plans
 - [x] Disputes and Feedback
-
-
+- [x] Featured Promotions
 ## Running
 
 From the project root:
