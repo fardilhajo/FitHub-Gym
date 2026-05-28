@@ -8,7 +8,8 @@ var nav = [
   { id: "trainers",  label: "Trainers",  iconKey: "Whistle" },
   { id: "classes",   label: "Classes",   iconKey: "Calendar" },
   { id: "equipment", label: "Equipment", iconKey: "Dumbbell" },
-  { id: "reports",   label: "Reports",   iconKey: "Flag" }
+  { id: "reports",   label: "Reports",   iconKey: "Flag" },
+  { id: "promotions", label: "Promotions", iconKey: "Star" }
 ];
 
 /* ----- Render --------------------------------------------------------- */
@@ -25,6 +26,7 @@ function render() {
     if (item.id === "classes")   badge = state.classes.length;
     if (item.id === "equipment") badge = state.equipment.length;
     if (item.id === "reports")   badge = state.reports.filter(function (r) { return r.Status === "Open" || r.Status === "In Progress"; }).length;
+    if (item.id === "promotions") badge = state.promotions.filter(function (p) { return p.IsActive; }).length;
     var badgeHtml = badge !== "" ? '<span class="admin-nav-badge">' + badge + '</span>' : "";
     return ''
       + '<button class="admin-nav-item' + (state.view === item.id ? " is-active" : "") + '" data-action="jump" data-view="' + item.id + '">'
@@ -41,6 +43,7 @@ function render() {
               : state.view === "classes"   ? viewClasses()
               : state.view === "equipment" ? viewEquipment()
               : state.view === "reports"   ? viewReports()
+              : state.view === "promotions" ? viewPromotions()
               : "";
 
   root.innerHTML = ''
@@ -128,6 +131,7 @@ function loadData(done) {
       state.classes        = data.classes        || [];
       state.equipment      = data.equipment      || [];
       state.trainerProfiles = data.trainerProfiles || {};
+      state.promotions     = data.promotions     || [];
       loaded.main = true;
       check();
     })
@@ -302,6 +306,50 @@ function submitEquipmentForm(form) {
   }
 }
 
+function submitPromotionForm(form) {
+  var d = collectForm(form);
+  var errs = {};
+  if (!d.PromoTitle || !String(d.PromoTitle).trim()) errs.PromoTitle = "Promo Title is required";
+  if (d.Type === "Class" && !d.ClassID) errs.ClassID = "Please select a class";
+  if (d.Type === "Trainer" && !d.TrainerID) errs.TrainerID = "Please select a trainer";
+
+  if (Object.keys(errs).length) {
+    state.modal.errors = errs;
+    state.modal.data = d;
+    render();
+    return;
+  }
+
+  d.IsActive = Number(d.IsActive);
+  if (d.Type === "Class") {
+    d.ClassID = Number(d.ClassID);
+    d.TrainerID = null;
+  } else {
+    d.TrainerID = Number(d.TrainerID);
+    d.ClassID = null;
+  }
+
+  var isNew = state.modal.isNew;
+  if (isNew) {
+    apiCall('POST', 'api/admin/promotions.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error creating promotion', 'error'); return; }
+      state.promotions.push(res.promotion);
+      toast('Created promotion "' + res.promotion.PromoTitle + '"');
+      state.modal = null;
+      render();
+    });
+  } else {
+    d.PromotionID = state.modal.id;
+    apiCall('PATCH', 'api/admin/promotions.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error saving promotion', 'error'); return; }
+      replaceInArray(state.promotions, 'PromotionID', res.promotion);
+      toast('Updated promotion "' + res.promotion.PromoTitle + '"');
+      state.modal = null;
+      render();
+    });
+  }
+}
+
 /* ----- Event delegation ----------------------------------------------- */
 
 function setupEvents() {
@@ -352,6 +400,7 @@ function setupEvents() {
       if (formName === "trainer")   submitTrainerForm(form);
       if (formName === "class")     submitClassForm(form);
       if (formName === "equipment") submitEquipmentForm(form);
+      if (formName === "promotion") submitPromotionForm(form);
       return;
     }
 
@@ -572,6 +621,54 @@ function setupEvents() {
       return;
     }
 
+    /* ----- Promotions ----- */
+    if (action === "promotion-new") {
+      state.modal = { kind: "promotion", isNew: true };
+      render();
+      return;
+    }
+    if (action === "promotion-edit") {
+      var p = findById(state.promotions, "PromotionID", Number(id));
+      if (p) {
+        state.modal = { kind: "promotion", isNew: false, id: p.PromotionID, data: Object.assign({}, p) };
+        render();
+      }
+      return;
+    }
+    if (action === "promotion-toggle") {
+      var pt = findById(state.promotions, "PromotionID", Number(id));
+      if (!pt) return;
+      var payload = Object.assign({}, pt, { IsActive: pt.IsActive ? 0 : 1 });
+      apiCall('PATCH', 'api/admin/promotions.php', payload, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        replaceInArray(state.promotions, 'PromotionID', res.promotion);
+        var label = res.promotion.IsActive ? 'activated' : 'paused';
+        toast('Promotion "' + res.promotion.PromoTitle + '" ' + label);
+        render();
+      });
+      return;
+    }
+    if (action === "promotion-delete") {
+      var pd = findById(state.promotions, "PromotionID", Number(id));
+      if (!pd) return;
+      state.confirm = {
+        title: "Delete promotion?",
+        body: 'Promotion "' + pd.PromoTitle + '" will be permanently deleted from the database.',
+        kind: "danger",
+        confirmLabel: "Delete promotion",
+        onConfirm: function () {
+          apiCall('DELETE', 'api/admin/promotions.php', { PromotionID: pd.PromotionID }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            state.promotions = state.promotions.filter(function (x) { return x.PromotionID !== pd.PromotionID; });
+            toast('Deleted promotion "' + pd.PromoTitle + '"');
+            render();
+          });
+        }
+      };
+      render();
+      return;
+    }
+
     /* ----- Misc ----- */
     if (action === "refresh") {
       loadData(function () { toast("Refreshed"); render(); });
@@ -662,6 +759,21 @@ function setupEvents() {
     var el = ev.target;
     var action = el.getAttribute && el.getAttribute("data-action");
     var bind = el.getAttribute && el.getAttribute("data-bind");
+
+    if (el.name === "Type" && el.closest('form[data-form="promotion"]')) {
+      var form = el.closest('form');
+      var type = el.value;
+      var classField = form.querySelector('.field-class-select');
+      var trainerField = form.querySelector('.field-trainer-select');
+      if (type === "Class") {
+        classField.style.display = "block";
+        trainerField.style.display = "none";
+      } else {
+        classField.style.display = "none";
+        trainerField.style.display = "block";
+      }
+      return;
+    }
 
     if (action === "equipment-status") {
       var eqId = Number(el.getAttribute("data-id"));

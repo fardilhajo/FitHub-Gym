@@ -95,10 +95,37 @@ $reportsCount = [
     'closed'     => (int)$db->query("SELECT COUNT(*) FROM REPORT WHERE Status = 'Closed'")->fetchColumn(),
 ];
 
+// Promotions
+$promoRows = $db->query('
+    SELECT p.*, 
+           c.Name AS ClassName, 
+           u.Name AS TrainerName
+    FROM FEATURED_PROMOTION p
+    LEFT JOIN FITNESS_CLASS c ON p.ClassID = c.ClassID
+    LEFT JOIN USER u ON p.TrainerID = u.UserID
+    ORDER BY p.PromotionID
+')->fetchAll(PDO::FETCH_ASSOC);
+
+$promotions = array_map(function ($p) {
+    return [
+        'PromotionID'      => (int)$p['PromotionID'],
+        'Type'             => $p['Type'],
+        'ClassID'          => $p['ClassID'] !== null ? (int)$p['ClassID'] : null,
+        'TrainerID'        => $p['TrainerID'] !== null ? (int)$p['TrainerID'] : null,
+        'PromoTitle'       => $p['PromoTitle'],
+        'PromoDescription' => $p['PromoDescription'] ?? '',
+        'IsActive'         => (int)$p['IsActive'],
+        'ClassName'        => $p['ClassName'] ?? '',
+        'TrainerName'      => $p['TrainerName'] ?? '',
+    ];
+}, $promoRows);
+
 echo json_encode([
     'users'           => $users,
     'trainerProfiles' => $trainerProfiles,
     'classes'         => $classes,
     'equipment'       => $equipment,
     'reports'         => $reportsCount,
+    'promotions'      => $promotions,
 ], JSON_THROW_ON_ERROR);
+

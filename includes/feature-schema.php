@@ -66,6 +66,7 @@ function ensure_booking_feature_schema(PDO $db): void
     ensure_nutrition_schema($db);
     ensure_progress_schema($db);
     ensure_report_schema($db);
+    ensure_promotions_schema($db);
     seed_booking_features($db);
 }
 
@@ -264,6 +265,39 @@ function ensure_report_schema(PDO $db): void
     $db->exec('CREATE INDEX IF NOT EXISTS idx_report_status ON REPORT (Status, CreatedAt)');
 }
 
+function ensure_promotions_schema(PDO $db): void
+{
+    $db->exec('PRAGMA foreign_keys = ON');
+    $db->exec('
+        CREATE TABLE IF NOT EXISTS FEATURED_PROMOTION (
+            PromotionID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Type TEXT NOT NULL CHECK (Type IN ("Class", "Trainer")),
+            ClassID INTEGER,
+            TrainerID INTEGER,
+            PromoTitle TEXT NOT NULL,
+            PromoDescription TEXT,
+            IsActive INTEGER NOT NULL DEFAULT 1,
+            CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (ClassID) REFERENCES FITNESS_CLASS(ClassID) ON DELETE CASCADE,
+            FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE,
+            CHECK (
+                (Type = "Class" AND ClassID IS NOT NULL AND TrainerID IS NULL) OR
+                (Type = "Trainer" AND TrainerID IS NOT NULL AND ClassID IS NULL)
+            )
+        )
+    ');
+}
+
+function seed_promotions(PDO $db): void
+{
+    $promoCount = (int)$db->query('SELECT COUNT(*) FROM FEATURED_PROMOTION')->fetchColumn();
+    if ($promoCount === 0) {
+        $stmt = $db->prepare('INSERT INTO FEATURED_PROMOTION (Type, ClassID, TrainerID, PromoTitle, PromoDescription, IsActive) VALUES (?, ?, ?, ?, ?, ?)');
+        $stmt->execute(['Class', 1, null, 'Morning Yoga Reset', 'Wake up your body and focus your mind with Ana. Perfect for beginners and advanced yogis.', 1]);
+        $stmt->execute(['Trainer', null, 4, 'HIIT & Strength Masterclass', 'Get personalized training programs and high intensity sessions with Coach Ricardo.', 1]);
+    }
+}
+
 function seed_booking_features(PDO $db): void
 {
     $planCount = (int)$db->query('SELECT COUNT(*) FROM MEMBERSHIP_PLAN')->fetchColumn();
@@ -304,6 +338,7 @@ function seed_booking_features(PDO $db): void
         }
     }
 
+    seed_promotions($db);
     seed_dummy_member_data($db);
 }
 
