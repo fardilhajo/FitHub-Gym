@@ -4,22 +4,22 @@
    ========================================================================== */
 
 :root {
-  --orange: #f18c4f;
-  --orange-dark: #d87236;
-  --cream: #fff7f1;
-  --peach: #faebe0;
+  --orange: #7a8a3a;
+  --orange-dark: #5c6820;
+  --cream: #f5f6ed;
+  --peach: #e5e8cc;
   --surface: rgba(255, 255, 255, 0.72);
   --surface-strong: #ffffff;
-  --text-dark: #2a1b15;
-  --text-body: #4a3b34;
-  --text-soft: #7d675b;
-  --border: rgba(216, 114, 54, 0.16);
-  --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
+  --text-dark: #1e2210;
+  --text-body: #363e1a;
+  --text-soft: #686e3a;
+  --border: rgba(122, 138, 58, 0.16);
+  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
   color: var(--text-body);
   min-height: 100vh;
 }
@@ -39,7 +39,7 @@ body {
   margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 18px 40px rgba(216, 114, 54, 0.2);
+  box-shadow: 0 18px 40px rgba(122, 138, 58, 0.2);
 }
 .reports-hero::before {
   content: '';
@@ -181,7 +181,7 @@ body {
   padding: 0.75rem 1rem;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fffaf6;
+  background: #f5f6ed;
   color: var(--text-dark);
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
@@ -191,7 +191,7 @@ body {
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(241, 140, 79, 0.15);
+  box-shadow: 0 0 0 3px rgba(122, 138, 58, 0.15);
 }
 .form-group textarea {
   resize: vertical;
@@ -236,7 +236,7 @@ body {
 .btn-submit-report:hover {
   opacity: 0.92;
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(241, 140, 79, 0.25);
+  box-shadow: 0 8px 24px rgba(122, 138, 58, 0.25);
 }
 .btn-submit-report:active {
   transform: translateY(0);
@@ -291,7 +291,7 @@ body {
   transition: background 0.15s;
 }
 .report-card-header:hover {
-  background: rgba(241, 140, 79, 0.04);
+  background: rgba(122, 138, 58, 0.04);
 }
 
 .report-card-info {
@@ -330,7 +330,7 @@ body {
 
 /* Category badge */
 .badge--category {
-  background: #fdf0e8;
+  background: var(--peach);
   color: var(--orange-dark);
 }
 
@@ -385,7 +385,7 @@ body {
   overflow: hidden;
   transition: max-height 0.35s ease, padding 0.35s ease;
   padding: 0 2rem;
-  background: #fffaf6;
+  background: #f5f6ed;
   border-top: 1px solid transparent;
 }
 .report-card.is-expanded .report-card-body {
@@ -422,7 +422,7 @@ body {
   border-radius: 16px;
   margin-bottom: 0.75rem;
   position: relative;
-  box-shadow: 0 2px 8px rgba(216, 114, 54, 0.04);
+  box-shadow: 0 2px 8px rgba(122, 138, 58, 0.04);
 }
 .thread-message--admin {
   background: #fff;
@@ -497,7 +497,7 @@ body {
 }
 .reply-form textarea:focus {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(241, 140, 79, 0.15);
+  box-shadow: 0 0 0 3px rgba(122, 138, 58, 0.15);
 }
 .btn-reply {
   padding: 0.75rem 1.5rem;
