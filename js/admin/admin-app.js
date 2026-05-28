@@ -7,7 +7,8 @@ var nav = [
   { id: "members",   label: "Members",   iconKey: "Users" },
   { id: "trainers",  label: "Trainers",  iconKey: "Whistle" },
   { id: "classes",   label: "Classes",   iconKey: "Calendar" },
-  { id: "equipment", label: "Equipment", iconKey: "Dumbbell" }
+  { id: "equipment", label: "Equipment", iconKey: "Dumbbell" },
+  { id: "reports",   label: "Reports",   iconKey: "Flag" }
 ];
 
 /* ----- Render --------------------------------------------------------- */
@@ -23,6 +24,7 @@ function render() {
     if (item.id === "trainers")  badge = state.users.filter(function (u) { return u.Role === "Trainer"; }).length;
     if (item.id === "classes")   badge = state.classes.length;
     if (item.id === "equipment") badge = state.equipment.length;
+    if (item.id === "reports")   badge = state.reports.filter(function (r) { return r.Status === "Open" || r.Status === "In Progress"; }).length;
     var badgeHtml = badge !== "" ? '<span class="admin-nav-badge">' + badge + '</span>' : "";
     return ''
       + '<button class="admin-nav-item' + (state.view === item.id ? " is-active" : "") + '" data-action="jump" data-view="' + item.id + '">'
@@ -38,6 +40,7 @@ function render() {
               : state.view === "trainers"  ? viewTrainers()
               : state.view === "classes"   ? viewClasses()
               : state.view === "equipment" ? viewEquipment()
+              : state.view === "reports"   ? viewReports()
               : "";
 
   root.innerHTML = ''
@@ -110,6 +113,11 @@ function replaceInArray(arr, key, obj) {
 /* ----- Data load ------------------------------------------------------ */
 
 function loadData(done) {
+  var loaded = { main: false, reports: false };
+  function check() {
+    if (loaded.main && loaded.reports) done();
+  }
+
   fetch('api/admin/data.php', { headers: { Accept: 'application/json' } })
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -120,11 +128,29 @@ function loadData(done) {
       state.classes        = data.classes        || [];
       state.equipment      = data.equipment      || [];
       state.trainerProfiles = data.trainerProfiles || {};
-      done();
+      loaded.main = true;
+      check();
     })
     .catch(function (err) {
       console.error('Failed to load admin data:', err);
-      done();
+      loaded.main = true;
+      check();
+    });
+
+  fetch('api/admin/reports.php', { headers: { Accept: 'application/json' } })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      state.reports = data.reports || [];
+      loaded.reports = true;
+      check();
+    })
+    .catch(function (err) {
+      console.error('Failed to load reports:', err);
+      loaded.reports = true;
+      check();
     });
 }
 
@@ -330,6 +356,54 @@ function setupEvents() {
     }
 
     /* ----- Users ----- */
+    if (action === "user-row-click") {
+      if (window.innerWidth <= 820) {
+        var u = findById(state.users, "UserID", Number(id));
+        if (u) {
+          state.modal = { kind: "user-actions", user: u };
+          render();
+        }
+      }
+      return;
+    }
+    if (action === "user-edit-inside-actions") {
+      state.modal = null;
+      render();
+      var u = findById(state.users, "UserID", Number(id));
+      if (u) {
+        state.modal = { kind: "user", isNew: false, id: u.UserID, data: Object.assign({}, u) };
+        render();
+      }
+      return;
+    }
+    if (action === "user-promote-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-promote"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+    if (action === "user-deactivate-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-deactivate"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+    if (action === "user-activate-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-activate"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+
     if (action === "user-new") {
       state.modal = { kind: "user", isNew: true, role: target.getAttribute("data-role") || "Member" };
       render();
@@ -505,6 +579,60 @@ function setupEvents() {
     }
     if (action === "export-csv") {
       toast("CSV export queued");
+      return;
+    }
+
+    /* ----- Reports ----- */
+    if (action === "report-toggle") {
+      var reportId = Number(id);
+      state.reportDetail = (state.reportDetail === reportId) ? null : reportId;
+      render();
+      if (state.reportDetail) {
+        setTimeout(function () {
+          var el = document.getElementById('report-detail-' + reportId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
+      return;
+    }
+    if (action === "report-respond") {
+      var respForm = root.querySelector('form[data-form="report-respond-' + id + '"]');
+      if (!respForm) return;
+      var fd = collectForm(respForm);
+      var msg = (fd.Message || '').trim();
+      if (!msg) { toast('Please enter a message', 'error'); return; }
+      apiCall('POST', 'api/admin/reports.php', {
+        action: 'respond',
+        ReportID: Number(id),
+        Message: msg
+      }, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        var rpt = findById(state.reports, 'ReportID', Number(id));
+        if (rpt) {
+          rpt.Responses = rpt.Responses || [];
+          rpt.Responses.push(res.response);
+          rpt.UpdatedAt = res.response.CreatedAt;
+        }
+        toast('Response sent');
+        render();
+      });
+      return;
+    }
+    if (action === "report-status") {
+      var newSt = target.getAttribute('data-status');
+      apiCall('POST', 'api/admin/reports.php', {
+        action: 'update_status',
+        ReportID: Number(id),
+        Status: newSt
+      }, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        var rpt = findById(state.reports, 'ReportID', Number(id));
+        if (rpt) {
+          rpt.Status = res.Status;
+        }
+        toast('Status updated to ' + res.Status);
+        render();
+      });
       return;
     }
   });

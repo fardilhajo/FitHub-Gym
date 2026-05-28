@@ -11,6 +11,7 @@
   background: var(--orange);
   box-shadow: 0 8px 24px rgba(216, 114, 54, 0.16);
   position: relative;
+  z-index: 100;
 }
 
 .nav-logo {
