@@ -19,7 +19,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 **Trainers:**
 - [x] Public profile with bio, specializations, and certifications.
 - [x] Public class schedule with enrollment counts.
-- [ ] Private roster management page.
+- [x] Private roster management page.
 
 **Admins:**
 - [x] Manage members and trainers.
@@ -40,6 +40,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] Nutrition Plans
 - [x] Disputes and Feedback
 - [x] Featured Promotions
+
 ## Running
 
 From the project root:
