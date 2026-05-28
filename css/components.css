@@ -1,238 +1,295 @@
-.button {
+/* ==========================================================================
+   FITHUB GYM - UI COMPONENTS
+   ========================================================================== */
+
+/* ── Card Base ── */
+.card,
+.panel {
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ── Form Controls & Inputs ── */
+label {
+  display: block;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+label:first-of-type {
+  margin-top: 0;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+  width: 100%;
+  height: 3rem;
+  background: #fffaf6;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0 1rem;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+textarea {
+  height: auto;
+  min-height: 6rem;
+  padding: 0.75rem 1rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 3px rgba(241, 140, 79, 0.15);
+  background: white;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+/* ── Buttons ── */
+.button,
+.btn-primary,
+.btn-book,
+.book-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  min-height: 2.75rem;
-  padding: 0.75rem 1.15rem;
-  border: 1px solid transparent;
+  min-height: 2.8rem;
+  padding: 0.75rem 1.2rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: #04131b;
+  background: var(--orange);
+  color: white;
   font-weight: 700;
-  transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .button:hover,
-.button:focus-visible {
+.btn-primary:hover,
+.btn-book:hover,
+.book-button:hover {
+  background: var(--orange-dark);
   transform: translateY(-1px);
 }
 
-.button--ghost {
-  background: transparent;
-  border-color: var(--surface-border);
-  color: var(--text);
+.button:disabled,
+.btn-primary:disabled,
+.btn-book:disabled,
+.book-button:disabled {
+  background: var(--peach) !important;
+  color: var(--text-soft) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.8;
 }
 
-.button--small {
-  min-height: 2.4rem;
-  padding: 0.6rem 0.95rem;
+/* Secondary Button Outline Variant */
+.btn-secondary,
+.button--ghost,
+.btn-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fffaf6;
+  color: var(--text-body);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s, border-color 0.2s;
+}
+
+.btn-secondary:hover,
+.button--ghost:hover,
+.btn-clear:hover {
+  background: var(--peach);
+  transform: translateY(-1px);
+}
+
+/* Cancel booking style */
+.btn-book--cancel {
+  background: #ef4444 !important;
+  color: white !important;
+}
+
+.btn-book--cancel:hover {
+  background: #dc2626 !important;
+}
+
+/* Waitlist styling */
+.btn-book--waitlist {
+  background: #854f0b !important;
+}
+
+.btn-book--waitlist:hover {
+  background: #713f12 !important;
+}
+
+.btn-book--waitlist-cancel {
+  background: #6b7280 !important;
+}
+
+.btn-book--waitlist-cancel:hover {
+  background: #4b5563 !important;
+}
+
+/* Danger standard button */
+.btn-danger {
+  background: #fcebeb;
+  color: #a32d2d;
+  border: 1px solid #f7c1c1;
+}
+
+.btn-danger:hover {
+  background: #f8d4d4;
+  transform: translateY(-1px);
+}
+
+/* Icon button styles */
+.btn-icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 10px;
+  background: #fffaf6;
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-icon:hover {
+  background: var(--peach);
+  color: var(--text-dark);
+}
+
+/* ── Badges, Pills & Tags ── */
+.status-pill,
+.tag,
+.class-tag,
+.tag-type,
+.badge-cargo,
+.hero-badge,
+.card-label,
+.plan-tag,
+.promo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+/* Tag & Badge Variants */
+.class-tag,
+.tag-type,
+.badge-cargo,
+.card-label,
+.plan-tag {
+  background: #fdf0e8;
+  color: var(--orange-dark);
+}
+
+.hero-badge {
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
+}
+
+/* ── Status Pills ── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+  background: #fffaf6;
+  color: var(--text-body);
+  border: 1px solid var(--border);
+}
+
+.pill-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Feedback Message Boxes ── */
+.form-message,
+.page-message {
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 16px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid transparent;
+  box-shadow: var(--shadow);
   font-size: 0.92rem;
 }
 
-.text-link {
-  color: var(--accent);
-  font-weight: 600;
+.form-message--error,
+.page-message--error {
+  background: #fcebeb;
+  color: #791f1f;
+  border-color: #f7c1c1;
 }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+.form-message--success,
+.page-message--success {
+  background: #e1f5ee;
+  color: #085041;
+  border-color: #9fe1cb;
 }
 
-.main-nav a {
-  display: inline-flex;
-  padding: 0.7rem 1rem;
-  border-radius: 999px;
-  color: var(--text-soft);
-  font-weight: 600;
-}
-
-.main-nav a:hover,
-.main-nav a:focus-visible,
-.main-nav .is-active {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-}
-
-.status-pill,
-.tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  border: 1px solid var(--surface-border);
-  color: var(--text-soft);
-}
-
-.status-pill--success {
-  color: #c8ffe8;
-  background: rgba(52, 211, 153, 0.13);
-}
-
-.status-pill--warning {
-  color: #ffe9a8;
-  background: rgba(251, 191, 36, 0.13);
-}
-
-.tag {
-  color: var(--accent);
-  background: rgba(110, 231, 183, 0.08);
-}
-
-.avatar,
-.profile-avatar,
-.icon-badge,
-.date-chip {
-  display: grid;
-  place-items: center;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--surface-border);
-  background: var(--surface-strong);
-}
-
-.avatar {
-  width: 3rem;
-  height: 3rem;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.profile-avatar {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 1.25rem;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.icon-badge {
-  width: 3rem;
-  height: 3rem;
-  font-weight: 800;
-  color: var(--accent);
-}
-
-.date-chip {
-  width: 4.5rem;
-  aspect-ratio: 1;
-  padding: var(--space-3);
-  text-align: center;
-}
-
-.date-chip strong {
-  font-size: 0.9rem;
-  color: var(--text-soft);
-}
-
-.date-chip span {
-  font-size: 1.5rem;
-  font-weight: 800;
-}
-
-.panel-header,
-.review-topline,
-.schedule-topline,
-.card-footer,
-.profile-actions,
-.profile-identity,
-.filter-actions,
-.footer-inner nav ul,
-.booking-list li,
-.trainer-list li,
-.agenda-list li,
-.schedule-main,
-.schedule-side,
-.schedule-card,
-.equipment-list li,
-.section-heading {
-  display: flex;
-  gap: var(--space-4);
-}
-
-.panel-header,
-.review-topline,
-.card-footer,
-.filter-actions,
-.schedule-topline,
-.booking-list li,
-.trainer-list li,
-.agenda-list li,
-.equipment-list li,
-.schedule-card {
-  align-items: center;
-  justify-content: space-between;
-}
-
-.meter {
-  width: 100%;
-  max-width: 12rem;
-  height: 0.7rem;
-  border-radius: 999px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.meter span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent), #7dd3fc);
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--surface-border);
-  border-radius: 1rem;
-  background: rgba(5, 12, 23, 0.55);
-  color: var(--text);
-}
-
-label {
-  display: grid;
-  gap: 0.45rem;
-  color: var(--text-soft);
-  font-weight: 500;
-}
-
-fieldset {
-  border: 0;
-  padding: 0;
-}
-
-legend {
-  font-weight: 700;
-  margin-bottom: var(--space-4);
-}
-
-.bullet-list {
-  display: grid;
-  gap: var(--space-3);
-  padding-left: 1.25rem;
-}
-
-.brand-mark {
-  width: 1.9rem;
-  height: 1.9rem;
-  display: grid;
-  place-items: center;
-  border-radius: 0.5rem;
-  background: #ff6f3d;
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.site-footer ul {
-  display: grid;
-  gap: 0.4rem;
+.form-message--warning,
+.page-message--warning {
+  background: #fffaf6;
+  color: var(--orange-dark);
+  border-color: var(--border);
 }

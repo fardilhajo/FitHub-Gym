@@ -1,20 +1,39 @@
+/* ==========================================================================
+   FITHUB GYM - BASE DESIGN SYSTEM
+   ========================================================================== */
+
 :root {
-  --bg: #07101d;
-  --surface: rgba(11, 22, 38, 0.88);
-  --surface-strong: rgba(17, 31, 51, 0.95);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --text: #f5f7fb;
-  --text-soft: #c8d1e1;
-  --text-muted: #8f9cb2;
-  --accent: #6ee7b7;
-  --accent-strong: #22c55e;
+  /* Brand Palette (Warm Orange/Peach) */
+  --orange: #f18c4f;
+  --orange-dark: #d87236;
+  --cream: #fff7f1;
+  --peach: #faebe0;
+  --bg: #faebe0;
+  --bg-gradient: linear-gradient(135deg, #fbeee4 0%, #f7e4d5 100%);
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: #ffffff;
+  --text-dark: #2a1b15;
+  --text-body: #4a3b34;
+  --text-soft: #7d675b;
+  --border: rgba(216, 114, 54, 0.16);
+  --border-strong: rgba(216, 114, 54, 0.32);
+  --shadow: 0 18px 40px rgba(216, 114, 54, 0.14);
+  --shadow-lg: 0 28px 60px rgba(216, 114, 54, 0.22);
+  
+  /* Typography */
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Crimson Pro", serif;
 
-  --container: 76rem;
+  /* Global Layout Constrains */
+  --container: 1200px;
 
+  /* Border Radii */
   --radius-sm: 0.75rem;
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
+  --radius-xl: 24px;
 
+  /* Spacing scale */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -24,51 +43,54 @@
   --space-8: 3rem;
   --space-10: 4rem;
   --space-12: 5rem;
-
-  --shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
 }
 
+/* Base Body Styles */
 body {
-  font-family: "Inter", sans-serif;
-  background: #f7f1eb;
-  color: #1c1c1c;
+  font-family: var(--font-sans), sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-body);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Flex main container for sticky footer */
 main {
   display: block;
+  flex: 1;
 }
 
-h1,
-h2,
-h3,
-strong {
+/* Typography Defaults */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-dark);
+  font-weight: 800;
   line-height: 1.15;
 }
 
-h1 {
-  font-size: clamp(2rem, 5vw, 4rem);
-  letter-spacing: -0.04em;
+/* Global Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
 }
 
-h2 {
-  font-size: clamp(1.4rem, 3.6vw, 2.4rem);
-  letter-spacing: -0.03em;
+::-webkit-scrollbar-track {
+  background: #faebe0;
 }
 
-h3 {
-  font-size: 1.1rem;
+::-webkit-scrollbar-thumb {
+  background: var(--orange);
+  border-radius: 999px;
+  border: 2px solid #faebe0;
 }
 
-p,
-li,
-label,
-input,
-textarea,
-select,
-button {
-  font-size: 0.95rem;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--orange-dark);
 }
 
+/* Accessible Skip Link */
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -77,64 +99,25 @@ button {
 
 .skip-link:focus {
   left: var(--space-4);
-  z-index: 10;
-  background: var(--accent);
-  color: #04131b;
+  z-index: 1000;
+  background: var(--orange-dark);
+  color: white;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
-}
-
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.74rem;
+  text-decoration: none;
   font-weight: 700;
-  color: var(--accent);
-  margin-bottom: var(--space-3);
 }
 
-.lead {
-  color: var(--text-soft);
-  font-size: 1.05rem;
-  max-width: 60ch;
+/* Utility Layouts */
+.content, .container {
+  width: min(var(--container), calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
 }
 
-.muted {
-  color: var(--text-muted);
-}
-
-.section {
-  padding: var(--space-12) 0;
-}
-
-.section--tight {
-  padding-top: 0;
-}
-
-.page-shell {
-  padding: var(--space-8) 0 var(--space-12);
-}
-
-.section-heading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-}
-
-.section-heading--compact {
-  margin-bottom: var(--space-6);
-}
-
-.section-intro {
-  max-width: 55ch;
-  color: var(--text-soft);
-}
-
-@media (min-width: 48rem) {
-  .section-heading {
-    flex-direction: row;
-    align-items: end;
-    justify-content: space-between;
+@media (max-width: 640px) {
+  .content, .container {
+    width: min(calc(100% - 1.2rem), var(--container));
+    padding: 1.2rem 0 2rem;
   }
 }
