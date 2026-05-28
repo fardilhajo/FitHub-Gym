@@ -19,7 +19,7 @@ A PHP/SQLite gym management platform for FitHub Gym.
 **Trainers:**
 - [x] Public profile with bio, specializations, and certifications.
 - [x] Public class schedule with enrollment counts.
-- [ ] Private roster management page.
+- [x] Private roster management page.
 
 **Admins:**
 - [x] Manage members and trainers.
@@ -38,6 +38,8 @@ A PHP/SQLite gym management platform for FitHub Gym.
 - [x] PDO prepared statements.
 - [x] Member Progress Tracking
 - [x] Nutrition Plans
+- [x] Disputes and Feedback
+- [x] Featured Promotions
 
 ## Running
 
@@ -83,6 +85,7 @@ php -S localhost:9000
 - `equipment.php` - equipment availability with Ajax refresh
 - `progress.php` - workout log, fitness goals and progress tracking (member only)
 - `nutrition.php` - view assigned nutrition plans with meal and calorie breakdown (member only)
+- `reports.php` - submit reports and view responses (member), admin manages via Reports tab in admin dashboard
 - `login.php`, `register.php`, `edit-profile.php` - account flows
 
 ## Notes for final delivery

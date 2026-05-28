@@ -174,7 +174,7 @@ function viewMembers() {
     }
     return ''
       + '<tr>'
-      +   '<td><div class="table-user">' + tmplAvatar(u.Name) + '<div class="table-user-meta"><strong>' + escapeHtml(u.Name) + '</strong><span>@' + escapeHtml(u.Username) + '</span></div></div></td>'
+      +   '<td data-action="user-row-click" data-id="' + u.UserID + '" style="cursor:pointer"><div class="table-user">' + tmplAvatar(u.Name) + '<div class="table-user-meta"><strong>' + escapeHtml(u.Name) + '</strong><span>@' + escapeHtml(u.Username) + '</span></div></div></td>'
       +   '<td>' + tmplPill(roleKind, '<span class="pill-dot"></span>' + escapeHtml(u.Role)) + '</td>'
       +   '<td>' + tmplPill(u.IsActive ? "active" : "inactive", u.IsActive ? "Active" : "Inactive") + '</td>'
       +   '<td><span style="color:var(--text-soft);font-size:0.85rem;font-weight:600">' + escapeHtml(u.Joined) + '</span></td>'
@@ -450,6 +450,227 @@ function viewEquipment() {
 }
 
 /* =====================================================================
+   REPORTS
+   ===================================================================== */
+function viewReports() {
+  var f = state.reportsFilter;
+  var q = f.search.trim().toLowerCase();
+
+  var filtered = state.reports.filter(function (r) {
+    if (f.status   !== "All" && r.Status   !== f.status)   return false;
+    if (f.category !== "All" && r.Category !== f.category) return false;
+    if (f.priority !== "All" && r.Priority !== f.priority) return false;
+    if (!q) return true;
+    return r.Subject.toLowerCase().indexOf(q) >= 0
+        || r.MemberName.toLowerCase().indexOf(q) >= 0
+        || r.Description.toLowerCase().indexOf(q) >= 0;
+  });
+
+  var openCount       = state.reports.filter(function (r) { return r.Status === "Open"; }).length;
+  var inProgressCount = state.reports.filter(function (r) { return r.Status === "In Progress"; }).length;
+  var resolvedCount   = state.reports.filter(function (r) { return r.Status === "Resolved"; }).length;
+  var closedCount     = state.reports.filter(function (r) { return r.Status === "Closed"; }).length;
+
+  var statCards = ''
+    + tmplStatCard("Open",        openCount,       "Flag",    "", openCount > 0 ? "up" : "flat")
+    + tmplStatCard("In Progress", inProgressCount, "Clock",   "", "flat")
+    + tmplStatCard("Resolved",    resolvedCount,   "Check",   "", "up")
+    + tmplStatCard("Closed",      closedCount,     "Power",   "", "flat");
+
+  function priorityPill(p) {
+    var kind = p === "High" ? "pill--priority-high" : p === "Medium" ? "pill--priority-medium" : "pill--priority-low";
+    return '<span class="pill ' + kind + '">' + escapeHtml(p) + '</span>';
+  }
+  function statusPill(s) {
+    var kind = s === "Open" ? "pill--report-open"
+             : s === "In Progress" ? "pill--report-progress"
+             : s === "Resolved" ? "pill--report-resolved"
+             : "pill--report-closed";
+    return '<span class="pill ' + kind + '">' + escapeHtml(s) + '</span>';
+  }
+  function categoryPill(c) {
+    return '<span class="pill pill--report-category">' + escapeHtml(c) + '</span>';
+  }
+
+  var rows = filtered.map(function (r) {
+    var isExpanded = state.reportDetail === r.ReportID;
+    var respCount = (r.Responses || []).length;
+
+    var row = ''
+      + '<div class="report-admin-row' + (isExpanded ? ' is-expanded' : '') + '">'
+      +   '<div class="report-admin-row-main" data-action="report-toggle" data-id="' + r.ReportID + '">'
+      +     '<div class="report-admin-user">'
+      +       tmplAvatar(r.MemberName)
+      +       '<div class="table-user-meta">'
+      +         '<strong>' + escapeHtml(r.MemberName) + '</strong>'
+      +         '<span>@' + escapeHtml(r.MemberUsername) + '</span>'
+      +       '</div>'
+      +     '</div>'
+      +     '<div class="report-admin-subject">'
+      +       '<strong>' + escapeHtml(r.Subject) + '</strong>'
+      +       '<span>' + escapeHtml(r.Category) + (r.EquipmentName ? ' · ' + escapeHtml(r.EquipmentName) : '') + (r.ClassName ? ' · ' + escapeHtml(r.ClassName) : '') + '</span>'
+      +     '</div>'
+      +     '<div class="report-admin-badges">'
+      +       statusPill(r.Status)
+      +       priorityPill(r.Priority)
+      +     '</div>'
+      +     '<div class="report-admin-meta">'
+      +       '<span>' + Icons.Clock + escapeHtml(r.CreatedAt ? r.CreatedAt.substring(0, 10) : '') + '</span>'
+      +       (respCount > 0 ? '<span>' + Icons.Message + respCount + '</span>' : '')
+      +     '</div>'
+      +     '<span class="report-admin-chevron">'
+      +       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+      +     '</span>'
+      +   '</div>';
+
+    if (isExpanded) {
+      var statusBtns = REPORT_STATUSES.map(function (s) {
+        var cls = r.Status === s ? "btn-primary" : "btn-secondary";
+        return '<button class="' + cls + '" style="min-height:2rem;padding:0.35rem 0.9rem;font-size:0.8rem" data-action="report-status" data-id="' + r.ReportID + '" data-status="' + s + '"'
+          + (r.Status === s ? ' disabled' : '')
+          + '>' + escapeHtml(s) + '</button>';
+      }).join('');
+
+      var threadHtml = (r.Responses || []).map(function (resp) {
+        var isAdmin = resp.AuthorRole === 'Admin';
+        return ''
+          + '<div class="report-thread-msg' + (isAdmin ? ' is-admin' : ' is-member') + '">'
+          +   '<div class="report-thread-msg-head">'
+          +     '<strong>' + escapeHtml(resp.AuthorName) + '</strong>'
+          +     '<span class="report-thread-role">' + escapeHtml(resp.AuthorRole) + '</span>'
+          +     '<time>' + escapeHtml(resp.CreatedAt || '') + '</time>'
+          +   '</div>'
+          +   '<p>' + escapeHtml(resp.Message) + '</p>'
+          + '</div>';
+      }).join('');
+
+      row += ''
+        + '<div class="report-admin-detail" id="report-detail-' + r.ReportID + '">'
+        +   '<div class="report-detail-desc">'
+        +     '<h4>Description</h4>'
+        +     '<p>' + escapeHtml(r.Description) + '</p>'
+        +   '</div>'
+        +   '<div class="report-detail-info">'
+        +     categoryPill(r.Category)
+        +     priorityPill(r.Priority)
+        +     (r.EquipmentName ? '<span class="report-detail-ref">' + Icons.Wrench + escapeHtml(r.EquipmentName) + '</span>' : '')
+        +     (r.ClassName ? '<span class="report-detail-ref">' + Icons.Calendar + escapeHtml(r.ClassName) + '</span>' : '')
+        +   '</div>'
+        +   '<div class="report-detail-status">'
+        +     '<h4>Change Status</h4>'
+        +     '<div class="report-status-btns">' + statusBtns + '</div>'
+        +   '</div>'
+        +   (threadHtml ? '<div class="report-detail-thread"><h4>Conversation (' + (r.Responses || []).length + ')</h4>' + threadHtml + '</div>' : '')
+        +   '<div class="report-detail-reply">'
+        +     '<h4>Reply</h4>'
+        +     '<form data-form="report-respond-' + r.ReportID + '" class="report-reply-form">'
+        +       '<textarea name="Message" rows="2" placeholder="Type your response…"></textarea>'
+        +       '<button type="button" class="btn-primary" data-action="report-respond" data-id="' + r.ReportID + '" style="min-height:2.2rem;padding:0.4rem 1.1rem;font-size:0.85rem;gap:0.3rem">'
+        +         Icons.Send + ' Send'
+        +       '</button>'
+        +     '</form>'
+        +   '</div>'
+        + '</div>';
+    }
+
+    row += '</div>';
+    return row;
+  }).join('');
+
+  var statusOpts = '<option>All</option>' + REPORT_STATUSES.map(function (s) {
+    return '<option' + (f.status === s ? " selected" : "") + '>' + escapeHtml(s) + '</option>';
+  }).join('');
+  var catOpts = '<option>All</option>' + REPORT_CATEGORIES.map(function (c) {
+    return '<option' + (f.category === c ? " selected" : "") + '>' + escapeHtml(c) + '</option>';
+  }).join('');
+  var prioOpts = '<option>All</option>' + REPORT_PRIORITIES.map(function (p) {
+    return '<option' + (f.priority === p ? " selected" : "") + '>' + escapeHtml(p) + '</option>';
+  }).join('');
+
+  var bodyHtml = filtered.length === 0
+    ? tmplEmptyState("Flag", "No reports match", "Try adjusting your filters or wait for members to submit reports.")
+    : '<div class="report-admin-list">' + rows + '</div>';
+
+  return ''
+    + '<header class="admin-header">'
+    +   '<div class="admin-header-copy">'
+    +     '<h1>Reports &amp; Feedback</h1>'
+    +     '<p>Review member reports, respond to issues, and update resolution status.</p>'
+    +   '</div>'
+    +   '<div class="admin-header-actions">'
+    +     '<button class="btn-secondary" data-action="refresh">' + Icons.Refresh + ' Refresh</button>'
+    +   '</div>'
+    + '</header>'
+
+    + '<div class="admin-stats">' + statCards + '</div>'
+
+    + '<section class="panel">'
+    +   '<div class="toolbar">'
+    +     '<div class="toolbar-search">' + Icons.Search
+    +       '<input type="search" placeholder="Search by subject, member…" data-bind="reportsFilter.search" value="' + escapeHtml(f.search) + '">'
+    +     '</div>'
+    +     '<select data-bind="reportsFilter.status">' + statusOpts + '</select>'
+    +     '<select data-bind="reportsFilter.category">' + catOpts + '</select>'
+    +     '<select data-bind="reportsFilter.priority">' + prioOpts + '</select>'
+    +     '<div class="toolbar-spacer"></div>'
+    +     '<div class="toolbar-count"><strong>' + filtered.length + '</strong> of ' + state.reports.length + ' reports</div>'
+    +   '</div>'
+    +   bodyHtml
+    + '</section>';
+}
+
+/* =====================================================================
+   PROMOTIONS
+   ===================================================================== */
+function viewPromotions() {
+  var promos = state.promotions || [];
+
+  var rows = promos.map(function (p) {
+    var typeKind = p.Type === "Class" ? "role-member" : "role-trainer";
+    var targetName = p.Type === "Class" ? p.ClassName : p.TrainerName;
+    var statusClass = p.IsActive ? "active" : "inactive";
+    var statusText = p.IsActive ? "Active" : "Paused";
+
+    var actions = ''
+      + '<button class="btn-icon" title="Edit promotion" data-action="promotion-edit" data-id="' + p.PromotionID + '">' + Icons.Edit + '</button>'
+      + '<button class="btn-icon" title="' + (p.IsActive ? "Pause" : "Activate") + '" data-action="promotion-toggle" data-id="' + p.PromotionID + '">' + (p.IsActive ? Icons.Power : Icons.Check) + '</button>'
+      + '<button class="btn-icon is-danger" title="Delete" data-action="promotion-delete" data-id="' + p.PromotionID + '">' + Icons.Trash + '</button>';
+
+    return ''
+      + '<tr>'
+      +   '<td>' + tmplPill(typeKind, escapeHtml(p.Type)) + '</td>'
+      +   '<td><strong style="color:var(--text-dark)">' + escapeHtml(targetName || "Deleted " + p.Type) + '</strong></td>'
+      +   '<td><strong style="color:var(--text-dark)">' + escapeHtml(p.PromoTitle) + '</strong></td>'
+      +   '<td><span style="color:var(--text-soft);font-size:0.85rem">' + escapeHtml(p.PromoDescription || "—") + '</span></td>'
+      +   '<td>' + tmplPill(statusClass, statusText) + '</td>'
+      +   '<td class="col-actions"><div class="actions-row">' + actions + '</div></td>'
+      + '</tr>';
+  }).join("");
+
+  var tableHtml = promos.length === 0
+    ? tmplEmptyState("Star", "No featured promotions", "Create a promotion to highlight a class or trainer on the homepage.")
+    : '<div class="table-wrap"><table class="admin-table">'
+      + '<thead><tr><th>Type</th><th>Target</th><th>Promo Title</th><th>Promo Description</th><th>Status</th><th class="col-actions">Actions</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table></div>';
+
+  return ''
+    + '<header class="admin-header">'
+    +   '<div class="admin-header-copy">'
+    +     '<h1>Featured Promotions</h1>'
+    +     '<p>Highlight specific classes or trainers at the top of the homepage with custom titles and taglines.</p>'
+    +   '</div>'
+    +   '<div class="admin-header-actions">'
+    +     '<button class="btn-primary" data-action="promotion-new">' + Icons.Plus + ' New promotion</button>'
+    +   '</div>'
+    + '</header>'
+    + '<section class="panel">'
+    +   '<div class="toolbar"><div class="toolbar-count"><strong>' + promos.length + '</strong> promotions configured</div></div>'
+    +   tableHtml
+    + '</section>';
+}
+
+/* =====================================================================
    MODAL TEMPLATES
    ===================================================================== */
 
@@ -575,6 +796,97 @@ function modalEquipment(m) {
     + tmplModalFooter(isNew ? "Add to inventory" : "Save", "equipment");
 }
 
+function modalPromotion(m) {
+  var isNew = m.isNew;
+  var p = m.data || { Type: "Class", ClassID: "", TrainerID: "", PromoTitle: "", PromoDescription: "", IsActive: 1 };
+  var errs = m.errors || {};
+
+  var classes = state.classes.filter(function (c) { return c.IsActive; });
+  var trainers = state.users.filter(function (u) { return u.Role === "Trainer" && u.IsActive; });
+
+  var classOpts = '<option value="">-- Select Class --</option>' + classes.map(function (c) {
+    return '<option value="' + c.ClassID + '"' + (String(p.ClassID) === String(c.ClassID) ? " selected" : "") + '>' + escapeHtml(c.Name) + '</option>';
+  }).join("");
+
+  var trainerOpts = '<option value="">-- Select Trainer --</option>' + trainers.map(function (t) {
+    return '<option value="' + t.UserID + '"' + (String(p.TrainerID) === String(t.UserID) ? " selected" : "") + '>' + escapeHtml(t.Name) + '</option>';
+  }).join("");
+
+  var typeOpts = ["Class", "Trainer"].map(function (t) {
+    return '<option' + (p.Type === t ? " selected" : "") + '>' + t + '</option>';
+  }).join("");
+
+  var displayClass = p.Type === "Class" ? "block" : "none";
+  var displayTrainer = p.Type === "Trainer" ? "block" : "none";
+
+  return ''
+    + '<form class="form-grid" data-form="promotion">'
+    +   '<div class="field"><label>Promotion Type</label><select name="Type">' + typeOpts + '</select></div>'
+    +   '<div class="field"><label>Status</label><select name="IsActive">'
+    +     '<option value="1"' + (p.IsActive ? " selected" : "") + '>Active</option>'
+    +     '<option value="0"' + (!p.IsActive ? " selected" : "") + '>Paused</option>'
+    +   '</select></div>'
+    +   '<div class="field full field-class-select" style="display:' + displayClass + '"><label>Target Class</label>'
+    +     '<select name="ClassID" class="' + (errs.ClassID ? "has-error" : "") + '">' + classOpts + '</select>'
+    +     (errs.ClassID ? '<span class="field-error">' + errs.ClassID + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full field-trainer-select" style="display:' + displayTrainer + '"><label>Target Trainer</label>'
+    +     '<select name="TrainerID" class="' + (errs.TrainerID ? "has-error" : "") + '">' + trainerOpts + '</select>'
+    +     (errs.TrainerID ? '<span class="field-error">' + errs.TrainerID + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full"><label>Promo Title / Headline</label>'
+    +     '<input name="PromoTitle" class="' + (errs.PromoTitle ? "has-error" : "") + '" value="' + escapeHtml(p.PromoTitle) + '" placeholder="e.g. Try Morning Yoga Reset!">'
+    +     (errs.PromoTitle ? '<span class="field-error">' + errs.PromoTitle + '</span>' : '')
+    +   '</div>'
+    +   '<div class="field full"><label>Promo Description / Tagline</label>'
+    +     '<textarea name="PromoDescription" rows="3" placeholder="A short description that will be highlighted on the homepage.">' + escapeHtml(p.PromoDescription) + '</textarea>'
+    +   '</div>'
+    + '</form>'
+    + tmplModalFooter(isNew ? "Create promotion" : "Save changes", "promotion");
+}
+
+function modalUserActions(m) {
+  var u = m.user;
+  var roleKind = "role-" + u.Role.toLowerCase();
+
+  var editBtn = '<button class="action-menu-btn action-menu-btn--primary" data-action="user-edit-inside-actions" data-id="' + u.UserID + '">' + Icons.Edit + ' <span>Edit User Info</span></button>';
+
+  var promoteBtn = "";
+  if (u.Role !== "Admin") {
+    promoteBtn = '<button class="action-menu-btn action-menu-btn--secondary" data-action="user-promote-inside-actions" data-id="' + u.UserID + '">' + Icons.Crown + ' <span>Promote to Admin</span></button>';
+  }
+
+  var activeBtn = "";
+  if (u.IsActive) {
+    activeBtn = '<button class="action-menu-btn action-menu-btn--danger" data-action="user-deactivate-inside-actions" data-id="' + u.UserID + '">' + Icons.Power + ' <span>Deactivate Account</span></button>';
+  } else {
+    activeBtn = '<button class="action-menu-btn action-menu-btn--success" data-action="user-activate-inside-actions" data-id="' + u.UserID + '">' + Icons.Check + ' <span>Reactivate Account</span></button>';
+  }
+
+  return ''
+    + '<div class="action-sheet">'
+    +   '<div class="action-sheet-profile">'
+    +     '<div class="action-sheet-avatar-container">' + tmplAvatar(u.Name) + '</div>'
+    +     '<div class="action-sheet-meta">'
+    +       '<h3 class="action-sheet-name">' + escapeHtml(u.Name) + '</h3>'
+    +       '<span class="action-sheet-username">@' + escapeHtml(u.Username) + '</span>'
+    +       '<div class="action-sheet-badges">'
+    +         tmplPill(roleKind, escapeHtml(u.Role))
+    +         tmplPill(u.IsActive ? "active" : "inactive", u.IsActive ? "Active" : "Inactive")
+    +       '</div>'
+    +     '</div>'
+    +   '</div>'
+    +   '<div class="action-sheet-menu">'
+    +     editBtn
+    +     promoteBtn
+    +     activeBtn
+    +   '</div>'
+    +   '<div class="action-sheet-footer">'
+    +     '<button class="btn-secondary" style="width:100%" data-action="modal-close">Close</button>'
+    +   '</div>'
+    + '</div>';
+}
+
 function tmplModalFooter(submitLabel, formName) {
   return ''
     + '<footer class="modal-footer">'
@@ -592,14 +904,16 @@ function renderModal() {
   var title, subtitle, body, width;
 
   if (m.kind === "user")      { title = m.isNew ? "New user" : "Edit " + (m.data ? m.data.Name : ""); subtitle = m.isNew ? "Create an account. They'll receive a welcome email with a one-time setup link." : "@" + (m.data ? m.data.Username : ""); body = modalUser(m); width = 560; }
+  else if (m.kind === "user-actions") { title = "Manage User"; subtitle = ""; body = modalUserActions(m); width = 420; }
   else if (m.kind === "trainer")   { title = "Edit " + m.trainer.Name; subtitle = "@" + m.trainer.Username + " · Trainer profile"; body = modalTrainer(m); width = 620; }
   else if (m.kind === "class")     { title = m.isNew ? "New class" : "Edit " + (m.data ? m.data.Name : ""); subtitle = m.isNew ? "Members will see this in the schedule as soon as you save." : ""; body = modalClass(m); width = 640; }
   else if (m.kind === "equipment") { title = m.isNew ? "Add equipment" : "Edit " + (m.data ? m.data.Name : ""); subtitle = ""; body = modalEquipment(m); width = 520; }
+  else if (m.kind === "promotion") { title = m.isNew ? "New promotion" : "Edit promotion"; subtitle = m.isNew ? "Create a homepage featured promotion." : ""; body = modalPromotion(m); width = 560; }
   else return "";
 
   return ''
     + '<div class="modal-backdrop" data-action="modal-close-bg">'
-    +   '<div class="modal" style="width:' + width + 'px;max-width:100%" data-modal-inner>'
+    +   '<div class="modal" style="width:100%;max-width:' + width + 'px" data-modal-inner>'
     +     '<header class="modal-header">'
     +       '<div>'
     +         '<h2>' + escapeHtml(title) + '</h2>'
@@ -620,7 +934,7 @@ function renderConfirm() {
 
   return ''
     + '<div class="modal-backdrop" data-action="confirm-close-bg">'
-    +   '<div class="modal" style="width:460px;max-width:100%">'
+    +   '<div class="modal" style="width:100%;max-width:460px">'
     +     '<header class="modal-header">'
     +       '<div><h2>' + escapeHtml(c.title) + '</h2></div>'
     +       '<button class="modal-close" data-action="confirm-close" aria-label="Close">' + Icons.X + '</button>'

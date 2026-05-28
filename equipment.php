@@ -14,6 +14,11 @@ $canReserveEquipment = membership_plan_allows($activeMembershipPlan, 'Basic');
 $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 
+$returnTo = 'equipment.php';
+if (!empty($_SERVER['QUERY_STRING'])) {
+    $returnTo .= '?' . $_SERVER['QUERY_STRING'];
+}
+
 function parse_datetime_local(?string $value): ?DateTimeImmutable
 {
     if (!$value) {
@@ -46,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user['Role'] !== 'Member') {
         $_SESSION['flash'] = 'Only members can reserve equipment.';
-        redirect_to('equipment.php');
+        redirect_to(safe_return_to('equipment.php'));
     }
 
     $action = $_POST['action'] ?? '';
@@ -153,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect_to('equipment.php');
+    redirect_to(safe_return_to('equipment.php'));
 }
 
 $stats = [
@@ -278,6 +283,7 @@ $minStart = (new DateTimeImmutable('+5 minutes'))->format('Y-m-d\\TH:i');
       <?php else: ?>
         <form class="reservation-form" method="post" action="equipment.php">
           <?= csrf_input() ?>
+          <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
           <input type="hidden" name="action" value="reserve_equipment">
 
           <label>
@@ -317,6 +323,7 @@ $minStart = (new DateTimeImmutable('+5 minutes'))->format('Y-m-d\\TH:i');
                   </div>
                   <form method="post" action="equipment.php" class="inline-form">
                     <?= csrf_input() ?>
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
                     <input type="hidden" name="action" value="cancel_equipment_reservation">
                     <input type="hidden" name="reservation_id" value="<?= e($reservation['ReservationID']) ?>">
                     <button class="btn-cancel-reservation" type="submit">Cancel</button>
@@ -355,5 +362,6 @@ $minStart = (new DateTimeImmutable('+5 minutes'))->format('Y-m-d\\TH:i');
     </div>
   </footer>
   <script src="js/navbar.js"></script>
+  <script src="js/interactive-forms.js"></script>
 </body>
 </html>

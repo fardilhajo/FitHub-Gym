@@ -64,6 +64,19 @@ if ($user) {
     $nextStmt->execute([':member' => $user['UserID']]);
     $nextClass = $nextStmt->fetch();
 }
+
+$promotionsStmt = $db->query('
+    SELECT p.*,
+           c.Name AS ClassName, c.Description AS ClassDescription, c.ImageURL AS ClassImage, c.Type AS ClassType, c.Day AS ClassDay, c.StartTime AS ClassStartTime, c.EndTime AS ClassEndTime, c.Room AS ClassRoom, c.Capacity AS ClassCapacity,
+           u.Name AS TrainerName, u.ProfilePhoto AS TrainerPhoto, tp.Specializations AS TrainerSpecializations,
+           (SELECT COUNT(*) FROM CLASS_ENROLLMENT ce WHERE ce.ClassID = p.ClassID AND ce.Status = "Enrolled") AS ClassEnrolledCount
+    FROM FEATURED_PROMOTION p
+    LEFT JOIN FITNESS_CLASS c ON p.ClassID = c.ClassID
+    LEFT JOIN USER u ON p.TrainerID = u.UserID
+    LEFT JOIN TRAINER_PROFILE tp ON u.UserID = tp.TrainerID
+    WHERE p.IsActive = 1 AND (c.ClassID IS NOT NULL AND c.IsActive = 1 OR u.UserID IS NOT NULL AND u.IsActive = 1)
+');
+$promotions = $promotionsStmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -110,6 +123,64 @@ if ($user) {
         <?php endif; ?>
       </article>
     </section>
+
+    <?php if (!empty($promotions)): ?>
+    <section class="page-section">
+      <div class="section-header">
+        <div>
+          <p class="section-kicker">Special Offers</p>
+          <h2>Featured Promotions</h2>
+        </div>
+      </div>
+      <div class="promotions-grid">
+        <?php foreach ($promotions as $promo): ?>
+          <?php if ($promo['Type'] === 'Class'): ?>
+            <?php 
+              $available = max(0, (int)$promo['ClassCapacity'] - (int)$promo['ClassEnrolledCount']);
+              $image = $promo['ClassImage'] ?: 'https://images.unsplash.com/photo-1518611507436-f9221403cca2?auto=format&fit=crop&w=700&q=80';
+            ?>
+            <article class="promo-card promo-card--class" style="background-image: linear-gradient(to bottom, rgba(42, 27, 21, 0.25) 0%, rgba(42, 27, 21, 0.9) 100%), url('<?= e($image) ?>')">
+              <div class="promo-card-content">
+                <span class="promo-badge promo-badge--class">⭐ Featured Class</span>
+                <h3 class="promo-title"><?= e($promo['PromoTitle']) ?></h3>
+                <p class="promo-desc"><?= e($promo['PromoDescription'] ?: $promo['ClassDescription']) ?></p>
+                <div class="promo-details">
+                  <span class="promo-detail-item"><strong>Class:</strong> <?= e($promo['ClassName']) ?></span>
+                  <span class="promo-detail-item"><strong>Type:</strong> <?= e($promo['ClassType']) ?></span>
+                  <span class="promo-detail-item">📅 <?= e($promo['ClassDay']) ?> @ <?= e($promo['ClassStartTime']) ?>-<?= e($promo['ClassEndTime']) ?></span>
+                  <span class="promo-detail-item">📍 <?= e($promo['ClassRoom']) ?></span>
+                  <span class="promo-detail-item">👥 <?= $available ?>/<?= e($promo['ClassCapacity']) ?> spots</span>
+                  <span class="promo-detail-item">💪 Trainer: <?= e($promo['TrainerName']) ?></span>
+                </div>
+                <a class="book-button promo-btn" href="book-class.php?q=<?= urlencode($promo['ClassName']) ?>">Book Class Now</a>
+              </div>
+            </article>
+          <?php else: ?>
+            <?php 
+              $photo = $promo['TrainerPhoto'] ?: 'https://ui-avatars.com/api/?name=' . urlencode($promo['TrainerName']) . '&background=f18c4f&color=fff';
+              $specs = array_filter(array_map('trim', explode(',', $promo['TrainerSpecializations'] ?? '')));
+              $mainSpec = $specs[0] ?? 'Trainer';
+            ?>
+            <article class="promo-card promo-card--trainer" style="background-image: linear-gradient(to bottom, rgba(42, 27, 21, 0.25) 0%, rgba(42, 27, 21, 0.9) 100%), url('<?= e($photo) ?>')">
+              <div class="promo-card-content">
+                <span class="promo-badge promo-badge--trainer">⭐ Featured Trainer</span>
+                <h3 class="promo-title"><?= e($promo['PromoTitle']) ?></h3>
+                <p class="promo-desc"><?= e($promo['PromoDescription']) ?></p>
+                <div class="promo-details">
+                  <span class="promo-detail-item"><strong>Trainer:</strong> <?= e($promo['TrainerName']) ?></span>
+                  <span class="promo-detail-item"><strong>Focus:</strong> <?= e($mainSpec) ?></span>
+                  <?php if (!empty($specs)): ?>
+                    <span class="promo-detail-item"><strong>Specialties:</strong> <?= implode(', ', array_slice($specs, 0, 3)) ?></span>
+                  <?php endif; ?>
+                </div>
+                <a class="book-button promo-btn" href="trainer-profile.php?id=<?= e($promo['TrainerID']) ?>">View Trainer Profile</a>
+              </div>
+            </article>
+          <?php endif; ?>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php endif; ?>
 
     <section class="page-section">
       <div class="section-header">

@@ -14,6 +14,40 @@ function redirect_to(string $path): never
     exit;
 }
 
+function safe_return_to(string $fallback): string
+{
+    $candidate = $_POST['return_to'] ?? $_GET['return_to'] ?? '';
+
+    if (!is_string($candidate) || trim($candidate) === '') {
+        return $fallback;
+    }
+
+    $candidate = trim($candidate);
+
+    if (str_starts_with($candidate, '//')) {
+        return $fallback;
+    }
+
+    $parts = parse_url($candidate);
+    if ($parts === false || isset($parts['scheme']) || isset($parts['host'])) {
+        return $fallback;
+    }
+
+    $candidatePath = $parts['path'] ?? '';
+    $fallbackPath = parse_url($fallback, PHP_URL_PATH) ?: $fallback;
+
+    if (basename($candidatePath) !== basename($fallbackPath)) {
+        return $fallback;
+    }
+
+    $target = basename($fallbackPath);
+    if (!empty($parts['query'])) {
+        $target .= '?' . $parts['query'];
+    }
+
+    return $target;
+}
+
 function csrf_token(): string
 {
     if (empty($_SESSION['csrf_token'])) {

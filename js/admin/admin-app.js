@@ -7,7 +7,9 @@ var nav = [
   { id: "members",   label: "Members",   iconKey: "Users" },
   { id: "trainers",  label: "Trainers",  iconKey: "Whistle" },
   { id: "classes",   label: "Classes",   iconKey: "Calendar" },
-  { id: "equipment", label: "Equipment", iconKey: "Dumbbell" }
+  { id: "equipment", label: "Equipment", iconKey: "Dumbbell" },
+  { id: "reports",   label: "Reports",   iconKey: "Flag" },
+  { id: "promotions", label: "Promotions", iconKey: "Star" }
 ];
 
 /* ----- Render --------------------------------------------------------- */
@@ -23,6 +25,8 @@ function render() {
     if (item.id === "trainers")  badge = state.users.filter(function (u) { return u.Role === "Trainer"; }).length;
     if (item.id === "classes")   badge = state.classes.length;
     if (item.id === "equipment") badge = state.equipment.length;
+    if (item.id === "reports")   badge = state.reports.filter(function (r) { return r.Status === "Open" || r.Status === "In Progress"; }).length;
+    if (item.id === "promotions") badge = state.promotions.filter(function (p) { return p.IsActive; }).length;
     var badgeHtml = badge !== "" ? '<span class="admin-nav-badge">' + badge + '</span>' : "";
     return ''
       + '<button class="admin-nav-item' + (state.view === item.id ? " is-active" : "") + '" data-action="jump" data-view="' + item.id + '">'
@@ -38,6 +42,8 @@ function render() {
               : state.view === "trainers"  ? viewTrainers()
               : state.view === "classes"   ? viewClasses()
               : state.view === "equipment" ? viewEquipment()
+              : state.view === "reports"   ? viewReports()
+              : state.view === "promotions" ? viewPromotions()
               : "";
 
   root.innerHTML = ''
@@ -110,6 +116,11 @@ function replaceInArray(arr, key, obj) {
 /* ----- Data load ------------------------------------------------------ */
 
 function loadData(done) {
+  var loaded = { main: false, reports: false };
+  function check() {
+    if (loaded.main && loaded.reports) done();
+  }
+
   fetch('api/admin/data.php', { headers: { Accept: 'application/json' } })
     .then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -120,11 +131,30 @@ function loadData(done) {
       state.classes        = data.classes        || [];
       state.equipment      = data.equipment      || [];
       state.trainerProfiles = data.trainerProfiles || {};
-      done();
+      state.promotions     = data.promotions     || [];
+      loaded.main = true;
+      check();
     })
     .catch(function (err) {
       console.error('Failed to load admin data:', err);
-      done();
+      loaded.main = true;
+      check();
+    });
+
+  fetch('api/admin/reports.php', { headers: { Accept: 'application/json' } })
+    .then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (data) {
+      state.reports = data.reports || [];
+      loaded.reports = true;
+      check();
+    })
+    .catch(function (err) {
+      console.error('Failed to load reports:', err);
+      loaded.reports = true;
+      check();
     });
 }
 
@@ -276,6 +306,50 @@ function submitEquipmentForm(form) {
   }
 }
 
+function submitPromotionForm(form) {
+  var d = collectForm(form);
+  var errs = {};
+  if (!d.PromoTitle || !String(d.PromoTitle).trim()) errs.PromoTitle = "Promo Title is required";
+  if (d.Type === "Class" && !d.ClassID) errs.ClassID = "Please select a class";
+  if (d.Type === "Trainer" && !d.TrainerID) errs.TrainerID = "Please select a trainer";
+
+  if (Object.keys(errs).length) {
+    state.modal.errors = errs;
+    state.modal.data = d;
+    render();
+    return;
+  }
+
+  d.IsActive = Number(d.IsActive);
+  if (d.Type === "Class") {
+    d.ClassID = Number(d.ClassID);
+    d.TrainerID = null;
+  } else {
+    d.TrainerID = Number(d.TrainerID);
+    d.ClassID = null;
+  }
+
+  var isNew = state.modal.isNew;
+  if (isNew) {
+    apiCall('POST', 'api/admin/promotions.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error creating promotion', 'error'); return; }
+      state.promotions.push(res.promotion);
+      toast('Created promotion "' + res.promotion.PromoTitle + '"');
+      state.modal = null;
+      render();
+    });
+  } else {
+    d.PromotionID = state.modal.id;
+    apiCall('PATCH', 'api/admin/promotions.php', d, function (res) {
+      if (!res.ok) { toast(res.error || 'Error saving promotion', 'error'); return; }
+      replaceInArray(state.promotions, 'PromotionID', res.promotion);
+      toast('Updated promotion "' + res.promotion.PromoTitle + '"');
+      state.modal = null;
+      render();
+    });
+  }
+}
+
 /* ----- Event delegation ----------------------------------------------- */
 
 function setupEvents() {
@@ -326,10 +400,59 @@ function setupEvents() {
       if (formName === "trainer")   submitTrainerForm(form);
       if (formName === "class")     submitClassForm(form);
       if (formName === "equipment") submitEquipmentForm(form);
+      if (formName === "promotion") submitPromotionForm(form);
       return;
     }
 
     /* ----- Users ----- */
+    if (action === "user-row-click") {
+      if (window.innerWidth <= 820) {
+        var u = findById(state.users, "UserID", Number(id));
+        if (u) {
+          state.modal = { kind: "user-actions", user: u };
+          render();
+        }
+      }
+      return;
+    }
+    if (action === "user-edit-inside-actions") {
+      state.modal = null;
+      render();
+      var u = findById(state.users, "UserID", Number(id));
+      if (u) {
+        state.modal = { kind: "user", isNew: false, id: u.UserID, data: Object.assign({}, u) };
+        render();
+      }
+      return;
+    }
+    if (action === "user-promote-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-promote"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+    if (action === "user-deactivate-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-deactivate"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+    if (action === "user-activate-inside-actions") {
+      state.modal = null;
+      render();
+      setTimeout(function() {
+        var btn = document.querySelector('[data-action="user-activate"][data-id="' + id + '"]');
+        if (btn) btn.click();
+      }, 50);
+      return;
+    }
+
     if (action === "user-new") {
       state.modal = { kind: "user", isNew: true, role: target.getAttribute("data-role") || "Member" };
       render();
@@ -498,6 +621,54 @@ function setupEvents() {
       return;
     }
 
+    /* ----- Promotions ----- */
+    if (action === "promotion-new") {
+      state.modal = { kind: "promotion", isNew: true };
+      render();
+      return;
+    }
+    if (action === "promotion-edit") {
+      var p = findById(state.promotions, "PromotionID", Number(id));
+      if (p) {
+        state.modal = { kind: "promotion", isNew: false, id: p.PromotionID, data: Object.assign({}, p) };
+        render();
+      }
+      return;
+    }
+    if (action === "promotion-toggle") {
+      var pt = findById(state.promotions, "PromotionID", Number(id));
+      if (!pt) return;
+      var payload = Object.assign({}, pt, { IsActive: pt.IsActive ? 0 : 1 });
+      apiCall('PATCH', 'api/admin/promotions.php', payload, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        replaceInArray(state.promotions, 'PromotionID', res.promotion);
+        var label = res.promotion.IsActive ? 'activated' : 'paused';
+        toast('Promotion "' + res.promotion.PromoTitle + '" ' + label);
+        render();
+      });
+      return;
+    }
+    if (action === "promotion-delete") {
+      var pd = findById(state.promotions, "PromotionID", Number(id));
+      if (!pd) return;
+      state.confirm = {
+        title: "Delete promotion?",
+        body: 'Promotion "' + pd.PromoTitle + '" will be permanently deleted from the database.',
+        kind: "danger",
+        confirmLabel: "Delete promotion",
+        onConfirm: function () {
+          apiCall('DELETE', 'api/admin/promotions.php', { PromotionID: pd.PromotionID }, function (res) {
+            if (!res.ok) { toast(res.error || 'Error', 'error'); render(); return; }
+            state.promotions = state.promotions.filter(function (x) { return x.PromotionID !== pd.PromotionID; });
+            toast('Deleted promotion "' + pd.PromoTitle + '"');
+            render();
+          });
+        }
+      };
+      render();
+      return;
+    }
+
     /* ----- Misc ----- */
     if (action === "refresh") {
       loadData(function () { toast("Refreshed"); render(); });
@@ -505,6 +676,60 @@ function setupEvents() {
     }
     if (action === "export-csv") {
       toast("CSV export queued");
+      return;
+    }
+
+    /* ----- Reports ----- */
+    if (action === "report-toggle") {
+      var reportId = Number(id);
+      state.reportDetail = (state.reportDetail === reportId) ? null : reportId;
+      render();
+      if (state.reportDetail) {
+        setTimeout(function () {
+          var el = document.getElementById('report-detail-' + reportId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
+      return;
+    }
+    if (action === "report-respond") {
+      var respForm = root.querySelector('form[data-form="report-respond-' + id + '"]');
+      if (!respForm) return;
+      var fd = collectForm(respForm);
+      var msg = (fd.Message || '').trim();
+      if (!msg) { toast('Please enter a message', 'error'); return; }
+      apiCall('POST', 'api/admin/reports.php', {
+        action: 'respond',
+        ReportID: Number(id),
+        Message: msg
+      }, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        var rpt = findById(state.reports, 'ReportID', Number(id));
+        if (rpt) {
+          rpt.Responses = rpt.Responses || [];
+          rpt.Responses.push(res.response);
+          rpt.UpdatedAt = res.response.CreatedAt;
+        }
+        toast('Response sent');
+        render();
+      });
+      return;
+    }
+    if (action === "report-status") {
+      var newSt = target.getAttribute('data-status');
+      apiCall('POST', 'api/admin/reports.php', {
+        action: 'update_status',
+        ReportID: Number(id),
+        Status: newSt
+      }, function (res) {
+        if (!res.ok) { toast(res.error || 'Error', 'error'); return; }
+        var rpt = findById(state.reports, 'ReportID', Number(id));
+        if (rpt) {
+          rpt.Status = res.Status;
+        }
+        toast('Status updated to ' + res.Status);
+        render();
+      });
       return;
     }
   });
@@ -534,6 +759,21 @@ function setupEvents() {
     var el = ev.target;
     var action = el.getAttribute && el.getAttribute("data-action");
     var bind = el.getAttribute && el.getAttribute("data-bind");
+
+    if (el.name === "Type" && el.closest('form[data-form="promotion"]')) {
+      var form = el.closest('form');
+      var type = el.value;
+      var classField = form.querySelector('.field-class-select');
+      var trainerField = form.querySelector('.field-trainer-select');
+      if (type === "Class") {
+        classField.style.display = "block";
+        trainerField.style.display = "none";
+      } else {
+        classField.style.display = "none";
+        trainerField.style.display = "block";
+      }
+      return;
+    }
 
     if (action === "equipment-status") {
       var eqId = Number(el.getAttribute("data-id"));

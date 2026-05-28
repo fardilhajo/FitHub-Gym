@@ -48,6 +48,7 @@ if ($loggedIn) {
     <div class="nav-actions">
       <?php if ($loggedIn && $role === 'Trainer'): ?>
         <a href="trainer-analytics.php" class="btn-analytics">My Analytics</a>
+        <a href="trainer-roster.php" class="btn-analytics">My Roster</a>
         <a href="trainer-nutrition.php" class="btn-analytics">Nutrition Plans</a>
       <?php elseif ($loggedIn && $role === 'Member'): ?>
         <?php if ($navHasBasic): ?>
@@ -63,6 +64,7 @@ if ($loggedIn) {
         <?php if (!$navHasBasic): ?>
           <a href="membership-plans.php" class="btn-analytics">Choose Plan</a>
         <?php endif; ?>
+        <a href="reports.php" class="btn-analytics">Reports</a>
       <?php endif; ?>
       <?php if ($loggedIn): ?>
         <div class="nav-bell-wrapper" id="nav-bell-wrapper">

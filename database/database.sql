@@ -1,5 +1,8 @@
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS REPORT_RESPONSE;
+DROP TABLE IF EXISTS FEATURED_PROMOTION;
+DROP TABLE IF EXISTS REPORT;
 DROP TABLE IF EXISTS NOTIFICATION;
 DROP TABLE IF EXISTS EQUIPMENT_RESERVATION;
 DROP TABLE IF EXISTS CLASS_WAITLIST;
@@ -34,7 +37,7 @@ CREATE TABLE USER (
 CREATE TABLE NOTIFICATION (
     NotificationID INTEGER PRIMARY KEY AUTOINCREMENT,
     UserID INTEGER NOT NULL,
-    Type TEXT NOT NULL CHECK (Type IN ('booking_confirmed', 'booking_cancelled', 'class_reminder', 'membership_renewal', 'general')),
+    Type TEXT NOT NULL CHECK (Type IN ('booking_confirmed', 'booking_cancelled', 'class_reminder', 'membership_renewal', 'general', 'report_update')),
     Title TEXT NOT NULL,
     Message TEXT NOT NULL,
     IsRead INTEGER NOT NULL DEFAULT 0,
@@ -411,3 +414,68 @@ INSERT INTO MEMBER_MEMBERSHIP (MemberID, PlanID, Status) VALUES
 (34, 1, 'Active'),
 (35, 2, 'Active'),
 (36, 3, 'Active');
+
+CREATE TABLE REPORT (
+    ReportID     INTEGER PRIMARY KEY AUTOINCREMENT,
+    MemberID     INTEGER NOT NULL,
+    Category     TEXT NOT NULL CHECK (Category IN ('Equipment', 'Class', 'Billing', 'Staff', 'Other')),
+    Subject      TEXT NOT NULL,
+    Description  TEXT NOT NULL,
+    Status       TEXT NOT NULL CHECK (Status IN ('Open', 'In Progress', 'Resolved', 'Closed')) DEFAULT 'Open',
+    Priority     TEXT NOT NULL CHECK (Priority IN ('Low', 'Medium', 'High')) DEFAULT 'Medium',
+    EquipmentID  INTEGER,
+    ClassID      INTEGER,
+    CreatedAt    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (MemberID)    REFERENCES USER(UserID)           ON DELETE CASCADE,
+    FOREIGN KEY (EquipmentID) REFERENCES EQUIPMENT(EquipmentID) ON DELETE SET NULL,
+    FOREIGN KEY (ClassID)     REFERENCES FITNESS_CLASS(ClassID)  ON DELETE SET NULL
+);
+
+CREATE TABLE REPORT_RESPONSE (
+    ResponseID  INTEGER PRIMARY KEY AUTOINCREMENT,
+    ReportID    INTEGER NOT NULL,
+    UserID      INTEGER NOT NULL,
+    Message     TEXT NOT NULL,
+    CreatedAt   TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ReportID) REFERENCES REPORT(ReportID) ON DELETE CASCADE,
+    FOREIGN KEY (UserID)   REFERENCES USER(UserID)     ON DELETE CASCADE
+);
+
+CREATE INDEX idx_report_member ON REPORT (MemberID, Status);
+CREATE INDEX idx_report_status ON REPORT (Status, CreatedAt);
+
+INSERT INTO REPORT (ReportID, MemberID, Category, Subject, Description, Status, Priority, EquipmentID, ClassID) VALUES
+(1, 7,  'Equipment', 'Cable Machine stuck on heavy weight', 'The Cable Machine 01 in the Strength Zone is stuck and won''t adjust. Tried resetting but the pin is jammed.', 'Open', 'High', 9, NULL),
+(2, 8,  'Class',     'Pilates class cancelled without notice', 'Tuesday''s Pilates Core Strength was cancelled with no notification. I showed up and the room was empty.', 'In Progress', 'Medium', NULL, 3),
+(3, 10, 'Billing',   'Double charge on membership renewal', 'I was charged twice for my Basic membership this month. Transaction refs: TXN-4821 and TXN-4822.', 'Resolved', 'High', NULL, NULL),
+(4, 12, 'Staff',     'Trainer was 15 minutes late', 'Ricardo was 15 minutes late to the HIIT Intenso class on Monday. No explanation given.', 'Open', 'Low', NULL, 2),
+(5, 9,  'Other',     'Locker room needs better ventilation', 'The men''s locker room on the ground floor has poor air circulation. It gets very stuffy after peak hours.', 'Open', 'Medium', NULL, NULL);
+
+INSERT INTO REPORT_RESPONSE (ReportID, UserID, Message) VALUES
+(1, 1, 'Thanks for reporting this. We''ve flagged the Cable Machine for maintenance. A technician will inspect it tomorrow morning.'),
+(2, 1, 'We apologise for the inconvenience. The cancellation was due to the trainer''s emergency. We''re working on improving our notification system.'),
+(2, 8, 'Thank you for the update. Will there be a make-up class?'),
+(3, 1, 'We''ve confirmed the duplicate charge and issued a refund of €19.99 to your card. It should appear within 3–5 business days.'),
+(3, 10, 'Received the refund. Thank you for the quick resolution!');
+
+CREATE TABLE FEATURED_PROMOTION (
+    PromotionID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Type TEXT NOT NULL CHECK (Type IN ('Class', 'Trainer')),
+    ClassID INTEGER,
+    TrainerID INTEGER,
+    PromoTitle TEXT NOT NULL,
+    PromoDescription TEXT,
+    IsActive INTEGER NOT NULL DEFAULT 1,
+    CreatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ClassID) REFERENCES FITNESS_CLASS(ClassID) ON DELETE CASCADE,
+    FOREIGN KEY (TrainerID) REFERENCES USER(UserID) ON DELETE CASCADE,
+    CHECK (
+        (Type = 'Class' AND ClassID IS NOT NULL AND TrainerID IS NULL) OR
+        (Type = 'Trainer' AND TrainerID IS NOT NULL AND ClassID IS NULL)
+    )
+);
+
+INSERT INTO FEATURED_PROMOTION (PromotionID, Type, ClassID, TrainerID, PromoTitle, PromoDescription, IsActive) VALUES
+(1, 'Class', 1, NULL, 'Morning Yoga Reset', 'Wake up your body and focus your mind with Ana. Perfect for beginners and advanced yogis.', 1),
+(2, 'Trainer', NULL, 4, 'HIIT & Strength Masterclass', 'Get personalized training programs and high intensity sessions with Coach Ricardo.', 1);

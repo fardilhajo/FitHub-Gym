@@ -29,6 +29,11 @@ function get_class_for_booking(PDO $db, int $classId): ?array
     return $class ?: null;
 }
 
+$returnTo = 'book-class.php';
+if (!empty($_SERVER['QUERY_STRING'])) {
+    $returnTo .= '?' . $_SERVER['QUERY_STRING'];
+}
+
 function promote_next_waitlisted_member(PDO $db, array $class): ?array
 {
     $countStmt = $db->prepare('SELECT COUNT(*) FROM CLASS_ENROLLMENT WHERE ClassID = :class_id AND Status = "Enrolled"');
@@ -84,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user['Role'] !== 'Member') {
         $_SESSION['flash'] = 'Only members can book classes or join waitlists.';
-        redirect_to('book-class.php');
+        redirect_to(safe_return_to('book-class.php'));
     }
 
     $classId = (int)($_POST['class_id'] ?? 0);
@@ -93,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$class) {
         $_SESSION['flash'] = 'Class not found.';
-        redirect_to('book-class.php');
+        redirect_to(safe_return_to('book-class.php'));
     }
 
     if (in_array($action, ['enroll', 'join_waitlist'], true)) {
@@ -105,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!membership_plan_allows($activeMembershipPlan, $requiredTier)) {
             $_SESSION['flash'] = membership_upgrade_message($requiredTier, $class['Name']);
-            redirect_to('book-class.php');
+            redirect_to(safe_return_to('book-class.php'));
         }
     }
 
@@ -254,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    redirect_to('book-class.php');
+    redirect_to(safe_return_to('book-class.php'));
 }
 
 $q = trim($_GET['q'] ?? '');
@@ -393,7 +398,8 @@ if ($user) {
           <?php endforeach; ?>
         </select>
 
-        <a class="btn-clear" href="book-class.php">Clear</a>
+        <button type="submit" class="btn-clear">Apply</button>
+        <a class="btn-clear" href="book-class.php" data-ajax-link>Clear</a>
       </form>
     </section>
 
@@ -450,6 +456,7 @@ if ($user) {
                 <?php elseif ($isEnrolled): ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
                     <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
                     <input type="hidden" name="action" value="cancel">
                     <button class="btn-book btn-book--cancel" type="submit">Cancel</button>
@@ -457,6 +464,7 @@ if ($user) {
                 <?php elseif ($isWaitlisted): ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
                     <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
                     <input type="hidden" name="action" value="leave_waitlist">
                     <button class="btn-book btn-book--waitlist-cancel" type="submit">Leave waitlist</button>
@@ -466,6 +474,7 @@ if ($user) {
                 <?php else: ?>
                   <form method="post" action="book-class.php" class="inline-form">
                     <?= csrf_input() ?>
+                    <input type="hidden" name="return_to" value="<?= e($returnTo) ?>">
                     <input type="hidden" name="class_id" value="<?= e($class['ClassID']) ?>">
                     <input type="hidden" name="action" value="<?= $isFull ? 'join_waitlist' : 'enroll' ?>">
                     <button class="btn-book <?= $isFull ? 'btn-book--waitlist' : '' ?>" type="submit"><?= $isFull ? 'Join waitlist' : 'Book Now' ?></button>
@@ -486,26 +495,6 @@ if ($user) {
     </div>
   </footer>
   <script src="js/navbar.js"></script>
-  <script>
-    (function () {
-      const form = document.querySelector('.filter-controls');
-      if (!form) return;
-
-      const selects = form.querySelectorAll('select');
-      const textInput = form.querySelector('input[name="q"]');
-      let debounceTimer;
-
-      selects.forEach(function (sel) {
-        sel.addEventListener('change', function () { form.submit(); });
-      });
-
-      if (textInput) {
-        textInput.addEventListener('input', function () {
-          clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(function () { form.submit(); }, 400);
-        });
-      }
-    })();
-  </script>
+  <script src="js/interactive-forms.js"></script>
 </body>
 </html>
