@@ -64,9 +64,22 @@ function csrf_input(): string
 function verify_csrf(): void
 {
     $token = $_POST['csrf_token'] ?? '';
+
+    if ($token === '' && isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'];
+    }
+
+    if ($token === '') {
+        $json = json_decode(file_get_contents('php://input'), true);
+        if (is_array($json) && isset($json['csrf_token'])) {
+            $token = $json['csrf_token'];
+        }
+    }
+
     if (!is_string($token) || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
         http_response_code(403);
-        echo 'Invalid request token.';
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Invalid CSRF token. Request blocked.']);
         exit;
     }
 }

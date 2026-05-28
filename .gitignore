@@ -1,3 +1,4 @@
 .vscode/
 uploads/photos/*
 !uploads/photos/.gitkeep
+scratch/

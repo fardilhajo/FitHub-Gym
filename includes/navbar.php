@@ -28,7 +28,7 @@ if ($loggedIn) {
 }
 ?>
 
-<nav class="navbar" id="main-navbar">
+<nav class="navbar" id="main-navbar" data-csrf-token="<?= csrf_token() ?>">
   <a href="index.php" class="nav-logo">FitHub Gym</a>
 
   <button class="nav-toggle" id="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">

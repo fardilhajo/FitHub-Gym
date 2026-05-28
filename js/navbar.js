@@ -27,9 +27,13 @@
 
     if (readAllBtn) {
       readAllBtn.addEventListener('click', async function () {
+        const csrfToken = document.getElementById('main-navbar')?.getAttribute('data-csrf-token') || '';
         await fetch('api/notifications.php', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: { 
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': csrfToken
+          },
           body: 'action=read_all'
         });
         hideBadge();
@@ -82,9 +86,13 @@
       li.addEventListener('click', async function () {
         if (li.classList.contains('notif-item--unread')) {
           li.classList.remove('notif-item--unread');
+          const csrfToken = document.getElementById('main-navbar')?.getAttribute('data-csrf-token') || '';
           await fetch('api/notifications.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            headers: { 
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRF-Token': csrfToken
+            },
             body: 'action=read&id=' + encodeURIComponent(n.NotificationID)
           });
           const remaining = notifList.querySelectorAll('.notif-item--unread').length;

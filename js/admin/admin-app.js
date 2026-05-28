@@ -94,9 +94,18 @@ function toast(text, kind) {
 /* ----- API helpers ---------------------------------------------------- */
 
 function apiCall(method, url, data, done) {
+  var csrfToken = '';
+  var navbar = document.getElementById('main-navbar');
+  if (navbar) {
+    csrfToken = navbar.getAttribute('data-csrf-token') || '';
+  }
   fetch(url, {
     method: method,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: { 
+      'Content-Type': 'application/json', 
+      'Accept': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
     body: JSON.stringify(data)
   })
     .then(function (r) { return r.json(); })

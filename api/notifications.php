@@ -18,6 +18,7 @@ if (!$user) {
 $userId = (int)$user['UserID'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
     $action = $_POST['action'] ?? (json_decode(file_get_contents('php://input'), true)['action'] ?? '');
 
     if ($action === 'read_all') {
