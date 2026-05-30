@@ -28,6 +28,12 @@ if ($loggedIn) {
 }
 ?>
 
+<?php if ($loggedIn): ?>
+  <script>
+    window.CSRF_TOKEN = <?= json_encode(csrf_token()) ?>;
+  </script>
+<?php endif; ?>
+
 <nav class="navbar" id="main-navbar">
   <a href="index.php" class="nav-logo">FitHub Gym</a>
 

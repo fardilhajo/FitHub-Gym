@@ -94,9 +94,13 @@ function toast(text, kind) {
 /* ----- API helpers ---------------------------------------------------- */
 
 function apiCall(method, url, data, done) {
+  var headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  if (window.CSRF_TOKEN) {
+    headers['X-CSRF-Token'] = window.CSRF_TOKEN;
+  }
   fetch(url, {
     method: method,
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers: headers,
     body: JSON.stringify(data)
   })
     .then(function (r) { return r.json(); })

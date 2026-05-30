@@ -12,6 +12,9 @@ if (!$user || $user['Role'] !== 'Admin') {
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
+if ($method !== 'GET') {
+    verify_csrf();
+}
 $body   = json_decode($GLOBALS['MOCK_INPUT'] ?? file_get_contents('php://input'), true) ?? [];
 
 function getPromotionWithDetails(PDO $db, int $id): ?array {

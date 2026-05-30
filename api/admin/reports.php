@@ -13,6 +13,9 @@ if (!$user || $user['Role'] !== 'Admin') {
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
+if ($method !== 'GET') {
+    verify_csrf();
+}
 
 /* ── GET: fetch all reports ────────────────────────────────────────────── */
 if ($method === 'GET') {
