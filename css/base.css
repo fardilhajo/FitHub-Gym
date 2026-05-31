@@ -1,140 +1,24 @@
+/* ── Design tokens ── */
 :root {
-  --bg: #100d06;
-  --surface: rgba(20, 15, 5, 0.88);
-  --surface-strong: rgba(30, 22, 8, 0.95);
-  --surface-border: rgba(255, 255, 255, 0.08);
-  --text: #f5f7fb;
-  --text-soft: #d4ccb5;
-  --text-muted: #a09060;
-  --accent: #a0b44a;
-  --accent-strong: #7a8a3a;
-
-  --container: 76rem;
-
-  --radius-sm: 0.75rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-8: 3rem;
-  --space-10: 4rem;
-  --space-12: 5rem;
-
-  --shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  --orange: #7a8a3a;
+  --orange-dark: #5c6820;
+  --cream: #f5f6ed;
+  --peach: #e5e8cc;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: #ffffff;
+  --text-dark: #1e2210;
+  --text-body: #363e1a;
+  --text-soft: #686e3a;
+  --border: rgba(122, 138, 58, 0.16);
+  --border-strong: rgba(122, 138, 58, 0.32);
+  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
+  --shadow-lg: 0 28px 60px rgba(122, 138, 58, 0.22);
 }
 
+/* ── Base styles ── */
 body {
-  font-family: "Inter", sans-serif;
-  background: #f5f0e8;
-  color: #1c1c1c;
-}
-
-main {
-  display: block;
-}
-
-h1,
-h2,
-h3,
-strong {
-  line-height: 1.15;
-}
-
-h1 {
-  font-size: clamp(2rem, 5vw, 4rem);
-  letter-spacing: -0.04em;
-}
-
-h2 {
-  font-size: clamp(1.4rem, 3.6vw, 2.4rem);
-  letter-spacing: -0.03em;
-}
-
-h3 {
-  font-size: 1.1rem;
-}
-
-p,
-li,
-label,
-input,
-textarea,
-select,
-button {
-  font-size: 0.95rem;
-}
-
-.skip-link {
-  position: absolute;
-  left: -9999px;
-  top: var(--space-4);
-}
-
-.skip-link:focus {
-  left: var(--space-4);
-  z-index: 10;
-  background: var(--accent);
-  color: #04131b;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-sm);
-}
-
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: var(--accent);
-  margin-bottom: var(--space-3);
-}
-
-.lead {
-  color: var(--text-soft);
-  font-size: 1.05rem;
-  max-width: 60ch;
-}
-
-.muted {
-  color: var(--text-muted);
-}
-
-.section {
-  padding: var(--space-12) 0;
-}
-
-.section--tight {
-  padding-top: 0;
-}
-
-.page-shell {
-  padding: var(--space-8) 0 var(--space-12);
-}
-
-.section-heading {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-}
-
-.section-heading--compact {
-  margin-bottom: var(--space-6);
-}
-
-.section-intro {
-  max-width: 55ch;
-  color: var(--text-soft);
-}
-
-@media (min-width: 48rem) {
-  .section-heading {
-    flex-direction: row;
-    align-items: end;
-    justify-content: space-between;
-  }
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
+  color: var(--text-body);
+  min-height: 100vh;
 }

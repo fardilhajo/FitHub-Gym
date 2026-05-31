@@ -28,7 +28,7 @@ body {
   gap: 1.5rem;
 }
 
-/* ── Header ──────────────────────────────────────────────────────────────────── */
+/* ── Header ── */
 
 .eyebrow {
   font-size: 0.8rem;
@@ -64,7 +64,7 @@ body {
   box-shadow: 0 4px 12px rgba(216, 114, 54, 0.06);
 }
 
-/* ── Summary statistics cards ────────────────────────────────────────────────── */
+/* ── Summary statistics cards ── */
 
 .summary-grid {
   display: grid;
@@ -115,7 +115,7 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* ── Toolbar / Filters ───────────────────────────────────────────────────────── */
+/* ── Toolbar / Filters ── */
 
 .toolbar {
   background: var(--surface);
@@ -195,7 +195,7 @@ body {
   font-weight: 600;
 }
 
-/* ── Roster Grid / Cards ──────────────────────────────────────────────────────── */
+/* ── Roster Grid / Cards ── */
 
 .roster-grid {
   display: grid;
@@ -290,7 +290,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-/* ── Content Sections ────────────────────────────────────────────────────────── */
+/* ── Content Sections ── */
 
 .client-body {
   padding: 1.25rem 1.5rem;
@@ -354,7 +354,7 @@ body {
   margin-top: 0.2rem;
 }
 
-/* ── Notes Display / Edit ────────────────────────────────────────────────────── */
+/* ── Notes Display / Edit ── */
 
 .notes-block {
   background: #fffdfb;
@@ -405,7 +405,7 @@ body {
   gap: 0.35rem;
 }
 
-/* ── Custom Notification Form ───────────────────────────────────────────────── */
+/* ── Custom Notification Form ── */
 
 .notification-form-container {
   background: rgba(216, 114, 54, 0.04);
@@ -452,7 +452,7 @@ body {
   border-color: var(--orange);
 }
 
-/* ── Card Footer Actions ──────────────────────────────────────────────────────── */
+/* ── Card Footer Actions ── */
 
 .client-footer {
   padding: 1rem 1.5rem;
@@ -464,7 +464,7 @@ body {
   gap: 0.5rem;
 }
 
-/* ── Buttons ────────────────────────────────────────────────────────────────── */
+/* ── Buttons ── */
 
 .btn-primary {
   height: 2.2rem;
@@ -591,7 +591,7 @@ body {
   color: var(--orange-dark);
 }
 
-/* ── Badges ──────────────────────────────────────────────────────────────────── */
+/* ── Badges ── */
 
 .badge {
   padding: 0.25rem 0.65rem;
@@ -608,7 +608,7 @@ body {
 .badge--status-active { background: #dcfce7; color: #15803d; }
 .badge--status-cancelled { background: #fee2e2; color: #b91c1c; }
 
-/* ── Footer ──────────────────────────────────────────────────────────────────── */
+/* ── Footer ── */
 
 .main-footer {
   margin-top: auto;
@@ -646,7 +646,7 @@ body {
   color: var(--orange);
 }
 
-/* ── Misc / States ───────────────────────────────────────────────────────────── */
+/* ── Misc / States ── */
 
 .empty-state {
   grid-column: 1 / -1;
@@ -684,7 +684,7 @@ body {
   display: none !important;
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────────── */
+/* ── Responsive ── */
 
 @media (max-width: 768px) {
   .roster-grid { grid-template-columns: 1fr; }

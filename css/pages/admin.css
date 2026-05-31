@@ -1,32 +1,4 @@
-/* ==========================================================================
-   ADMIN — FitHub Gym admin console
-   Inherits brand tokens; mirrors page CSS conventions.
-   ========================================================================== */
-
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --border-strong: rgba(122, 138, 58, 0.32);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-  --shadow-lg: 0 28px 60px rgba(122, 138, 58, 0.22);
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
-}
-
-/* ===== Shell =========================================================== */
+/* ── Shell ── */
 
 .admin-shell {
   width: min(1280px, calc(100% - 2rem));
@@ -155,7 +127,7 @@ body {
   margin-bottom: 0.15rem;
 }
 
-/* ===== Main area ======================================================= */
+/* ── Main area ── */
 
 .admin-main { min-width: 0; }
 
@@ -191,7 +163,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* ===== Buttons ========================================================= */
+/* ── Buttons ── */
 
 .btn-primary,
 .btn-secondary,
@@ -280,7 +252,7 @@ body {
 
 .btn-icon svg { width: 1rem; height: 1rem; }
 
-/* ===== Stat cards ====================================================== */
+/* ── Stat cards ── */
 
 .admin-stats {
   display: grid;
@@ -350,7 +322,7 @@ body {
 .stat-card-trend.is-down { color: #a32d2d; background: #fcebeb; }
 .stat-card-trend.is-flat { color: var(--text-soft); background: var(--peach); }
 
-/* ===== Surface card / panel =========================================== */
+/* ── Surface card / panel ── */
 
 .panel {
   background: var(--surface);
@@ -400,7 +372,7 @@ body {
 
 .panel-link:hover { text-decoration: underline; }
 
-/* ===== Toolbar (filters above tables) ================================== */
+/* ── Toolbar (filters above tables) ── */
 
 .toolbar {
   display: flex;
@@ -472,7 +444,7 @@ body {
 
 .toolbar-count strong { color: var(--text-dark); font-weight: 800; }
 
-/* ===== Table ============================================================ */
+/* ── Table ── */
 
 .table-wrap {
   border-radius: 18px;
@@ -547,7 +519,7 @@ body {
 .table-user-meta strong { color: var(--text-dark); font-weight: 700; font-size: 0.92rem; }
 .table-user-meta span { color: var(--text-soft); font-size: 0.8rem; }
 
-/* ===== Badges / pills ================================================== */
+/* ── Badges / pills ── */
 
 .pill {
   display: inline-flex;
@@ -582,7 +554,7 @@ body {
   background: currentColor;
 }
 
-/* ===== Capacity meter =================================================== */
+/* ── Capacity meter ── */
 
 .capacity-cell { display: flex; align-items: center; gap: 0.65rem; }
 .capacity-cell-text { color: var(--text-soft); font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
@@ -604,7 +576,7 @@ body {
 
 .mini-meter span.is-full { background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%); }
 
-/* ===== Modal =========================================================== */
+/* ── Modal ── */
 
 .modal-backdrop {
   position: fixed;
@@ -677,7 +649,7 @@ body {
 .modal-close:hover { background: #f5f6ed; color: var(--text-dark); }
 .modal-close svg { width: 1.1rem; height: 1.1rem; }
 
-/* ===== Forms ============================================================ */
+/* ── Forms ── */
 
 .form-grid {
   display: grid;
@@ -732,7 +704,7 @@ body {
 .checkbox-row input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: var(--orange-dark); }
 .checkbox-row label { font-size: 0.9rem; color: var(--text-body); cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 600; }
 
-/* ===== Class card (admin variant) ====================================== */
+/* ── Class card (admin variant) ── */
 
 .class-admin-grid {
   display: grid;
@@ -801,7 +773,7 @@ body {
 .class-admin-actions .btn-icon { flex-shrink: 0; }
 .class-admin-actions .btn-secondary { flex: 1; }
 
-/* ===== Equipment list row (admin) ====================================== */
+/* ── Equipment list row (admin) ── */
 
 .equipment-admin-list {
   display: flex;
@@ -835,7 +807,7 @@ body {
   .equipment-admin-row > :nth-child(4) { grid-area: actions; }
 }
 
-/* ===== Activity feed =================================================== */
+/* ── Activity feed ── */
 
 .activity-list { display: flex; flex-direction: column; gap: 0.65rem; }
 
@@ -870,7 +842,7 @@ body {
 .activity-text strong { color: var(--text-dark); font-weight: 700; }
 .activity-time { color: var(--text-soft); font-size: 0.76rem; margin-top: 0.18rem; font-weight: 600; }
 
-/* ===== Empty state ===================================================== */
+/* ── Empty state ── */
 
 .empty-state {
   text-align: center;
@@ -893,7 +865,7 @@ body {
 .empty-state h3 { color: var(--text-dark); font-weight: 800; font-size: 1.1rem; margin-bottom: 0.3rem; }
 .empty-state p { font-size: 0.9rem; max-width: 30rem; margin: 0 auto; }
 
-/* ===== Toast =========================================================== */
+/* ── Toast ── */
 
 .toast-stack {
   position: fixed;
@@ -927,7 +899,7 @@ body {
   to   { transform: translateY(0); opacity: 1; }
 }
 
-/* ===== Bulk action banner ============================================== */
+/* ── Bulk action banner ── */
 
 .bulk-banner {
   display: flex;
@@ -946,7 +918,7 @@ body {
 
 .bulk-banner-actions { display: flex; gap: 0.4rem; }
 
-/* ===== Two-column page-grid for dashboard ============================== */
+/* ── Two-column page-grid for dashboard ── */
 
 .dashboard-grid {
   display: grid;
@@ -957,7 +929,7 @@ body {
 
 @media (max-width: 980px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-/* ===== Confirm dialog variant ========================================== */
+/* ── Confirm dialog variant ── */
 
 .confirm-icon {
   width: 3rem;
@@ -974,9 +946,9 @@ body {
 .confirm-icon.is-info { background: #e7f1fd; color: #1d4f9a; }
 .confirm-icon svg { width: 1.4rem; height: 1.4rem; }
 
-/* ===== Reports tab ===================================================== */
+/* ── Reports tab ── */
 
-/* Report-specific pills */
+/* ── Report-specific pills ── */
 .pill--report-open     { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
 .pill--report-progress { background: #e3f2fd; color: #1565c0; border-color: #90caf9; }
 .pill--report-resolved { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
@@ -988,7 +960,7 @@ body {
 
 .pill--report-category { background: #ede7f6; color: #4527a0; border-color: #b39ddb; }
 
-/* Report rows */
+/* ── Report rows ── */
 .report-admin-list {
   display: flex;
   flex-direction: column;
@@ -1070,7 +1042,7 @@ body {
   color: var(--orange-dark);
 }
 
-/* Report detail (expanded) */
+/* ── Report detail ── */
 .report-admin-detail {
   padding: 0 1rem 1.2rem 1rem;
   display: flex;
@@ -1135,7 +1107,7 @@ body {
   pointer-events: none;
 }
 
-/* Thread messages */
+/* ── Thread messages ── */
 .report-detail-thread {
   margin-top: 0.25rem;
 }
@@ -1194,7 +1166,7 @@ body {
   margin: 0;
 }
 
-/* Reply form */
+/* ── Reply form ── */
 .report-reply-form {
   display: flex;
   gap: 0.55rem;
@@ -1264,7 +1236,7 @@ body {
   }
 }
 
-/* ===== Action Sheet inside Modal ===== */
+/* ── Action Sheet inside Modal ── */
 .action-sheet {
   display: flex;
   flex-direction: column;

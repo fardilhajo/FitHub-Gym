@@ -1,34 +1,10 @@
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
-}
-
 .content {
-  width: min(1200px, calc(100% - 2rem));
-  margin: 0 auto;
-  padding: 2rem 0 3rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* ── Header ──────────────────────────────────────────────────────────────────── */
+/* ── Header ── */
 
 .page-header h1 {
   font-size: clamp(2rem, 5vw, 3rem);
@@ -43,17 +19,8 @@ body {
   margin-bottom: 0;
 }
 
-.page-message {
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: #f5f6ed;
-  color: var(--text-dark);
-  font-weight: 700;
-  text-align: center;
-}
 
-/* ── Stats grid ──────────────────────────────────────────────────────────────── */
+/* ── Stats grid ── */
 
 .stats-grid {
   display: grid;
@@ -89,7 +56,7 @@ body {
   letter-spacing: 0.05em;
 }
 
-/* ── Panel ───────────────────────────────────────────────────────────────────── */
+/* ── Panel ── */
 
 .panel {
   background: var(--surface);
@@ -108,14 +75,14 @@ body {
   margin-bottom: 1.2rem;
 }
 
-/* ── Chart ───────────────────────────────────────────────────────────────────── */
+/* ── Chart ── */
 
 .chart-wrapper {
   height: 240px;
   position: relative;
 }
 
-/* ── Two column layout ───────────────────────────────────────────────────────── */
+/* ── Two column layout ── */
 
 .two-col {
   display: grid;
@@ -123,7 +90,7 @@ body {
   gap: 1.5rem;
 }
 
-/* ── Forms ───────────────────────────────────────────────────────────────────── */
+/* ── Forms ── */
 
 .progress-form {
   display: flex;
@@ -212,7 +179,7 @@ body {
 
 .inline-form { margin: 0; }
 
-/* ── Goals ───────────────────────────────────────────────────────────────────── */
+/* ── Goals ── */
 
 .goals-list {
   display: flex;
@@ -330,7 +297,7 @@ body {
   outline: none;
 }
 
-/* ── Workout log table ───────────────────────────────────────────────────────── */
+/* ── Workout log table ── */
 
 .log-table-wrapper {
   overflow-x: auto;
@@ -388,7 +355,7 @@ body {
   padding: 2rem 0;
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────────── */
+/* ── Responsive ── */
 
 @media (max-width: 900px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
