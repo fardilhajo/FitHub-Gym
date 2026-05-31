@@ -1,21 +1,4 @@
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-}
-
 body {
-  font-family: "Inter", sans-serif;
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -153,14 +136,4 @@ input::placeholder {
   text-align: center;
 }
 
-.form-message--error {
-  background: #fcebeb;
-  color: #791f1f;
-  border: 1px solid #f7c1c1;
-}
 
-.form-message--success {
-  background: #e1f5ee;
-  color: #085041;
-  border: 1px solid #9fe1cb;
-}

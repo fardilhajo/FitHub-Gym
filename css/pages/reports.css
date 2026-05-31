@@ -1,37 +1,15 @@
-/* ==========================================================================
-   reports.css — Member-facing Reports & Feedback page
-   Aligned with FitHub Gym warm visual design system
-   ========================================================================== */
 
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-}
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
-}
 
-/* ── Page layout ────────────────────────────────────────────────────────── */
+
+/* ── Page layout ── */
 .reports-page {
   max-width: 960px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
 }
 
-/* ── Hero ────────────────────────────────────────────────────────────────── */
+/* ── Hero ── */
 .reports-hero {
   background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
   border-radius: 24px;
@@ -83,7 +61,7 @@ body {
   max-width: 520px;
 }
 
-/* ── Alerts ──────────────────────────────────────────────────────────────── */
+/* ── Alerts ── */
 .reports-alert {
   display: flex;
   align-items: center;
@@ -117,14 +95,14 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Layout ──────────────────────────────────────────────────────────────── */
+/* ── Layout ── */
 .reports-layout {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
 }
 
-/* ── Section ─────────────────────────────────────────────────────────────── */
+/* ── Section ── */
 .reports-section {
   background: var(--surface);
   backdrop-filter: blur(8px);
@@ -149,7 +127,7 @@ body {
   margin: 0;
 }
 
-/* ── Form ────────────────────────────────────────────────────────────────── */
+/* ── Form ── */
 .report-form {
   padding: 0.75rem 2rem 2rem;
   display: flex;
@@ -246,7 +224,7 @@ body {
   height: 18px;
 }
 
-/* ── Empty state ─────────────────────────────────────────────────────────── */
+/* ── Empty state ── */
 .reports-empty {
   padding: 3.5rem 2rem;
   text-align: center;
@@ -269,7 +247,7 @@ body {
   margin: 0;
 }
 
-/* ── Report cards ────────────────────────────────────────────────────────── */
+/* ── Report cards ── */
 .reports-list {
   display: flex;
   flex-direction: column;
@@ -317,18 +295,18 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* Status badges */
+/* ── Status badges ── */
 .badge--open          { background: #fff3e0; color: #e65100; }
 .badge--in-progress   { background: #e3f2fd; color: #1565c0; }
 .badge--resolved      { background: #e8f5e9; color: #2e7d32; }
 .badge--closed        { background: #f0f0f0; color: #616161; }
 
-/* Priority badges */
+/* ── Priority badges ── */
 .badge--priority-low    { background: #f0f4f8; color: #546e7a; }
 .badge--priority-medium { background: #fff8e1; color: #f57f17; }
 .badge--priority-high   { background: #fce4ec; color: #c62828; }
 
-/* Category badge */
+/* ── Category badge ── */
 .badge--category {
   background: var(--peach);
   color: var(--orange-dark);
@@ -379,7 +357,7 @@ body {
   color: var(--orange-dark);
 }
 
-/* ── Card body (hidden by default) ───────────────────────────────────────── */
+/* ── Card body (hidden by default) ── */
 .report-card-body {
   max-height: 0;
   overflow: hidden;
@@ -404,7 +382,7 @@ body {
   margin: 0;
 }
 
-/* ── Conversation Thread ─────────────────────────────────────────────────── */
+/* ── Conversation Thread ── */
 .report-thread {
   margin-bottom: 1.5rem;
 }
@@ -474,7 +452,7 @@ body {
   margin: 0;
 }
 
-/* ── Reply form ──────────────────────────────────────────────────────────── */
+/* ── Reply form ── */
 .reply-form {
   display: flex;
   gap: 0.75rem;
@@ -529,7 +507,7 @@ body {
   margin: 0;
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
+/* ── Responsive ── */
 @media (max-width: 640px) {
   .reports-page { padding: 1.5rem 1rem; }
   .reports-hero { padding: 1.75rem 1.5rem 1.5rem; border-radius: 16px; }

@@ -1,50 +1,4 @@
-/* ==========================================================================
-   Reset and theme
-   ========================================================================== */
-
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-}
-
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --bg: #e5e8cc;
-  --bg-gradient: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-  --font-sans: "Inter", sans-serif;
-  --font-serif: "Crimson Pro", serif;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
-  padding: 0;
-  margin: 0;
-}
-
-
-/* ==========================================================================
-   Main layout
-   ========================================================================== */
+/* ── Main Layout ── */
 
 .perfil-container {
   width: min(1200px, calc(100% - 2rem));
@@ -104,16 +58,12 @@ body {
 .nome-treinador {
   margin-top: 20px;
   margin-bottom: 15px;
-  font-family: var(--font-serif);
-  font-size: 4.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -1px;
-  color: var(--text-dark);
+  font-family: 'Crimson Pro', serif;
   font-size: clamp(2rem, 5vw, 4.2rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.04em;
+  color: var(--text-dark);
 }
 
 .slogan-treinador {
@@ -137,14 +87,14 @@ body {
 .cartao-especialidade h3,
 .info-certificado h3 {
   color: var(--text-dark);
-  font-family: var(--font-sans);
+  font-family: 'Inter', sans-serif;
   font-weight: 800;
 }
 
 .biografia-treinador h2 {
   margin-bottom: 20px;
   margin-top: 20px;
-  font-family: var(--font-serif);
+  font-family: 'Crimson Pro', serif;
   font-size: 2.2rem;
   font-weight: 600;
   color: var(--text-dark);
@@ -161,9 +111,7 @@ body {
   margin-bottom: 0;
 }
 
-/* ==========================================================================
-   Extra sections
-   ========================================================================== */
+/* ── Extra Sections ── */
 .seccao-especializacoes,
 .seccao-certificados {
   margin-bottom: 1.75rem;
@@ -243,9 +191,7 @@ body {
   color: var(--text-soft);
 }
 
-/* ==========================================================================
-   Footer
-   ========================================================================== */
+/* ── Footer ── */
 .rodape-perfil {
   display: flex;
   justify-content: center;
@@ -277,9 +223,7 @@ body {
   background: #f5f6ed;
 }
 
-/* ==========================================================================
-   Responsive
-   ========================================================================== */
+/* ── Responsive ── */
 
 @media (max-width: 820px) {
   .seccao-introducao {

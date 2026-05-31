@@ -1,25 +1,3 @@
-:root {
-  --orange: #7a8a3a;
-  --orange-dark: #5c6820;
-  --cream: #f5f6ed;
-  --peach: #e5e8cc;
-  --surface: rgba(255, 255, 255, 0.72);
-  --surface-strong: #ffffff;
-  --text-dark: #1e2210;
-  --text-body: #363e1a;
-  --text-soft: #686e3a;
-  --border: rgba(122, 138, 58, 0.16);
-  --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-  --font-sans: "Inter", sans-serif;
-}
-
-body {
-  font-family: var(--font-sans);
-  background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-  color: var(--text-body);
-  min-height: 100vh;
-}
-
 /* ── Layout ── */
 .analytics-container {
   width: min(1100px, calc(100% - 2rem));
@@ -189,7 +167,7 @@ body {
   color: var(--text-dark);
 }
 
-/* Fill bar */
+/* ── Fill bar ── */
 .fill-bar-track {
   height: 6px;
   background: var(--peach);
@@ -211,7 +189,7 @@ body {
   margin-top: -0.2rem;
 }
 
-/* Stars */
+/* ── Stars ── */
 .class-rating-row {
   display: flex;
   align-items: center;
@@ -344,7 +322,7 @@ body {
   color: var(--text-soft);
 }
 
-/* Ring chart */
+/* ── Ring chart ── */
 .engagement-ring-wrap {
   position: relative;
   width: 80px;
@@ -503,7 +481,7 @@ body {
   font-weight: 600;
 }
 
-/* star--half */
+/* ── Star half ── */
 .star--half {
   position: relative;
   color: #d4c4ba;
@@ -518,14 +496,14 @@ body {
   color: var(--orange);
 }
 
-/* cancel rate badge */
+/* ── Cancel rate badge ── */
 .cancel-rate {
   font-size: 0.72rem;
   color: var(--text-soft);
   font-weight: 400;
 }
 
-/* review rating num */
+/* ── Review rating number ── */
 .review-rating-wrap {
   display: flex;
   flex-direction: column;

@@ -1,40 +1,6 @@
-/* ==========================================================================
-VARIÁVEIS E CONFIGURAÇÕES GERAIS
-========================================================================== */
+/* ── Header ── */
 
-:root {
-    --orange: #7a8a3a;
-    --orange-dark: #5c6820;
-    --cream: #f5f6ed;
-    --peach: #e5e8cc;
-    --surface: rgba(255, 255, 255, 0.72);
-    --surface-strong: #ffffff;
-    --text-dark: #1e2210;
-    --text-body: #363e1a;
-    --text-soft: #686e3a;
-    --border: rgba(122, 138, 58, 0.16);
-    --shadow: 0 18px 40px rgba(122, 138, 58, 0.14);
-  }
-  
-  body {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, #f2f4e6 0%, #e5e8cc 100%);
-    color: var(--text-body);
-    min-height: 100vh;
-  }
-
-
-/* ==========================================================================
-LAYOUT E CABEÇALHO
-========================================================================== */
-
-.content {
-    width: min(1200px, calc(100% - 2rem));
-    margin: 0 auto;
-    padding: 2rem 0 3rem;
-  }
-  
-  .page-header h1 {
+.page-header h1 {
     font-size: clamp(2rem, 5vw, 3rem);
     color: var(--text-dark);
     margin-bottom: 1.75rem;
@@ -42,9 +8,8 @@ LAYOUT E CABEÇALHO
     line-height: 1.1;
   }
 
-/* ==========================================================================
-Cards
-========================================================================== */
+/* ── Status cards ── */
+
 .card {
     border-radius: 10px;
     padding: 15px 20px;
@@ -61,7 +26,7 @@ Cards
 .card__label {
     font-size: 13px;
     margin-bottom: 10px;
-    
+
 }
 
 .card__value{
@@ -70,7 +35,6 @@ Cards
 
 }
 
-/* card cinza */
 .card--default {
     background-color: #ffffff;
     border-color: #e0e0e0;
@@ -78,7 +42,6 @@ Cards
 .card--default .card__label { color: #888888; }
 .card--default .card__value { color: #1a1a1a; }
 
-/* card verde */
 .card--green {
     background-color: #e1f5ee;
     border-color: #9fe1cb;
@@ -86,7 +49,6 @@ Cards
 .card--green .card__label { color: #0f6e56; }
 .card--green .card__value { color: #085041; }
 
-/* card vermelha */
 .card--red {
     background-color: #fcebeb;
     border-color: #f7c1c1;
@@ -94,7 +56,6 @@ Cards
 .card--red .card__label { color: #a32d2d; }
 .card--red .card__value { color: #791f1f; }
 
-/* card amarela */
 .card--yellow {
     background-color: #faeeda;
     border-color: #fac775;
@@ -102,7 +63,6 @@ Cards
 .card--yellow .card__label { color: #854f0b; }
 .card--yellow .card__value { color: #633806; }
 
-/* Responsivo */
 @media (max-width: 600px) {
     .cards-container {
         grid-template-columns: repeat(2, 1fr);
@@ -180,9 +140,7 @@ Cards
   }
 }
 
-/* ========================================================================== 
-Equipment reservations
-========================================================================== */
+/* ── Reservations ── */
 
 .page-message {
   margin-top: 1.25rem;
@@ -337,6 +295,8 @@ Equipment reservations
   font-size: 0.82rem;
   font-weight: 700;
 }
+
+/* ── Responsive ── */
 
 @media (max-width: 900px) {
   .reservation-form,
